@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  roles     Role[]
+
+  @@index([email])
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  permissions Permission[]
+  users       User[]
+
+  @@index([id])
+  @@index([name])
+}
+
+model Permission {
+  id        String   @id @default(uuid())
+  action    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  roles     Role[]
+
+  @@index([id])
+  @@index([action])
+}
+
+model Product {
+  id        String     @id @default(uuid())
+  name      String
+  shortName String     @unique
+  customers Customer[]
+
+  @@index([id])
+}
+
+model Contact {
+  id         String   @id @default(uuid())
+  name       String
+  email      String
+  type       String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+
+  @@index([id])
+}
+
+model Customer {
+  id                   String    @id @default(uuid())
+  customId             String
+  name                 String
+  email                String
+  country              String
+  registeredName       String
+  rfc                  String
+  address              String
+  economicActivity     String
+  status               String
+  sellerName           String
+  sellerComments       String
+  comissionTerm        DateTime
+  percentageComissions Int
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  products             Product[]
+  contacts             Contact[]
+
+  @@index([id, email])
+}
+
+model BlockingDevice {
+  customerId              String?
+  deviceId                String    @unique
+  imei                    String?
+  serial                  String?
+  locked                  String?
+  lockType                String?
+  status                  String?
+  isActivated             String?
+  previousStatus          String?
+  previousStatusChangedOn DateTime? @db.Date
+  make                    String?
+  model                   String?
+  type                    String?
+  deleted                 String?
+  activatedDeviceDeleted  String?
+  registeredOn            DateTime? @db.Date
+  enrolledOn              DateTime? @db.Date
+  unregisteredOn          DateTime? @db.Date
+  deletedOn               DateTime? @db.Date
+  activationDate          DateTime? @db.Date
+  billable                String?
+  lastConnectedAt         DateTime? @db.Date
+  nextLockDate            DateTime? @db.Date
+  appVersion              String?
+  customerEmail           String?
+
+  @@index([billable, status, enrolledOn, customerEmail])
+}
+
+model ActivationReport {
+  id                  String @id @default(uuid())
+  customerName        String
+  customerEmail       String
+  billable            Int
+  nonBillable         Int
+  billableWeekly      Int
+  nonBillableWeekly   Int
+  billableBiweekly    Int
+  nonBillableBiweekly Int
+
+  @@index([customerEmail])
+}
