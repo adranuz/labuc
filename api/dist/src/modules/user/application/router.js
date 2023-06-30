@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const user_schema_1 = require("./user.schema");
+exports.default = (cradle) => {
+    const router = (0, express_1.Router)();
+    router.get('/profile', cradle.authMiddleware.authenticate, cradle.userController.getMyProfile);
+    router.get('/users', cradle.userMiddleware.validate(user_schema_1.paginationFilterSchema), cradle.userController.listUsers);
+    router.post('/users', cradle.userMiddleware.validate(user_schema_1.createUserSchema), cradle.userMiddleware.requireEmailDoesNotExist, cradle.userController.createUser);
+    router.get('/users/:id', cradle.userMiddleware.validate(user_schema_1.getUserSchema), cradle.userController.getUser);
+    router.put('/users/:id', cradle.userMiddleware.validate(user_schema_1.updateUserSchema), cradle.userController.updateUser);
+    router.delete('/users/:id', cradle.userMiddleware.validate(user_schema_1.deleteUserSchema), cradle.userController.deleteUser);
+    router.get('/roles', cradle.userMiddleware.validate(user_schema_1.paginationFilterSchema), cradle.userController.listRoles);
+    router.post('/roles', cradle.userMiddleware.validate(user_schema_1.createRoleSchema), cradle.userController.createRole);
+    router.get('/roles/:id', cradle.userMiddleware.validate(user_schema_1.getRoleSchema), cradle.userController.getRole);
+    router.put('/roles/:id', cradle.userMiddleware.validate(user_schema_1.updateRoleSchema), cradle.userController.updateRole);
+    router.delete('/roles/:id', cradle.userMiddleware.validate(user_schema_1.deleteRoleSchema), cradle.userController.deleteRole);
+    router.get('/permissions', cradle.userMiddleware.validate(user_schema_1.paginationFilterSchema), cradle.userController.listPermissions);
+    return router;
+};
