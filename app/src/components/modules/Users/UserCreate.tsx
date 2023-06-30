@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import UserForm from './UserForm'
+import apiUrl from '../../../config/api'
 
 function UserCreate () {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,7 +16,7 @@ function UserCreate () {
   const getRoles = () => {
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/roles')
+    const url = new URL(`${apiUrl}:3000/api/roles`)
 
     fetch(url)
       .then(res => res.json())

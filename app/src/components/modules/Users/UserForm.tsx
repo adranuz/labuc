@@ -8,6 +8,7 @@ import { Box, Button, Card, CardContent, CardActions, Checkbox, FormControl, For
 import { LoadingButton } from '@mui/lab'
 
 import { useCommonStore } from '../../../store/common'
+import apiUrl from '../../../config/api'
 
 const updateUserSchema = object({
   name: string({ required_error: 'Se requiere el nombre' })
@@ -79,7 +80,7 @@ function UserEdit ({ user, roles }: Props) {
   const updateUser = (id, data) => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/users/${id}`)
+    const url = new URL(`${apiUrl}:3000/api/users/${id}`)
 
     fetch(url, {
       method: 'PUT',
@@ -104,7 +105,7 @@ function UserEdit ({ user, roles }: Props) {
   const createUser = (data) => {
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/users')
+    const url = new URL(`${apiUrl}:3000/api/users`)
 
     fetch(url, {
       method: 'POST',

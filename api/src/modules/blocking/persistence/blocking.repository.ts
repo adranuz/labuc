@@ -25,7 +25,10 @@ export default class BlockingRepository implements IBlockingRepository {
     console.log(truncate)
     console.log('pgClient.connect()')
     const pgClient = new Client({
-      connectionString: process.env.DATABASE_URL
+      connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false
+      }
     })
     await pgClient.connect()
 
@@ -52,7 +55,8 @@ export default class BlockingRepository implements IBlockingRepository {
       try {
         console.log('[!] Customer: ' + customerEmail + ' ' + lines.length)
 
-        const query = await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`)
+        await pgClient.query(`SET datestyle = dmy`)
+        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`)
 
         const sqlCopy = `COPY "BlockingDevice" ("customerId","deviceId","imei","serial","locked","lockType","status","isActivated","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","lastConnectedAt","nextLockDate","appVersion") FROM STDIN WITH (FORMAT CSV, NULL 'NA')`
 
@@ -78,7 +82,7 @@ export default class BlockingRepository implements IBlockingRepository {
       // const customerId = foundCustomer?.id || null
     }
 
-    const query = await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`)
+    await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`)
 
     const elapsedTime = this.getTimeElapsedFromDate(startTime)
 

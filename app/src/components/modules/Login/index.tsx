@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom'
 import { Box, Card, CardContent, IconButton, InputAdornment, TextField, Typography } from '@mui/material'
 import { VisibilityOff, Visibility } from '@mui/icons-material'
 
+import apiUrl from '../../../config/api'
+
 const loginSchema = object({
   email: string({ required_error: 'Se requiere la dirección de correo electrónico' })
     .min(1, { message: 'Se requiere la dirección de correo electrónico' })
@@ -35,7 +37,7 @@ function Login () {
 
   const onSubmit: SubmitHandler<LoginInput> = ({email, password}) => {
     setIsLoading(true)
-    fetch('http://localhost:3000/api/login', {
+    fetch(`${apiUrl}/login`, {
       method: 'POST',
       body: JSON.stringify({email, password}),
       headers: {

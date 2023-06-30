@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 
 import ConfirmUserDeletion from './ConfirmUserDeletion'
+import apiUrl from '../../../config/api'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -71,7 +72,7 @@ function UsersTable () {
     
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/users')
+    const url = new URL(`${apiUrl}:3000/api/users`)
 
     const params = {
       perPage: String(perPage),

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import UserForm from './UserForm'
+import apiUrl from '../../../config/api'
 
 function UserEdit () {
   const params = useParams()
@@ -21,7 +22,7 @@ function UserEdit () {
   const getUser = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/users/${id}`)
+    const url = new URL(`${apiUrl}:3000/api/users/${id}`)
 
     fetch(url)
       .then(res => res.json())
@@ -37,7 +38,7 @@ function UserEdit () {
   const getRoles = () => {
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/roles')
+    const url = new URL(`${apiUrl}:3000/api/roles`)
 
     fetch(url)
       .then(res => res.json())

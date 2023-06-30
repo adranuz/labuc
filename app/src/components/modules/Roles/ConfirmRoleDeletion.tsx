@@ -5,6 +5,7 @@ import { LoadingButton } from '@mui/lab'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import { useCommonStore } from '../../../store/common'
+import apiUrl from '../../../config/api'
 
 export default function ConfirmRoleDeletion({id, name, onFinished}) {
   const [open, setOpen] = useState(false)
@@ -26,7 +27,7 @@ export default function ConfirmRoleDeletion({id, name, onFinished}) {
   const deleteRole = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/roles/${id}`)
+    const url = new URL(`${apiUrl}:3000/api/roles/${id}`)
 
     fetch(url, {
         method: 'DELETE'

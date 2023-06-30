@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import CustomerForm from './CustomerForm'
+import apiUrl from '../../../config/api'
 
 function CustomerDetails () {
   const params = useParams()
@@ -19,7 +20,7 @@ function CustomerDetails () {
   const getCustomer = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/customers/${id}`)
+    const url = new URL(`${apiUrl}/customers/${id}`)
 
     fetch(url)
       .then(res => res.json())

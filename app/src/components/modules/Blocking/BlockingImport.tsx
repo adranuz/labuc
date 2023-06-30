@@ -5,6 +5,8 @@ import { MuiFileInput } from 'mui-file-input'
 import { Container, Card, CardContent, CardHeader, CardActions, Switch, FormControlLabel, Grid, FormLabel, FormControl, Alert } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 
+import apiUrl from '../../../config/api'
+
 function BlockingImport () {
   const [files, setFiles] = useState<File | File[]>([])
   const [truncate, setTruncate] = useState(true)
@@ -26,7 +28,7 @@ function BlockingImport () {
   const uploadFiles = (files) => {
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/blocking/import')
+    const url = new URL(`${apiUrl}/blocking/import`)
 
     const data = new FormData()
 

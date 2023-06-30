@@ -5,6 +5,8 @@ import { LoadingButton } from '@mui/lab'
 import BuildIcon from '@mui/icons-material/Build';
 import DownloadIcon from '@mui/icons-material/Download';
 
+import apiUrl from '../../../config/api'
+
 function ActivationReport () {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingBuildReport, setIsLoadingBuildReport] = useState(false)
@@ -19,7 +21,7 @@ function ActivationReport () {
   const getActivationReport = () => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/blocking/report/activation`)
+    const url = new URL(`${apiUrl}/blocking/report/activation`)
 
     fetch(url)
       .then(res => res.json())
@@ -32,7 +34,7 @@ function ActivationReport () {
   const buildReport = () => {
     setIsLoadingBuildReport(true)
 
-    const url = new URL(`http://localhost:3000/api/blocking/report`)
+    const url = new URL(`${apiUrl}/blocking/report`)
 
     fetch(url)
       .then(res => res.json())
@@ -45,7 +47,7 @@ function ActivationReport () {
   const downloadActivationReport = () => {
     setIsLoadingDownloadActivationReport(true)
 
-    const url = new URL(`http://localhost:3000/api/blocking/report/activation/download`)
+    const url = new URL(`${apiUrl}/blocking/report/activation/download`)
 
     let filename = ''
 
@@ -74,7 +76,7 @@ function ActivationReport () {
     setIsLoading(true)
     setSelectedRowIndex(index)
 
-    const url = new URL(`http://localhost:3000/api/blocking/report/customers`)
+    const url = new URL(`${apiUrl}/blocking/report/customers`)
 
     const params = {
       name

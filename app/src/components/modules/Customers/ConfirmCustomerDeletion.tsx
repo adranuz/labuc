@@ -5,6 +5,7 @@ import { LoadingButton } from '@mui/lab'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import { useCommonStore } from '../../../store/common'
+import apiUrl from '../../../config/api'
 
 export default function ConfirmCustomerDeletion({id, name, onFinished}) {
   const [open, setOpen] = useState(false)
@@ -32,7 +33,7 @@ export default function ConfirmCustomerDeletion({id, name, onFinished}) {
   const deleteCustomer = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/customers/${id}`)
+    const url = new URL(`${apiUrl}/customers/${id}`)
 
     fetch(url, {
         method: 'DELETE'

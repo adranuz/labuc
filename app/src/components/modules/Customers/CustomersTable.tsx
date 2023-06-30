@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 
 import ConfirmCustomerDeletion from './ConfirmCustomerDeletion'
+import apiUrl from '../../../config/api'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -71,7 +72,7 @@ function CustomersTable () {
     
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/customers')
+    const url = new URL(`${apiUrl}/customers`)
 
     const params = {
       perPage: String(perPage),

@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 
 import ConfirmRoleDeletion from './ConfirmRoleDeletion'
+import apiUrl from '../../../config/api'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -71,7 +72,7 @@ function RolesTable () {
     
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/roles')
+    const url = new URL(`${apiUrl}:3000/api/roles`)
 
     const params = {
       perPage: String(perPage),

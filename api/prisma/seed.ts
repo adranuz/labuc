@@ -356,7 +356,7 @@ async function main() {
           name: contactData.name,
           email: contactData.email,
           type: contactData.type,
-          customerId: customer.id,
+          customerId: customerCreated.id,
         }
       })
       console.log(`[-] created contact with id: ${contact.id}`)

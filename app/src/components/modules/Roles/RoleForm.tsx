@@ -8,6 +8,7 @@ import { Box, Card, CardContent, CardActions, Checkbox, FormControl, FormControl
 import { LoadingButton } from '@mui/lab'
 
 import { useCommonStore } from '../../../store/common'
+import apiUrl from '../../../config/api'
 
 const roleSchema = object({
   name: string({ required_error: 'Se requiere el nombre' })
@@ -61,7 +62,7 @@ function RoleEdit ({ role, permissions }: Props) {
   const updateRole = (id, data) => {
     setIsLoading(true)
 
-    const url = new URL(`http://localhost:3000/api/roles/${id}`)
+    const url = new URL(`${apiUrl}:3000/api/roles/${id}`)
 
     fetch(url, {
       method: 'PUT',
@@ -86,7 +87,7 @@ function RoleEdit ({ role, permissions }: Props) {
   const createRole = (data) => {
     setIsLoading(true)
 
-    const url = new URL('http://localhost:3000/api/roles')
+    const url = new URL(`${apiUrl}:3000/api/roles`)
 
     fetch(url, {
       method: 'POST',
