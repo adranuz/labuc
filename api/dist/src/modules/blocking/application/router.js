@@ -3,8 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const blocking_schema_1 = require("./blocking.schema");
 const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ dest: './tmp/' });
 exports.default = (cradle) => {
     const router = (0, express_1.Router)();
     router.post('/blocking/import', upload.array('files'), cradle.blockingMiddleware.validate(blocking_schema_1.importBlockingSchema), cradle.blockingController.importBlocking);

@@ -7,6 +7,8 @@ const pg_1 = require("pg");
 const prisma_client_1 = __importDefault(require("../../common/persistence/prisma-client"));
 // import pgClient from '../../common/persistence/pg-client'
 const promises_1 = require("node:stream/promises");
+const node_child_process_1 = require("node:child_process");
+const node_util_1 = __importDefault(require("node:util"));
 class BlockingRepository {
     constructor() {
         this.toDate = (datetime) => {
@@ -84,6 +86,15 @@ class BlockingRepository {
             });
         };
     }
+    streamToString(stream, cb) {
+        const chunks = [];
+        stream.on('data', (chunk) => {
+            chunks.push(chunk.toString());
+        });
+        stream.on('end', () => {
+            cb(chunks.join(''));
+        });
+    }
     async importBlocking({ files, truncate }) {
         console.log(truncate);
         console.log('pgClient.connect()');
@@ -96,6 +107,8 @@ class BlockingRepository {
         await pgClient.connect();
         const { Readable } = require('stream');
         const { from: copyFrom } = require('pg-copy-streams');
+        const fs = require('node:fs');
+        const execPromise = node_util_1.default.promisify(node_child_process_1.exec);
         if (truncate === 'true') {
             await pgClient.query(`TRUNCATE "BlockingDevice"`);
             await pgClient.query(`TRUNCATE "ActivationReport"`);
@@ -103,14 +116,23 @@ class BlockingRepository {
         const startTime = new Date();
         console.log(`[!] Start time: ${startTime}`);
         for (const file of files) {
-            const content = file.buffer.toString('utf8').split('\n');
-            const customerEmail = content[1].split(',')[0];
-            const lines = content.slice(4, -1);
-            const data = lines.join('\n');
-            const buffer = Buffer.from(data);
-            const sourceStream = Readable.from(buffer);
+            let customerEmail = '';
             try {
-                console.log('[!] Customer: ' + customerEmail + ' ' + lines.length);
+                const { stdout, stderr } = await execPromise(`head -2 ${file.path} | tail -1 | cut -d',' -f1 | xargs echo -n`);
+                customerEmail = stdout;
+            }
+            catch (error) {
+                console.log(error);
+            }
+            try {
+                const { stdout, stderr } = await execPromise(`tail -n +5 ${file.path} | head -n -1 > ${file.path}_prepared`);
+            }
+            catch (error) {
+                console.log(error);
+            }
+            const sourceStream = fs.createReadStream(`${file.path}_prepared`);
+            try {
+                console.log('[!] Customer: ' + customerEmail);
                 await pgClient.query(`SET datestyle = dmy`);
                 await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`);
                 const sqlCopy = `COPY "BlockingDevice" ("customerId","deviceId","imei","serial","locked","lockType","status","isActivated","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","lastConnectedAt","nextLockDate","appVersion") FROM STDIN WITH (FORMAT CSV, NULL 'NA')`;
@@ -120,20 +142,31 @@ class BlockingRepository {
             }
             finally {
                 // console.log('finally')
+                // try {
+                //   fs.unlinkSync(file.path)
+                //   fs.unlinkSync(`${file.path}_prepared`)
+                // } catch(error) {
+                //   console.error(error)
+                // }
             }
-            // const foundCustomer = await prismaClient.customer.findFirst({
-            //   where: { email: customerEmail },
-            // })
-            // if (!foundCustomer) {
-            //   console.log(`[!] New customer: ${customerEmail}`)
-            // }
-            // console.log('[!] Customer: ' + customerEmail + ' ' + lines.length)
-            // const customerId = foundCustomer?.id || null
+            //   // const foundCustomer = await prismaClient.customer.findFirst({
+            //   //   where: { email: customerEmail },
+            //   // })
+            //   // if (!foundCustomer) {
+            //   //   console.log(`[!] New customer: ${customerEmail}`)
+            //   // }
+            //   // console.log('[!] Customer: ' + customerEmail + ' ' + lines.length)
+            //   // const customerId = foundCustomer?.id || null
         }
-        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`);
         const elapsedTime = this.getTimeElapsedFromDate(startTime);
         const minutes = Math.floor(elapsedTime / 60);
         const seconds = elapsedTime - minutes * 60;
+        console.log(`[!] Execution time: ${minutes} min ${seconds} sec`);
+        return { status: 'ok' };
+        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`);
+        // const elapsedTime = this.getTimeElapsedFromDate(startTime)
+        // const minutes = Math.floor(elapsedTime / 60)
+        // const seconds = elapsedTime - minutes * 60
         console.log(`[!] Execution time: ${minutes} min ${seconds} sec`);
         console.log('pgClient.end()');
         await pgClient.end();
