@@ -75,13 +75,21 @@ class BlockingController {
         };
         this.getCustomerReport = async (req, res) => {
             try {
+                const fs = require('node:fs');
                 const { name } = req.query;
-                const reportBuffer = await this.blockingService.getCustomerReport(name);
+                const filePath = await this.blockingService.getCustomerReport(name);
                 const currentDate = new Date().toISOString().split('T')[0];
-                res.attachment(`Reporte ${name} - ${currentDate}.xlsx`);
+                const fileName = `Reporte ${name} - ${currentDate}.csv`;
                 res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-                res.write(reportBuffer);
-                res.end();
+                res.download(filePath, fileName, (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    fs.unlink(filePath, () => {
+                        console.log(`File ${filePath} was deleted`);
+                    });
+                    // fs.unlinkSync(yourFilePath) // If you don't need callback
+                });
             }
             catch (err) {
                 console.log('Unable to get client report:', err);
