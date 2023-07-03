@@ -90,7 +90,7 @@ model Customer {
 
 model BlockingDevice {
   customerId              String?
-  deviceId                String    @unique
+  deviceId                Int       @unique
   imei                    String?
   serial                  String?
   locked                  String?
@@ -130,4 +130,29 @@ model ActivationReport {
   nonBillableBiweekly Int
 
   @@index([customerEmail])
+}
+
+model BlockingDeviceReport {
+  deviceId                Int       @unique
+  imei                    String?
+  serial                  String?
+  locked                  String?
+  lockType                String?
+  status                  String?
+  previousStatus          String?
+  previousStatusChangedOn DateTime? @db.Date
+  make                    String?
+  model                   String?
+  type                    String?
+  deleted                 String?
+  activatedDeviceDeleted  String?
+  registeredOn            DateTime? @db.Date
+  enrolledOn              DateTime? @db.Date
+  unregisteredOn          DateTime? @db.Date
+  deletedOn               DateTime? @db.Date
+  activationDate          DateTime? @db.Date
+  billable                String?
+  billableText            String?
+
+  @@index([deviceId])
 }

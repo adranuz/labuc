@@ -24,13 +24,13 @@ export default class BlockingRepository implements IBlockingRepository {
   }
 
   streamToString(stream: any, cb: any) {
-    const chunks: any = [];
+    const chunks: any = []
     stream.on('data', (chunk: any) => {
-      chunks.push(chunk.toString());
-    });
+      chunks.push(chunk.toString())
+    })
     stream.on('end', () => {
-      cb(chunks.join(''));
-    });
+      cb(chunks.join(''))
+    })
   }
 
   async importBlocking({ files, truncate }: ImportBlockingDTO): Promise<ImportBlockingResponseDTO> {
@@ -38,13 +38,13 @@ export default class BlockingRepository implements IBlockingRepository {
     console.log('pgClient.connect()')
     const pgClient = new Client({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false
-      }
+      ssl: false
+      // ssl: {
+      //   rejectUnauthorized: false
+      // }
     })
     await pgClient.connect()
 
-    const { Readable } = require('stream')
     const { from: copyFrom } = require('pg-copy-streams')
     const fs = require('node:fs')
     const execPromise = util.promisify(exec)
@@ -91,12 +91,12 @@ export default class BlockingRepository implements IBlockingRepository {
           console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
         } finally {
           // console.log('finally')
-          // try {
-          //   fs.unlinkSync(file.path)
-          //   fs.unlinkSync(`${file.path}_prepared`)
-          // } catch(error) {
-          //   console.error(error)
-          // }
+          try {
+            fs.unlinkSync(file.path)
+            fs.unlinkSync(`${file.path}_prepared`)
+          } catch(error) {
+            console.error(error)
+          }
         }
 
       //   // const foundCustomer = await prismaClient.customer.findFirst({
@@ -389,9 +389,18 @@ export default class BlockingRepository implements IBlockingRepository {
   }
 
   async getCustomerReport(name: string): Promise<any> {
-    const XLSX = require('xlsx')
+    const { to: copyTo } = require('pg-copy-streams')
 
-    const customerReportData = []
+    console.log('pgClient.connect()')
+    const pgClient = new Client({
+      connectionString: process.env.DATABASE_URL,
+      ssl: false
+    })
+    await pgClient.connect()
+
+    const fs = require('node:fs')
+    const crypto = require('node:crypto')
+    const path = require('node:path')
 
     const customer = await prismaClient.customer.findFirst({
       where: {
@@ -399,71 +408,22 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
-    const blockingDevices = await prismaClient.blockingDevice.findMany({
-      where: {
-        customerEmail: customer?.email
-      }
-    })
+    await pgClient.query(`TRUNCATE "BlockingDeviceReport"`)
 
-    for (const blockingDevice of blockingDevices) {
-      const {
-        deviceId,
-        imei,
-        serial,
-        locked,
-        lockType,
-        status,
-        previousStatus,
-        previousStatusChangedOn,
-        make,
-        model,
-        type,
-        deleted,
-        activatedDeviceDeleted,
-        registeredOn,
-        enrolledOn,
-        unregisteredOn,
-        deletedOn,
-        activationDate,
-        billable,
-      } = blockingDevice
+    const queryBillable = `INSERT INTO "BlockingDeviceReport"("deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","billableText") SELECT "deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable",'Facturable' FROM "BlockingDevice" WHERE "customerEmail" = '${customer?.email}' AND (billable = 'True' OR (status = 'Enrolled' AND billable = 'False'))`
+    await pgClient.query(queryBillable)
 
-      const billableText = billable === 'True' || (status === 'Enrolled' && billable === 'False')
-        ? 'Facturable'
-        : 'Sin costo'
+    const queryNonBillable = `INSERT INTO "BlockingDeviceReport"("deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","billableText") SELECT "deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable",'Sin costo' FROM "BlockingDevice" WHERE "customerEmail" = '${customer?.email}' AND (billable IS NULL OR (NOT (billable = 'True' OR (status = 'Enrolled' AND billable = 'False'))))`
+    await pgClient.query(queryNonBillable)
 
-      customerReportData.push(
-        {
-          deviceId,
-          imei,
-          serial,
-          locked,
-          lockType,
-          status,
-          previousStatus,
-          previousStatusChangedOn,
-          make,
-          model,
-          type,
-          deleted,
-          activatedDeviceDeleted,
-          registeredOn,
-          enrolledOn,
-          unregisteredOn,
-          deletedOn,
-          activationDate,
-          billable,
-          billableText
-        }
-      )
-    }
+    const filePath = path.resolve(`./tmp/report-${crypto.randomBytes(4).readUInt32LE(0)}`)
+    const sqlCopy = `COPY (SELECT "deviceId" AS "device_id","imei","serial" AS "serial_no","locked","lockType" AS "lock_type","status" AS "estado","previousStatus" AS "previous_status","previousStatusChangedOn" AS "previous_status_changed_on","make","model","type" AS "tipo","deleted","activatedDeviceDeleted" AS "activated_device_deleted","registeredOn" AS "registered_on","enrolledOn" AS "enrolled_on","unregisteredOn" AS "unregistered_on","deletedOn" AS "deleted_on","activationDate" AS "activation_date","billable","billableText" AS "facturables" FROM "BlockingDeviceReport" ORDER BY "deviceId") TO STDOUT CSV HEADER NULL 'NA'`
 
-    const workSheet = XLSX.utils.json_to_sheet(customerReportData)
-    const workBook = XLSX.utils.book_new()
+    const outStream = pgClient.query(copyTo(sqlCopy))
+    const writeStream = fs.createWriteStream(filePath)
 
-    XLSX.utils.book_append_sheet(workBook, workSheet, 'Reporte')
-    const buffer = XLSX.write(workBook, { type: 'buffer', bookType: 'xlsx' })
+    await pipeline(outStream, writeStream)
 
-    return buffer
+    return filePath
   }
 }

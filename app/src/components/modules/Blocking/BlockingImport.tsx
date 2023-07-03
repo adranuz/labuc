@@ -10,14 +10,17 @@ import apiUrl from '../../../config/api'
 function BlockingImport () {
   const [files, setFiles] = useState<File | File[]>([])
   const [truncate, setTruncate] = useState(true)
+  const [successful, setSuccessful] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleChangeFiles = (newFiles: File | File[]) => {
+    setSuccessful(false)
     setFiles(newFiles)
     console.log(newFiles)
   }
 
   const handleChangeTruncate = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSuccessful(false)
     setTruncate(event.target.checked)
   }
 
@@ -27,6 +30,7 @@ function BlockingImport () {
 
   const uploadFiles = (files) => {
     setIsLoading(true)
+    setSuccessful(false)
 
     const url = new URL(`${apiUrl}/blocking/import`)
 
@@ -44,7 +48,10 @@ function BlockingImport () {
     })
     .then(_ => {})
     .catch(_ => {})
-    .finally(() => setIsLoading(false))
+    .finally(() => {
+      setSuccessful(true)
+      setIsLoading(false)
+    })
   }
 
   return (
@@ -52,6 +59,11 @@ function BlockingImport () {
       <Card variant='outlined'>
         <CardHeader title='Importar datos' />
         <CardContent>
+          {successful && (
+            <Alert severity='success' sx={{marginBottom: 1}}>
+              La importación se ha completado correctamente.
+            </Alert>
+          )}
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
             <MuiFileInput
