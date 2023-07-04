@@ -1,7 +1,7 @@
 import Option from '../../common/types/Option.type';
 import {
   // CreateCustomerDTO,
-  UpdateCustomerDTO, PublicCustomerDTO, PaginationFilterDTO, PublicCustomersDTO} from '../dto/customer.dto';
+  UpdateCustomerDTO, PublicCustomerDTO, PaginationFilterDTO, PublicCustomersDTO, PublicProductsDTO } from '../dto/customer.dto';
 import ICustomerRepository from './ICustomerRepository';
 
 export default class CustomerService {
@@ -25,5 +25,9 @@ export default class CustomerService {
 
   listCustomers(data: PaginationFilterDTO): Promise<Option<PublicCustomersDTO>> {
     return this.customerRepository.listCustomers(data);
+  }
+
+  listProducts(data: PaginationFilterDTO): Promise<Option<PublicProductsDTO>> {
+    return this.customerRepository.listProducts(data);
   }
 }

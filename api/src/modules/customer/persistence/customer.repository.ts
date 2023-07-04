@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client'
 import Option from '../../common/types/Option.type'
 import { 
   // CreateCustomerDTO,
-  UpdateCustomerDTO, PublicCustomerDTO, PaginationFilterDTO, PublicCustomersDTO
+  UpdateCustomerDTO, PublicCustomerDTO, PaginationFilterDTO, PublicCustomersDTO, PublicProductsDTO
  } from '../dto/customer.dto'
 import ICustomerRepository from '../service/ICustomerRepository'
 
@@ -227,6 +227,48 @@ export default class CustomerRepository implements ICustomerRepository {
       page: Number(page),
       perPage: Number(perPage),
       data: customers
+    }
+  }
+
+  async listProducts({perPage = 10, page = 0, q: searchText = ''}: PaginationFilterDTO ): Promise<Option<PublicProductsDTO>> {
+    const where: Prisma.ProductWhereInput = {
+      OR: [
+        {
+          name: {
+            contains: searchText,
+            mode: 'insensitive'
+          }
+        },
+        {
+          shortName: {
+            contains: searchText,
+            mode: 'insensitive'
+          }
+        },
+      ],
+    }
+    
+    const productsQuery = prismaClient.product.findMany({
+      skip: Number(perPage) * Number(page),
+      take: Number(perPage),
+
+      where,
+
+      orderBy: {
+        name: 'asc'
+      },
+    })
+
+    const [products, productsCount] = await prismaClient.$transaction([
+      productsQuery,
+      prismaClient.product.count({ where }),
+    ])
+
+    return {
+      total: productsCount,
+      page: Number(page),
+      perPage: Number(perPage),
+      data: products
     }
   }
 }

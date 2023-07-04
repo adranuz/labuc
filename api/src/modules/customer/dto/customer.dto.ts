@@ -40,3 +40,10 @@ export type PublicCustomersDTO = {
   perPage: number
   data: PublicCustomerDTO[]
 };
+
+export type PublicProductsDTO = {
+  total: number
+  page: number
+  perPage: number
+  data: any[]
+};

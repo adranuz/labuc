@@ -13,7 +13,7 @@ export default (cradle: ICradle) => {
   router.put('/customers/:id', cradle.customerMiddleware.validate(updateCustomerSchema), cradle.customerController.updateCustomer);
   router.delete('/customers/:id', cradle.customerMiddleware.validate(deleteCustomerSchema), cradle.customerController.deleteCustomer);
 
-  // router.get('/products', cradle.customerMiddleware.validate(paginationFilterSchema), cradle.customerController.listProducts);
+  router.get('/products', cradle.customerMiddleware.validate(paginationFilterSchema), cradle.customerController.listProducts);
 
   return router;
 };
