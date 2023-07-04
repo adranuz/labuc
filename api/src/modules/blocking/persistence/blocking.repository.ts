@@ -38,9 +38,6 @@ export default class BlockingRepository implements IBlockingRepository {
     console.log('pgClient.connect()')
     const pgClient = new Client({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false
-      }
     })
     await pgClient.connect()
 
@@ -393,9 +390,6 @@ export default class BlockingRepository implements IBlockingRepository {
     console.log('pgClient.connect()')
     const pgClient = new Client({
       connectionString: process.env.DATABASE_URL,
-      ssl: {
-        rejectUnauthorized: false
-      }
     })
     await pgClient.connect()
 
