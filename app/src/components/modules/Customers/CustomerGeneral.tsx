@@ -1,8 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 
-import { Box, FormControl, Grid, CardActions, InputAdornment, InputLabel, MenuItem, Select, TextField, IconButton, Button } from '@mui/material'
-import { LoadingButton } from '@mui/lab'
-import EditIcon from '@mui/icons-material/Edit'
+import { FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, IconButton } from '@mui/material'
 
 function CustomerGeneral ({customer, readOnly}) {
   const navigate = useNavigate()
@@ -14,26 +12,8 @@ function CustomerGeneral ({customer, readOnly}) {
     })
   }
 
-  const handleSubmit = (event: any) => {
-    event.preventDefault()
-    navigateToCustomers()
-    //navigate(`/admin/customers/${customer.id}`)
-  }
-
-  const navigateToCustomers = () => {
-    if (location.state) {
-      const {perPage, page, q} = location.state
-      navigate({
-        pathname: '/admin/customers',
-        search: `?perPage=${perPage}&page=${page}&q=${q}`,
-      })
-    } else {
-      navigate('/admin/customers')
-    }
-  }
-
   return (
-    <Box component='form' onSubmit={handleSubmit} noValidate>
+    <>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
           <TextField
@@ -42,22 +22,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='ID'
             defaultValue={customer?.customId}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -68,22 +33,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Nombre'
             defaultValue={customer?.name}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -95,22 +45,7 @@ function CustomerGeneral ({customer, readOnly}) {
             label='Correo electrónico'
             type='email'
             defaultValue={customer?.email}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
       </Grid>
@@ -123,22 +58,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='País'
             defaultValue={customer?.country}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -151,22 +71,7 @@ function CustomerGeneral ({customer, readOnly}) {
                 size='small'
                 label='Giro'
                 defaultValue={customer?.economicActivity}
-                inputProps={{ disabled: true }}
-                InputProps={
-                  readOnly && {
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          edge='end'
-                          size='small'
-                          onClick={handleClickEdit}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }
-                }
+                disabled={readOnly}
               />
             ) || (
               <FormControl
@@ -198,22 +103,7 @@ function CustomerGeneral ({customer, readOnly}) {
                 size='small'
                 label='Estatus'
                 defaultValue={customer?.status}
-                inputProps={{ disabled: true }}
-                InputProps={
-                  readOnly && {
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          edge='end'
-                          size='small'
-                          onClick={handleClickEdit}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    )
-                  }
-                }
+                disabled={readOnly}
               />
             ) || (
               <FormControl
@@ -246,22 +136,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='RFC'
             defaultValue={customer?.rfc}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -272,22 +147,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Razón social'
             defaultValue={customer?.registeredName}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -298,22 +158,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Domicilio fiscal'
             defaultValue={customer?.address}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
       </Grid>
@@ -326,22 +171,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Nombre del vendedor'
             defaultValue={customer?.sellerName}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -354,22 +184,7 @@ function CustomerGeneral ({customer, readOnly}) {
             type='date'
             InputLabelProps={{ shrink: true }}
             defaultValue={customer?.comissionTerm?.slice(0, 10)}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
 
@@ -380,20 +195,7 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Porcentaje de comisión'
             type='number'
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              } || {
+            InputProps={{
               inputProps: {
                 disabled: readOnly,
                 step: 1,
@@ -404,7 +206,7 @@ function CustomerGeneral ({customer, readOnly}) {
               )
             }}
             defaultValue={customer?.percentageComissions || 0}
-            inputProps={{ disabled: readOnly }}
+            disabled={readOnly}
           />
         </Grid>
       </Grid>
@@ -417,45 +219,11 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Comentarios del vendedor'
             defaultValue={customer?.sellerComments}
-            inputProps={{ disabled: readOnly }}
-            InputProps={
-              readOnly && {
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      size='small'
-                      onClick={handleClickEdit}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }
-            }
+            disabled={readOnly}
           />
         </Grid>
       </Grid>
-
-      {
-        readOnly || (
-          <CardActions sx={{
-            display: 'flex',
-            justifyContent: 'flex-end'
-          }}>
-            <Button size='small' onClick={navigateToCustomers}>Cancelar</Button>
-            <LoadingButton
-              variant='contained'
-              size='small'
-              disableElevation
-              type='submit'
-            >
-              Guardar
-            </LoadingButton>
-          </CardActions>
-        )
-      }
-    </Box>
+    </>
   )
 }
 

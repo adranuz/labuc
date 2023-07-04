@@ -1,8 +1,4 @@
-import { useEffect, useState } from 'react'
-
 import { Checkbox, FormControl, FormControlLabel, FormLabel, Grid, Radio, RadioGroup } from '@mui/material'
-
-import apiUrl from '../../../config/api'
 
 const devices = [
   { name: 'Android' },
@@ -26,30 +22,10 @@ const skuEnd = [
   { name: 'HBMPRE' },
 ]
 
-function CustomerProducts ({products, readOnly}) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [productsList, setProductsList] = useState<any>({})
-
-  useEffect(() => {
-    getProducts()
-  }, [])
-
-  const getProducts = () => {
-    setIsLoading(true)
-
-    const url = new URL(`${apiUrl}/products`)
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        setProductsList(data)
-      })
-      .finally(() => setIsLoading(false))
-  }
-
+function CustomerProducts ({productsList, products, readOnly}) {
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12} md={3}>
+    <Grid container spacing={1}>
+      <Grid item xs={12} md={6} lg={3}>
         <FormControl variant='standard'>
         <FormLabel>Productos General</FormLabel>
         {
@@ -61,6 +37,7 @@ function CustomerProducts ({products, readOnly}) {
                     size='small'
                     color='secondary'
                     defaultChecked={!!products?.find(product => product.shortName === item.shortName)}
+                    disabled={readOnly}
                   />
                 }
                 label={item.name}
@@ -71,7 +48,7 @@ function CustomerProducts ({products, readOnly}) {
         </FormControl>
       </Grid>
 
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={6} lg={3}>
         <FormControl variant='standard'>
         <FormLabel>Dispositivos</FormLabel>
         {
@@ -83,6 +60,7 @@ function CustomerProducts ({products, readOnly}) {
                     size='small'
                     color='secondary'
                     defaultChecked={false}
+                    disabled={readOnly}
                   />
                 }
                 label={item.name}
@@ -93,7 +71,7 @@ function CustomerProducts ({products, readOnly}) {
         </FormControl>
       </Grid>
 
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={6} lg={3}>
         <FormControl variant='standard'>
         <FormLabel>Dispositivos Start</FormLabel>
         <RadioGroup>
@@ -106,6 +84,7 @@ function CustomerProducts ({products, readOnly}) {
                   <Radio
                     size='small'
                     color='secondary'
+                    disabled={readOnly}
                   />
                 }
                 label={item.name}
@@ -117,7 +96,7 @@ function CustomerProducts ({products, readOnly}) {
         </FormControl>
       </Grid>
 
-      <Grid item xs={12} md={3}>
+      <Grid item xs={12} md={6} lg={3}>
         <FormControl variant='standard'>
         <FormLabel>Dispositivos End</FormLabel>
         <RadioGroup>
@@ -130,6 +109,7 @@ function CustomerProducts ({products, readOnly}) {
                   <Radio
                     size='small'
                     color='secondary'
+                    disabled={readOnly}
                   />
                 }
                 label={item.name}

@@ -203,23 +203,22 @@ function UserEdit ({ user, roles }: Props) {
             />
             <FormHelperText>{!!errors.roles?.message && String(errors.roles.message)}</FormHelperText>
           </FormControl>
-          
-          <CardActions sx={{
-            display: 'flex',
-            justifyContent: 'flex-end'
-          }}>
-            <Button size='small' onClick={() => navigate('/admin/users')}>Cancelar</Button>
-            <LoadingButton
-              loading={isLoading}
-              variant='contained'
-              size='small'
-              disableElevation
-              type='submit'
-            >
-              Guardar
-            </LoadingButton>
-          </CardActions>
         </CardContent>
+        <CardActions sx={{
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
+          <Button size='small' onClick={() => navigate('/admin/users')}>Cancelar</Button>
+          <LoadingButton
+            loading={isLoading}
+            variant='contained'
+            size='small'
+            disableElevation
+            type='submit'
+          >
+            Guardar
+          </LoadingButton>
+        </CardActions>
       </Card>
     </Box>
   )

@@ -11,10 +11,12 @@ function CustomerDetails () {
 
   const [isLoading, setIsLoading] = useState(false)
   const [customer, setCustomer] = useState({})
+  const [productsList, setProductsList] = useState<any>({})
 
   useEffect(() => {
     const { id } = params
     getCustomer({ id })
+    getProducts()
   }, [])
 
   const getCustomer = ({ id }) => {
@@ -26,6 +28,19 @@ function CustomerDetails () {
       .then(res => res.json())
       .then(data => {
         setCustomer(data)
+      })
+      .finally(() => setIsLoading(false))
+  }
+
+  const getProducts = () => {
+    setIsLoading(true)
+
+    const url = new URL(`${apiUrl}/products`)
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setProductsList(data)
       })
       .finally(() => setIsLoading(false))
   }
@@ -44,7 +59,7 @@ function CustomerDetails () {
             <CircularProgress />
           </Box>
         ) || (
-          <CustomerForm customer={customer} readOnly />
+          <CustomerForm customer={customer} productsList={productsList} readOnly />
         )
       }
     </Container>

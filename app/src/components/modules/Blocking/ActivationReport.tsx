@@ -158,7 +158,7 @@ function ActivationReport () {
                 disabled={isLoading || data?.activationReport?.length === 0}
                 loading={isLoadingDownloadActivationReport}
               >
-                Decargar
+                Exportar todo
               </LoadingButton>
             </Box>
           </Toolbar>
@@ -199,7 +199,7 @@ function ActivationReport () {
                           disabled={isLoading}
                           loading={selectedRowIndex === index}
                         >
-                          Reporte
+                          Exportar
                         </LoadingButton>
                       </Stack>
                     </TableCell>

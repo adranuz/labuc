@@ -152,23 +152,22 @@ function RoleEdit ({ role, permissions }: Props) {
             />
             <FormHelperText>{!!errors.permissions?.message && String(errors.permissions.message)}</FormHelperText>
           </FormControl>
-
-          <CardActions sx={{
-            display: 'flex',
-            justifyContent: 'flex-end'
-          }}>
-            <Button size='small' onClick={() => navigate('/admin/roles')}>Cancelar</Button>
-            <LoadingButton
-              loading={isLoading}
-              variant='contained'
-              size='small'
-              disableElevation
-              type='submit'
-            >
-              Guardar
-            </LoadingButton>
-          </CardActions>
         </CardContent>
+        <CardActions sx={{
+          display: 'flex',
+          justifyContent: 'flex-end'
+        }}>
+          <Button size='small' onClick={() => navigate('/admin/roles')}>Cancelar</Button>
+          <LoadingButton
+            loading={isLoading}
+            variant='contained'
+            size='small'
+            disableElevation
+            type='submit'
+          >
+            Guardar
+          </LoadingButton>
+        </CardActions>
       </Card>
     </Box>
   )
