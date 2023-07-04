@@ -1,18 +1,7 @@
-import { useNavigate, useLocation } from 'react-router-dom'
-
-import { FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField, IconButton } from '@mui/material'
+import { FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 
 function CustomerGeneral ({customer, readOnly}) {
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  const handleClickEdit = () => {
-    navigate(`/admin/customers/${customer.id}/edit`, {
-      state: location.state
-    })
-  }
-
-  return (
+   return (
     <>
       <Grid container spacing={3}>
         <Grid item xs={12} md={4}>
