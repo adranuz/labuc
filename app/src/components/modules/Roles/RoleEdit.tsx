@@ -22,7 +22,7 @@ function RoleEdit () {
   const getRole = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/roles/${id}`)
+    const url = new URL(`${apiUrl}/roles/${id}`)
 
     fetch(url)
       .then(res => res.json())
@@ -38,7 +38,7 @@ function RoleEdit () {
   const getPermissions = () => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/permissions`)
+    const url = new URL(`${apiUrl}/permissions`)
 
     fetch(url)
       .then(res => res.json())

@@ -27,7 +27,7 @@ export default function ConfirmUserDeletion({id, name, onFinished}) {
   const deleteUser = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/users/${id}`)
+    const url = new URL(`${apiUrl}/users/${id}`)
 
     fetch(url, {
         method: 'DELETE'

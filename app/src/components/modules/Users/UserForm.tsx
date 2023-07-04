@@ -80,7 +80,7 @@ function UserEdit ({ user, roles }: Props) {
   const updateUser = (id, data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/users/${id}`)
+    const url = new URL(`${apiUrl}/users/${id}`)
 
     fetch(url, {
       method: 'PUT',
@@ -105,7 +105,7 @@ function UserEdit ({ user, roles }: Props) {
   const createUser = (data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/users`)
+    const url = new URL(`${apiUrl}/users`)
 
     fetch(url, {
       method: 'POST',

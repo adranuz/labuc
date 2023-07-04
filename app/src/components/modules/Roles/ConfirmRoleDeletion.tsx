@@ -27,7 +27,7 @@ export default function ConfirmRoleDeletion({id, name, onFinished}) {
   const deleteRole = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/roles/${id}`)
+    const url = new URL(`${apiUrl}/roles/${id}`)
 
     fetch(url, {
         method: 'DELETE'

@@ -16,7 +16,7 @@ function RoleCreate () {
   const getPermissions = () => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/permissions`)
+    const url = new URL(`${apiUrl}/permissions`)
 
     fetch(url)
       .then(res => res.json())

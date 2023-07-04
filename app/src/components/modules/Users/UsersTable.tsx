@@ -72,7 +72,7 @@ function UsersTable () {
     
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/users`)
+    const url = new URL(`${apiUrl}/users`)
 
     const params = {
       perPage: String(perPage),

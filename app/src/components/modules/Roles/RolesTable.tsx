@@ -72,7 +72,7 @@ function RolesTable () {
     
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/roles`)
+    const url = new URL(`${apiUrl}/roles`)
 
     const params = {
       perPage: String(perPage),

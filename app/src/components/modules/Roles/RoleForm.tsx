@@ -62,7 +62,7 @@ function RoleEdit ({ role, permissions }: Props) {
   const updateRole = (id, data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/roles/${id}`)
+    const url = new URL(`${apiUrl}/roles/${id}`)
 
     fetch(url, {
       method: 'PUT',
@@ -87,7 +87,7 @@ function RoleEdit ({ role, permissions }: Props) {
   const createRole = (data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/roles`)
+    const url = new URL(`${apiUrl}/roles`)
 
     fetch(url, {
       method: 'POST',

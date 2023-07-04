@@ -16,7 +16,7 @@ function UserCreate () {
   const getRoles = () => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}:3000/api/roles`)
+    const url = new URL(`${apiUrl}/roles`)
 
     fetch(url)
       .then(res => res.json())
