@@ -11,16 +11,19 @@ function BlockingImport () {
   const [files, setFiles] = useState<File | File[]>([])
   const [truncate, setTruncate] = useState(true)
   const [successful, setSuccessful] = useState(false)
+  const [error, setError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleChangeFiles = (newFiles: File | File[]) => {
     setSuccessful(false)
+    setError(false)
     setFiles(newFiles)
     console.log(newFiles)
   }
 
   const handleChangeTruncate = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSuccessful(false)
+    setError(false)
     setTruncate(event.target.checked)
   }
 
@@ -31,6 +34,7 @@ function BlockingImport () {
   const uploadFiles = (files) => {
     setIsLoading(true)
     setSuccessful(false)
+    setError(false)
 
     const url = new URL(`${apiUrl}/blocking/import`)
 
@@ -46,12 +50,9 @@ function BlockingImport () {
       method: 'POST',
       body: data
     })
-    .then(_ => {})
-    .catch(_ => {})
-    .finally(() => {
-      setSuccessful(true)
-      setIsLoading(false)
-    })
+    .then(_ => setSuccessful(true))
+    .catch(_ => setError(true))
+    .finally(() => setIsLoading(false))
   }
 
   return (
@@ -62,6 +63,11 @@ function BlockingImport () {
           {successful && (
             <Alert severity='success' sx={{marginBottom: 1}}>
               La importación se ha completado correctamente.
+            </Alert>
+          )}
+          {error && (
+            <Alert severity='error' sx={{marginBottom: 1}}>
+              La importación falló. Intentelo nuevamente.
             </Alert>
           )}
           <Grid container spacing={3}>
