@@ -9,6 +9,6 @@ exports.default = (cradle) => {
     router.get('/customers/:id', cradle.customerMiddleware.validate(customer_schema_1.getCustomerSchema), cradle.customerController.getCustomer);
     router.put('/customers/:id', cradle.customerMiddleware.validate(customer_schema_1.updateCustomerSchema), cradle.customerController.updateCustomer);
     router.delete('/customers/:id', cradle.customerMiddleware.validate(customer_schema_1.deleteCustomerSchema), cradle.customerController.deleteCustomer);
-    // router.get('/products', cradle.customerMiddleware.validate(paginationFilterSchema), cradle.customerController.listProducts);
+    router.get('/products', cradle.customerMiddleware.validate(customer_schema_1.paginationFilterSchema), cradle.customerController.listProducts);
     return router;
 };

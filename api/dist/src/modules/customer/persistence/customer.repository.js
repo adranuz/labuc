@@ -197,5 +197,41 @@ class CustomerRepository {
             data: customers
         };
     }
+    async listProducts({ perPage = 10, page = 0, q: searchText = '' }) {
+        const where = {
+            OR: [
+                {
+                    name: {
+                        contains: searchText,
+                        mode: 'insensitive'
+                    }
+                },
+                {
+                    shortName: {
+                        contains: searchText,
+                        mode: 'insensitive'
+                    }
+                },
+            ],
+        };
+        const productsQuery = prisma_client_1.default.product.findMany({
+            skip: Number(perPage) * Number(page),
+            take: Number(perPage),
+            where,
+            orderBy: {
+                name: 'asc'
+            },
+        });
+        const [products, productsCount] = await prisma_client_1.default.$transaction([
+            productsQuery,
+            prisma_client_1.default.product.count({ where }),
+        ]);
+        return {
+            total: productsCount,
+            page: Number(page),
+            perPage: Number(perPage),
+            data: products
+        };
+    }
 }
 exports.default = CustomerRepository;

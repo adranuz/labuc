@@ -81,6 +81,22 @@ class CustomerController {
                 });
             }
         };
+        this.listProducts = async (req, res) => {
+            try {
+                const customers = await this.customerService.listProducts(req.query);
+                res.status(200).json(customers);
+            }
+            catch (err) {
+                console.log('Unable to get products:', err);
+                return res.status(500).json({
+                    error: {
+                        code: 500,
+                        message: 'Server Internal Error',
+                        details: 'Unable to get products',
+                    },
+                });
+            }
+        };
     }
 }
 exports.default = CustomerController;

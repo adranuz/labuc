@@ -19,5 +19,8 @@ class CustomerService {
     listCustomers(data) {
         return this.customerRepository.listCustomers(data);
     }
+    listProducts(data) {
+        return this.customerRepository.listProducts(data);
+    }
 }
 exports.default = CustomerService;
