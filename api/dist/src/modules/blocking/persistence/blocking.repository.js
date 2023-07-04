@@ -100,10 +100,9 @@ class BlockingRepository {
         console.log('pgClient.connect()');
         const pgClient = new pg_1.Client({
             connectionString: process.env.DATABASE_URL,
-            ssl: false
-            // ssl: {
-            //   rejectUnauthorized: false
-            // }
+            ssl: {
+                rejectUnauthorized: false
+            }
         });
         await pgClient.connect();
         const { from: copyFrom } = require('pg-copy-streams');
@@ -332,7 +331,9 @@ class BlockingRepository {
         console.log('pgClient.connect()');
         const pgClient = new pg_1.Client({
             connectionString: process.env.DATABASE_URL,
-            ssl: false
+            ssl: {
+                rejectUnauthorized: false
+            }
         });
         await pgClient.connect();
         const fs = require('node:fs');
