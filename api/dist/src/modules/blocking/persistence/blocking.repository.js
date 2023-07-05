@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const pg_1 = require("pg");
 const prisma_client_1 = __importDefault(require("../../common/persistence/prisma-client"));
-// import pgClient from '../../common/persistence/pg-client'
 const promises_1 = require("node:stream/promises");
 const node_child_process_1 = require("node:child_process");
 const node_util_1 = __importDefault(require("node:util"));
@@ -86,18 +85,16 @@ class BlockingRepository {
             });
         };
     }
-    streamToString(stream, cb) {
-        const chunks = [];
-        stream.on('data', (chunk) => {
-            chunks.push(chunk.toString());
-        });
-        stream.on('end', () => {
-            cb(chunks.join(''));
-        });
-    }
     async importBlocking({ files, truncate }) {
-        console.log(truncate);
-        console.log('pgClient.connect()');
+        const totalFiles = files.length;
+        const totalFilesSize = files.map(file => file.size).reduce((accumulator, current) => accumulator + current, 0);
+        const importCreated = await prisma_client_1.default.blockingDeviceImport.create({
+            data: {
+                totalFiles,
+                totalFilesSize,
+                truncate: truncate === 'true',
+            }
+        });
         const pgClient = new pg_1.Client({
             connectionString: process.env.DATABASE_URL,
         });
@@ -111,7 +108,7 @@ class BlockingRepository {
         }
         const startTime = new Date();
         console.log(`[!] Start time: ${startTime}`);
-        for (const file of files) {
+        for (const [index, file] of files.entries()) {
             let customerEmail = '';
             try {
                 const { stdout, stderr } = await execPromise(`head -2 ${file.path} | tail -1 | cut -d',' -f1 | xargs echo -n`);
@@ -128,7 +125,7 @@ class BlockingRepository {
             }
             const sourceStream = fs.createReadStream(`${file.path}_prepared`);
             try {
-                console.log('[!] Customer: ' + customerEmail);
+                console.log(`[!] Customer ${index + 1}: ` + customerEmail);
                 await pgClient.query(`SET datestyle = dmy`);
                 await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`);
                 const sqlCopy = `COPY "BlockingDevice" ("customerId","deviceId","imei","serial","locked","lockType","status","isActivated","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","lastConnectedAt","nextLockDate","appVersion") FROM STDIN WITH (FORMAT CSV, NULL 'NA')`;
@@ -137,7 +134,6 @@ class BlockingRepository {
                 console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`);
             }
             finally {
-                // console.log('finally')
                 try {
                     fs.unlinkSync(file.path);
                     fs.unlinkSync(`${file.path}_prepared`);
@@ -146,20 +142,20 @@ class BlockingRepository {
                     console.error(error);
                 }
             }
-            //   // const foundCustomer = await prismaClient.customer.findFirst({
-            //   //   where: { email: customerEmail },
-            //   // })
-            //   // if (!foundCustomer) {
-            //   //   console.log(`[!] New customer: ${customerEmail}`)
-            //   // }
-            //   // console.log('[!] Customer: ' + customerEmail + ' ' + lines.length)
-            //   // const customerId = foundCustomer?.id || null
         }
         const elapsedTime = this.getTimeElapsedFromDate(startTime);
         const minutes = Math.floor(elapsedTime / 60);
         const seconds = elapsedTime - minutes * 60;
         console.log(`[!] Execution time: ${minutes} min ${seconds} sec`);
-        return { status: 'ok' };
+        const importUpdated = await prisma_client_1.default.blockingDeviceImport.update({
+            where: { id: importCreated.id },
+            data: {
+                startedAt: startTime,
+                finishedAt: new Date(),
+            }
+        });
+        const { id } = importUpdated;
+        return { id };
         await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`);
         // const elapsedTime = this.getTimeElapsedFromDate(startTime)
         // const minutes = Math.floor(elapsedTime / 60)
@@ -167,21 +163,22 @@ class BlockingRepository {
         console.log(`[!] Execution time: ${minutes} min ${seconds} sec`);
         console.log('pgClient.end()');
         await pgClient.end();
-        return {
-            status: 'success'
-        };
     }
-    async reportBlocking() {
+    async createActivationReport() {
+        const deviceType = 'Android Device';
         const activationReportData = [];
         const currentDate = new Date();
         const lastWeekDate = new Date(currentDate.getTime() - (60 * 60 * 24 * 7 * 1000));
         const lastFortnightDate = new Date(currentDate.getTime() - (60 * 60 * 24 * 15 * 1000));
+        console.log(`[!] Device type : ` + deviceType);
         const customers = await prisma_client_1.default.customer.findMany();
-        for (const { name, email } of customers) {
-            console.log(email);
+        const totalCustomers = customers.length;
+        for (const [index, { name, email }] of customers.entries()) {
+            console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email);
             const billableQuery = prisma_client_1.default.blockingDevice.count({
                 where: {
                     customerEmail: email,
+                    type: deviceType,
                     OR: [
                         {
                             billable: 'True'
@@ -196,6 +193,7 @@ class BlockingRepository {
             const nonBillableQuery = prisma_client_1.default.blockingDevice.count({
                 where: {
                     customerEmail: email,
+                    type: deviceType,
                     OR: [
                         {
                             NOT: [
@@ -241,6 +239,7 @@ class BlockingRepository {
                 nonBillableWeekly,
                 billableBiweekly,
                 nonBillableBiweekly,
+                deviceType,
             });
         }
         const activationReport = await prisma_client_1.default.activationReport.createMany({
@@ -251,7 +250,11 @@ class BlockingRepository {
         };
     }
     async getActivationReport() {
+        const deviceType = 'Android Device';
         const activationReportQuery = prisma_client_1.default.activationReport.groupBy({
+            where: {
+                deviceType
+            },
             by: ['customerName'],
             _sum: {
                 billable: true,
@@ -264,6 +267,9 @@ class BlockingRepository {
             }
         });
         const activationReportTotalsQuery = prisma_client_1.default.activationReport.aggregate({
+            where: {
+                deviceType
+            },
             _sum: {
                 billable: true,
                 nonBillable: true,
@@ -317,15 +323,17 @@ class BlockingRepository {
             ...activationReportTotals === null || activationReportTotals === void 0 ? void 0 : activationReportTotals._sum
         });
         const XLSX = require('xlsx');
-        const workSheet = XLSX.utils.json_to_sheet(data);
+        const heading = [['Cliente', 'Facturables', 'No Facturables', 'APS', 'APQ']];
         const workBook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workBook, workSheet, 'Reporte');
+        const workSheet = XLSX.utils.json_to_sheet([]);
+        XLSX.utils.sheet_add_aoa(workSheet, heading);
+        XLSX.utils.sheet_add_json(workSheet, data, { origin: 'A2', skipHeader: true });
+        XLSX.utils.book_append_sheet(workBook, workSheet, 'Hoja1');
         const buffer = XLSX.write(workBook, { type: 'buffer', bookType: 'xlsx' });
         return buffer;
     }
     async getCustomerReport(name) {
         const { to: copyTo } = require('pg-copy-streams');
-        console.log('pgClient.connect()');
         const pgClient = new pg_1.Client({
             connectionString: process.env.DATABASE_URL,
         });
@@ -339,7 +347,58 @@ class BlockingRepository {
             }
         });
         await pgClient.query(`TRUNCATE "BlockingDeviceReport"`);
-        const queryBillable = `INSERT INTO "BlockingDeviceReport"("deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","billableText") SELECT "deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable",'Facturable' FROM "BlockingDevice" WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}' AND (billable = 'True' OR (status = 'Enrolled' AND billable = 'False'))`;
+        const queryBillable = `
+      INSERT INTO "BlockingDeviceReport"(
+          "deviceId",
+          "imei",
+          "serial",
+          "locked",
+          "lockType",
+          "status",
+          "previousStatus",
+          "previousStatusChangedOn",
+          "make",
+          "model",
+          "type",
+          "deleted",
+          "activatedDeviceDeleted",
+          "registeredOn",
+          "enrolledOn",
+          "unregisteredOn",
+          "deletedOn",
+          "activationDate",
+          "billable",
+          "billableText"
+        )
+      SELECT "deviceId",
+        "imei",
+        "serial",
+        "locked",
+        "lockType",
+        "status",
+        "previousStatus",
+        "previousStatusChangedOn",
+        "make",
+        "model",
+        "type",
+        "deleted",
+        "activatedDeviceDeleted",
+        "registeredOn",
+        "enrolledOn",
+        "unregisteredOn",
+        "deletedOn",
+        "activationDate",
+        "billable",
+        'Facturable'
+      FROM "BlockingDevice"
+      WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}'
+        AND (
+          billable = 'True'
+          OR (
+            status = 'Enrolled'
+            AND billable = 'False'
+          )
+        )`;
         await pgClient.query(queryBillable);
         const queryNonBillable = `INSERT INTO "BlockingDeviceReport"("deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","billableText") SELECT "deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable",'Sin costo' FROM "BlockingDevice" WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}' AND (billable IS NULL OR (NOT (billable = 'True' OR (status = 'Enrolled' AND billable = 'False'))))`;
         await pgClient.query(queryNonBillable);
@@ -349,6 +408,25 @@ class BlockingRepository {
         const writeStream = fs.createWriteStream(filePath);
         await (0, promises_1.pipeline)(outStream, writeStream);
         return filePath;
+    }
+    async listImports({ perPage = 10, page = 0, q: searchText = '' }) {
+        const importsQuery = prisma_client_1.default.blockingDeviceImport.findMany({
+            skip: Number(perPage) * Number(page),
+            take: Number(perPage),
+            orderBy: {
+                createdAt: 'desc'
+            },
+        });
+        const [imports, importsCount] = await prisma_client_1.default.$transaction([
+            importsQuery,
+            prisma_client_1.default.blockingDeviceImport.count(),
+        ]);
+        return {
+            total: importsCount,
+            page: Number(page),
+            perPage: Number(perPage),
+            data: imports
+        };
     }
 }
 exports.default = BlockingRepository;

@@ -249,7 +249,6 @@ async function main() {
         console.log(`[-] created user with id: ${user.id}`);
     }
     console.log(`[+] All users created successfully`);
-    console.log(`[!] Seeding finished.`);
     console.log(`[+] Creating products`);
     for (const p of productsData) {
         const product = await prisma.product.create({
@@ -336,6 +335,7 @@ async function main() {
         }
     }
     console.log(`[+] All customers created successfully`);
+    console.log(`[!] Seeding finished.`);
 }
 main()
     .then(async () => {

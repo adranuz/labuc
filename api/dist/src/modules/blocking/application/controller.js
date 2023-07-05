@@ -21,18 +21,18 @@ class BlockingController {
                 });
             }
         };
-        this.reportBlocking = async (req, res) => {
+        this.createActivationReport = async (req, res) => {
             try {
-                const reportBlocking = await this.blockingService.reportBlocking();
-                res.status(200).json(reportBlocking);
+                const activationReportCreated = await this.blockingService.createActivationReport();
+                res.status(200).json(activationReportCreated);
             }
             catch (err) {
-                console.log('Unable to report blocking:', err);
+                console.log('Unable to create activation report:', err);
                 return res.status(500).json({
                     error: {
                         code: 500,
                         message: 'Server Internal Error',
-                        details: 'Unable to report blocking',
+                        details: 'Unable to create activation report',
                     },
                 });
             }
@@ -98,6 +98,22 @@ class BlockingController {
                         code: 500,
                         message: 'Server Internal Error',
                         details: 'Unable to get client report',
+                    },
+                });
+            }
+        };
+        this.listImports = async (req, res) => {
+            try {
+                const imports = await this.blockingService.listImports(req.query);
+                res.status(200).json(imports);
+            }
+            catch (err) {
+                console.log('Unable to get imports:', err);
+                return res.status(500).json({
+                    error: {
+                        code: 500,
+                        message: 'Server Internal Error',
+                        details: 'Unable to get imports',
                     },
                 });
             }

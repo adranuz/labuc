@@ -7,8 +7,8 @@ class BlockingService {
     importBlocking(data) {
         return this.blockingRepository.importBlocking(data);
     }
-    reportBlocking() {
-        return this.blockingRepository.reportBlocking();
+    createActivationReport() {
+        return this.blockingRepository.createActivationReport();
     }
     getActivationReport() {
         return this.blockingRepository.getActivationReport();
@@ -18,6 +18,9 @@ class BlockingService {
     }
     getCustomerReport(name) {
         return this.blockingRepository.getCustomerReport(name);
+    }
+    listImports(data) {
+        return this.blockingRepository.listImports(data);
     }
 }
 exports.default = BlockingService;
