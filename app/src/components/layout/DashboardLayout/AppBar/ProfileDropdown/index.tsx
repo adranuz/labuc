@@ -33,9 +33,9 @@ function ProfileDropdown () {
 
   return (
     <Box sx={{ flexGrow: 0 }}>
-      <Tooltip title="Abrir configuración">
+      <Tooltip title='Abrir configuración' arrow>
         <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-          <Avatar alt="Remy Sharp" src={profile} />
+          <Avatar alt="Photo" src={profile} />
         </IconButton>
       </Tooltip>
       <Menu

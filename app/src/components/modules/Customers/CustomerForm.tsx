@@ -43,12 +43,6 @@ function CustomerForm ({customer, productsList = null, readOnly = false}: Props)
     toEditCustomer()
   }
 
-  const handleClickCancel = () => {
-    if (customer?.name) {
-      toCustomer()
-    }
-  }
-
   const handleSubmit = (event: any) => {
     event.preventDefault()
     if (customer?.name) {
@@ -87,82 +81,72 @@ function CustomerForm ({customer, productsList = null, readOnly = false}: Props)
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
       <Box component='form' onSubmit={handleSubmit} noValidate>
-
-      <Toolbar disableGutters>
-        <IconButton
+        <Toolbar disableGutters>
+          <IconButton
             size='large'
             color='inherit'
             sx={{ mr: 2 }}
             onClick={handleClickBack}
           >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          component='h1'
-          variant='h6'
-          noWrap
-          sx={
-            customer?.name
-              ? {
-                  flexGrow: 1,
-                }
-              : {
-                  flexGrow: 1,
-                  fontStyle: 'italic'
-                }
-          }
-        >
-          {
-            customer?.name ? customer?.name : 'Cliente sin nombre'
-          }
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2
-          }}
-        >
-          {
-            readOnly && (
-              <>
-                <Button
-                  size='small'
-                  color='info'
-                  startIcon={<EditIcon />}
-                  onClick={handleClickEdit}
-                >
-                  Editar
-                </Button>
-                <ConfirmCustomerDeletion id={customer?.id} name={customer?.name} onFinished={() => {}} />
-              </>
-            ) || (
-              <>
-                <Button
-                  size='small'
-                  onClick={handleClickCancel}
-                >
-                  Cancelar
-                </Button>
-                <LoadingButton
-                  variant='contained'
-                  size='small'
-                  disableElevation
-                  startIcon={<SaveAltIcon />}
-                  type='submit'
-                >
-                  Guardar
-                </LoadingButton>
-              </>
-            )
-          }
-        </Box>
-      </Toolbar>
-
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography
+            component='h1'
+            variant='h6'
+            noWrap
+            sx={
+              customer?.name
+                ? {
+                    flexGrow: 1,
+                  }
+                : {
+                    flexGrow: 1,
+                    fontStyle: 'italic'
+                  }
+            }
+          >
+            {
+              customer?.name ? customer?.name : 'Cliente sin nombre'
+            }
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2
+            }}
+          >
+            <Button
+              size='small'
+              color='info'
+              startIcon={<EditIcon />}
+              onClick={handleClickEdit}
+              disabled={!readOnly}
+            >
+              Editar
+            </Button>
+            <ConfirmCustomerDeletion
+              id={customer?.id}
+              name={customer?.name}
+              onFinished={() => {}}
+              disabled={!readOnly}
+            />
+            <LoadingButton
+              variant='contained'
+              size='small'
+              disableElevation
+              startIcon={<SaveAltIcon />}
+              type='submit'
+              disabled={readOnly}
+            >
+              Guardar
+            </LoadingButton>
+          </Box>
+        </Toolbar>
 
         <Paper variant='outlined'>
           <TabContext value={tab}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <TabList onChange={handleChangeTab} centered indicatorColor='secondary'>
+              <TabList onChange={handleChangeTab} indicatorColor='secondary'>
                 <Tab icon={<InfoIcon />} iconPosition='start' label='Información general' value='general' />
                 <Tab icon={<ContactsIcon />} iconPosition='start' label='Contactos' value='contacts' />
                 <Tab icon={<CategoryIcon />} iconPosition='start' label='Productos' value='products' />

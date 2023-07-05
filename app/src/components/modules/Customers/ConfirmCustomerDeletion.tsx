@@ -7,7 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useCommonStore } from '../../../store/common'
 import apiUrl from '../../../config/api'
 
-export default function ConfirmCustomerDeletion({id, name, onFinished}) {
+export default function ConfirmCustomerDeletion({id, name, onFinished, disabled = false}) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -52,12 +52,12 @@ export default function ConfirmCustomerDeletion({id, name, onFinished}) {
 
   return (
     <>
-      
       <Button
         size='small'
         color='error'
         startIcon={<DeleteIcon />}
         onClick={(event) => handleClickOpen(event)}
+        disabled={disabled}
       >
         Eliminar
       </Button>

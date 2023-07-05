@@ -118,17 +118,18 @@ const navigationData: navigation[] = [
         type: 'collapse',
         open: null,
         matchRoutes: [
-          { path: '/tool/blocking/import' },
+          { path: '/tool/blocking/imports' },
+          { path: '/tool/blocking/imports/new' },
         ],
         icon: 'AppBlocking',
         children: [
           {
-            id: 'import-data',
-            title: 'Importar datos',
+            id: 'imports',
+            title: 'Importaciones',
             type: 'item',
-            url: '/tool/blocking/import',
+            url: '/tool/blocking/imports',
             matchRoutes: [
-              { path: '/tool/blocking/import' },
+              { path: '/tool/blocking/imports' },
             ],
             icon: 'UploadFile',
           },

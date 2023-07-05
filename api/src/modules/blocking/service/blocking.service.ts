@@ -1,4 +1,5 @@
-import { ImportBlockingDTO, ImportBlockingResponseDTO } from '../dto/blocking.dto';
+import Option from '../../common/types/Option.type';
+import { ImportBlockingDTO, ImportBlockingResponseDTO, PaginationFilterDTO, PublicImportsDTO } from '../dto/blocking.dto';
 import IBlockingRepository from './IBlockingRepository';
 
 export default class BlockingService {
@@ -22,5 +23,9 @@ export default class BlockingService {
 
   getCustomerReport(name: string): Promise<any> {
     return this.blockingRepository.getCustomerReport(name);
+  }
+
+  listImports(data: PaginationFilterDTO): Promise<Option<PublicImportsDTO>> {
+    return this.blockingRepository.listImports(data);
   }
 }

@@ -44,6 +44,16 @@ export default function ConfirmUserDeletion({id, name, onFinished}) {
       })
   }
 
+  const getAuthenticatedUser = () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    return decodeJwt(token)
+  }
+
+  const decodeJwt = (jwt: string) => {
+    return JSON.parse(decodeURIComponent(escape(atob(jwt.split('.')[1]))))
+  }
+
   return (
     <>
       <Button
@@ -51,6 +61,7 @@ export default function ConfirmUserDeletion({id, name, onFinished}) {
         color='error'
         startIcon={<DeleteIcon />}
         onClick={handleClickOpen}
+        disabled={id === getAuthenticatedUser()?.id}
       >
         Eliminar
       </Button>

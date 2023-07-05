@@ -88,6 +88,16 @@ model Customer {
   @@index([id, email])
 }
 
+model BlockingDeviceImport {
+  id             String    @id @default(uuid())
+  totalFiles     Int
+  totalFilesSize Int
+  truncate       Boolean
+  createdAt      DateTime  @default(now())
+  startedAt      DateTime?
+  finishedAt     DateTime?
+}
+
 model BlockingDevice {
   customerId              String?
   deviceId                Int       @unique
@@ -115,7 +125,7 @@ model BlockingDevice {
   appVersion              String?
   customerEmail           String?
 
-  @@index([billable, status, enrolledOn, customerEmail])
+  @@index([billable, status, type, enrolledOn, customerEmail])
 }
 
 model ActivationReport {
@@ -128,6 +138,7 @@ model ActivationReport {
   nonBillableWeekly   Int
   billableBiweekly    Int
   nonBillableBiweekly Int
+  deviceType          String
 
   @@index([customerEmail])
 }

@@ -187,8 +187,8 @@ function RolesTable () {
           <TableHead>
             <TableRow>
               <TableCell>Nombre</TableCell>
-              <TableCell>No. de permisos</TableCell>
-              <TableCell>No. de usuarios</TableCell>
+              <TableCell align='right'>No. de permisos</TableCell>
+              <TableCell align='right'>No. de usuarios</TableCell>
               <TableCell align='right'>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -196,12 +196,8 @@ function RolesTable () {
             {rolesList?.data?.map((row) => (
               <TableRow key={row.id}>
                 <TableCell sx={{ textTransform: 'capitalize' }}>{row.name}</TableCell>
-                <TableCell>
-                  <Stack direction='row' spacing={1}>
-                    {row.permissions?.length}
-                  </Stack>
-                </TableCell>
-                <TableCell>{row._count.users}</TableCell>
+                <TableCell align='right'>{row.permissions?.length}</TableCell>
+                <TableCell align='right'>{row._count.users}</TableCell>
                 <TableCell>
                   <Stack direction='row' spacing={1} justifyContent='flex-end'>
                     <Button

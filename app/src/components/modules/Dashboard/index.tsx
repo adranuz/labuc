@@ -9,8 +9,12 @@ function Dashboard () {
   const getAuthenticatedUserName = () => {
     const token = localStorage.getItem('token')
     if (!token) return
-    const object = JSON.parse(decodeURIComponent(escape(atob(token.split('.')[1]))))
+    const object = decodeJwt(token)
     return object?.name
+  }
+
+  const decodeJwt = (jwt: string) => {
+    return JSON.parse(decodeURIComponent(escape(atob(jwt.split('.')[1]))))
   }
 
   const currentDate = new Date().toLocaleDateString('es', {

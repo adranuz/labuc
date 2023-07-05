@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { Multer } from 'multer'
 import BlockingService from '../service/blocking.service'
-import { ImportBlockingInput, GetCustomerReportInput } from './blocking.schema'
+import { ImportBlockingInput, GetCustomerReportInput, PaginationInput } from './blocking.schema'
 
 type File = Express.Multer.File
 
@@ -131,6 +131,27 @@ export default class BlockingController {
           code: 500,
           message: 'Server Internal Error',
           details: 'Unable to get client report',
+        },
+      })
+    }
+  }
+
+  listImports = async (
+    req: Request<{}, {}, {}, PaginationInput>,
+    res: Response
+  ): Promise<unknown> => {
+    try {
+      const imports = await this.blockingService.listImports(req.query)
+
+      res.status(200).json(imports)
+    } catch (err) {
+      console.log('Unable to get imports:', err)
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Internal Error',
+          details: 'Unable to get imports',
         },
       })
     }

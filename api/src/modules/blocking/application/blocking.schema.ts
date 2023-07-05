@@ -1,4 +1,12 @@
-import { object, string, z, TypeOf } from 'zod'
+import { coerce, object, optional, string, TypeOf, z } from 'zod'
+
+export const paginationFilterSchema = object({
+  query: object({
+    perPage: optional(coerce.number().positive()),
+    page: optional(coerce.number().nonnegative()),
+    q: optional(string()),
+  })
+})
 
 export const importBlockingSchema = object({
   body: object({
@@ -12,6 +20,8 @@ export const getCustomerReportSchema = object({
     name: string({ required_error: 'Name is required' })
   })
 })
+
+export type PaginationInput = TypeOf<typeof paginationFilterSchema>['query']
 
 export type ImportBlockingInput = TypeOf<typeof importBlockingSchema>
 export type GetCustomerReportInput = TypeOf<typeof getCustomerReportSchema>['query']

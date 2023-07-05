@@ -15,7 +15,8 @@ const CustomersPage = lazy(async () => await import('../components/pages/Custome
 const CustomerCreatePage = lazy(async () => await import('../components/pages/Customers/CustomerCreatePage'))
 const CustomerDetailsPage = lazy(async () => await import('../components/pages/Customers/CustomerDetailsPage'))
 const CustomerEditPage = lazy(async () => await import('../components/pages/Customers/CustomerEditPage'))
-const BlockingImportPage = lazy(async () => await import('../components/pages/Blocking/BlockingImportPage'))
+const BlockingImportsPage = lazy(async () => await import('../components/pages/Blocking/BlockingImportsPage'))
+const BlockingImportNewPage = lazy(async () => await import('../components/pages/Blocking/BlockingImportNewPage'))
 const ActivationReportPage = lazy(async () => await import('../components/pages/Blocking/ActivationReportPage'))
 
 const AuthRoutes = (): RouteObject => {
@@ -91,8 +92,12 @@ const AuthRoutes = (): RouteObject => {
         path: 'tool/blocking',
         children: [
           {
-            path: 'import',
-            element: <BlockingImportPage />,
+            path: 'imports',
+            element: <BlockingImportsPage />,
+          },
+          {
+            path: 'imports/new',
+            element: <BlockingImportNewPage />,
           },
           {
             path: 'report',

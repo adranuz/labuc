@@ -73,6 +73,19 @@ CREATE TABLE "Customer" (
 );
 
 -- CreateTable
+CREATE TABLE "BlockingDeviceImport" (
+    "id" TEXT NOT NULL,
+    "totalFiles" INTEGER NOT NULL,
+    "totalFilesSize" INTEGER NOT NULL,
+    "truncate" BOOLEAN NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "startedAt" TIMESTAMP(3),
+    "finishedAt" TIMESTAMP(3),
+
+    CONSTRAINT "BlockingDeviceImport_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "BlockingDevice" (
     "customerId" TEXT,
     "deviceId" INTEGER NOT NULL,
@@ -112,6 +125,7 @@ CREATE TABLE "ActivationReport" (
     "nonBillableWeekly" INTEGER NOT NULL,
     "billableBiweekly" INTEGER NOT NULL,
     "nonBillableBiweekly" INTEGER NOT NULL,
+    "deviceType" TEXT NOT NULL,
 
     CONSTRAINT "ActivationReport_pkey" PRIMARY KEY ("id")
 );
@@ -198,7 +212,7 @@ CREATE INDEX "Customer_id_email_idx" ON "Customer"("id", "email");
 CREATE UNIQUE INDEX "BlockingDevice_deviceId_key" ON "BlockingDevice"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDevice_billable_status_enrolledOn_customerEmail_idx" ON "BlockingDevice"("billable", "status", "enrolledOn", "customerEmail");
+CREATE INDEX "BlockingDevice_billable_status_type_enrolledOn_customerEmai_idx" ON "BlockingDevice"("billable", "status", "type", "enrolledOn", "customerEmail");
 
 -- CreateIndex
 CREATE INDEX "ActivationReport_customerEmail_idx" ON "ActivationReport"("customerEmail");

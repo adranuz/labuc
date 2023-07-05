@@ -4,8 +4,11 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 import { object, string, array } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Box, Button, Card, CardContent, CardActions, Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, TextField } from '@mui/material'
+import { Box, Card, CardContent, Checkbox, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, TextField, Button, IconButton, Toolbar, Typography } from '@mui/material'
+
 import { LoadingButton } from '@mui/lab'
+import SaveAltIcon from '@mui/icons-material/SaveAlt'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
 import { useCommonStore } from '../../../store/common'
 import apiUrl from '../../../config/api'
@@ -120,15 +123,71 @@ function UserEdit ({ user, roles }: Props) {
           return
         }
 
-        navigate('/admin/users')
+        toUsers()
         showSnackbar('El usuario se creó correctamente', 'success')
       })
       .catch(_ => showSnackbar('Error al intentar crear el usuario', 'error'))
       .finally(() => setIsLoading(false))
   }
 
+  const handleClickBack = () => {
+    toUsers()
+  }
+
+  const handleClickCancel = () => {
+    toUsers()
+  }
+
+  const toUsers = () => {
+    navigate('/admin/users')
+  }
+
   return (
     <Box component='form' onSubmit={handleSubmit(onSubmit)} noValidate>
+      <Toolbar disableGutters>
+        <IconButton
+            size='large'
+            color='inherit'
+            sx={{ mr: 2 }}
+            onClick={handleClickBack}
+          >
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography
+          component='h1'
+          variant='h6'
+          noWrap
+          sx={{
+            flexGrow: 1,
+          }}
+        >
+          Usuario
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2
+          }}
+        >
+          <Button
+            size='small'
+            onClick={handleClickCancel}
+            disabled={isLoading}
+          >
+            Cancelar
+          </Button>
+          <LoadingButton
+            variant='contained'
+            size='small'
+            disableElevation
+            startIcon={<SaveAltIcon />}
+            type='submit'
+            disabled={isLoading}
+          >
+            Guardar
+          </LoadingButton>
+        </Box>
+      </Toolbar>
       <Card variant='outlined'>
         <CardContent>
             <Grid container spacing={3}>
@@ -158,6 +217,7 @@ function UserEdit ({ user, roles }: Props) {
                   error={!!errors.email?.message}
                   helperText={!!errors.email?.message && String(errors.email.message)}
                   {...register('email')}
+                  disabled={user ? true : false}
                 />
               </Grid>
             </Grid>
@@ -204,21 +264,6 @@ function UserEdit ({ user, roles }: Props) {
             <FormHelperText>{!!errors.roles?.message && String(errors.roles.message)}</FormHelperText>
           </FormControl>
         </CardContent>
-        <CardActions sx={{
-          display: 'flex',
-          justifyContent: 'flex-end'
-        }}>
-          <Button size='small' onClick={() => navigate('/admin/users')}>Cancelar</Button>
-          <LoadingButton
-            loading={isLoading}
-            variant='contained'
-            size='small'
-            disableElevation
-            type='submit'
-          >
-            Guardar
-          </LoadingButton>
-        </CardActions>
       </Card>
     </Box>
   )
