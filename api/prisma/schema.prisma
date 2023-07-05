@@ -108,20 +108,20 @@ model BlockingDevice {
   status                  String?
   isActivated             String?
   previousStatus          String?
-  previousStatusChangedOn DateTime? @db.Date
+  previousStatusChangedOn DateTime?
   make                    String?
   model                   String?
   type                    String?
   deleted                 String?
   activatedDeviceDeleted  String?
-  registeredOn            DateTime? @db.Date
-  enrolledOn              DateTime? @db.Date
-  unregisteredOn          DateTime? @db.Date
-  deletedOn               DateTime? @db.Date
-  activationDate          DateTime? @db.Date
+  registeredOn            DateTime?
+  enrolledOn              DateTime?
+  unregisteredOn          DateTime?
+  deletedOn               DateTime?
+  activationDate          DateTime?
   billable                String?
-  lastConnectedAt         DateTime? @db.Date
-  nextLockDate            DateTime? @db.Date
+  lastConnectedAt         DateTime?
+  nextLockDate            DateTime?
   appVersion              String?
   customerEmail           String?
 
@@ -151,17 +151,17 @@ model BlockingDeviceReport {
   lockType                String?
   status                  String?
   previousStatus          String?
-  previousStatusChangedOn DateTime? @db.Date
+  previousStatusChangedOn DateTime?
   make                    String?
   model                   String?
   type                    String?
   deleted                 String?
   activatedDeviceDeleted  String?
-  registeredOn            DateTime? @db.Date
-  enrolledOn              DateTime? @db.Date
-  unregisteredOn          DateTime? @db.Date
-  deletedOn               DateTime? @db.Date
-  activationDate          DateTime? @db.Date
+  registeredOn            DateTime?
+  enrolledOn              DateTime?
+  unregisteredOn          DateTime?
+  deletedOn               DateTime?
+  activationDate          DateTime?
   billable                String?
   billableText            String?
 

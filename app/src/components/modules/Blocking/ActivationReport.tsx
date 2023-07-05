@@ -150,9 +150,9 @@ function ActivationReport () {
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <TabList onChange={handleChangeTab} indicatorColor='secondary'>
               <Tab icon={<DevicesIcon />} iconPosition='start' label='Todos' value='all' />
-              <Tab icon={<AndroidIcon />} iconPosition='start' label='Android' value='android' />
-              <Tab icon={<AppleIcon />} iconPosition='start' label='iOS' value='ios' />
-              <Tab icon={<LaptopWindowsIcon />} iconPosition='start' label='Windows' value='windows' />
+              <Tab icon={<AndroidIcon />} iconPosition='start' label='Android' value='android' disabled />
+              <Tab icon={<AppleIcon />} iconPosition='start' label='iOS' value='ios' disabled />
+              <Tab icon={<LaptopWindowsIcon />} iconPosition='start' label='Windows' value='windows' disabled />
             </TabList>
           </Box>
           <TabPanel value='all' sx={{ padding: 0 }}>
