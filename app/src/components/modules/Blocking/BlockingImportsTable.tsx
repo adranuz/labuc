@@ -73,25 +73,24 @@ function BlockingImportsTable () {
     navigate('/tool/blocking/imports/new')
   }
 
-  const getDifferenceInMilliseconds = (startedAt: string, finishedAt: string) => {
+  const getDifferenceInSeconds = (startedAt: string, finishedAt: string) => {
     const startedAtDate = new Date(startedAt)
     const finishedAtDate = new Date(finishedAt)
 
-    return finishedAtDate.getTime() - startedAtDate.getTime()
+    return (finishedAtDate.getTime() - startedAtDate.getTime()) / 1000
   }
 
-  const millosecondsToTime = (milliseconds: number) => {
-    const h = Math.floor(milliseconds / 1000 / 3600)
-    const m = Math.floor(milliseconds / 1000 % 3600 / 60)
-    const s = Math.floor(milliseconds / 1000 % 60)
-    const ms = Math.floor(milliseconds % 1000)
+  const prettySeconds = (seconds: number) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor(seconds % 3600 / 60)
+    const s = (seconds % 60).toFixed(2)
     
-    return `${h > 0 ? h + ' hr ' : ''}${m > 0 ? m + ' min ' : ''}${s}.${ms} seg`  
+    return `${h > 0 ? h + ' hr ' : ''}${m > 0 ? m + ' min ' : ''}${s} seg`  
  }
 
-  const humanFileSize = (size: number) => {
+  const prettyBytes = (size: number) => {
     const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
-    return Number((size / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
+    return Number((size / Math.pow(1000, i)).toFixed(2)) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
   }
 
   const localeDate = (date: string) => {
@@ -154,7 +153,7 @@ function BlockingImportsTable () {
               <TableRow key={row.id} selected={row.id === searchParams.get('selected')}>
                 <TableCell>{localeDate(row.createdAt)}</TableCell>
                 <TableCell align='right'>{row.totalFiles}</TableCell>
-                <TableCell align='right'>{humanFileSize(row.totalFilesSize)}</TableCell>
+                <TableCell align='right'>{prettyBytes(row.totalFilesSize)}</TableCell>
                 <TableCell align='center'>
                   {
                     row.truncate
@@ -170,7 +169,7 @@ function BlockingImportsTable () {
                       )
                   }
                   </TableCell>
-                <TableCell align='right'>{millosecondsToTime(getDifferenceInMilliseconds(row.startedAt, row.finishedAt))}</TableCell>
+                <TableCell align='right'>{prettySeconds(getDifferenceInSeconds(row.startedAt, row.finishedAt))}</TableCell>
               </TableRow>
             ))}
           </TableBody>

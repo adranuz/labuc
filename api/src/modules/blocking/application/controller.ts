@@ -33,22 +33,22 @@ export default class BlockingController {
     }
   }
 
-  reportBlocking = async (
+  createActivationReport = async (
     req: Request,
     res: Response
   ): Promise<unknown> => {
     try {
-      const reportBlocking = await this.blockingService.reportBlocking()
+      const activationReportCreated = await this.blockingService.createActivationReport()
 
-      res.status(200).json(reportBlocking)
+      res.status(200).json(activationReportCreated)
     } catch (err) {
-      console.log('Unable to report blocking:', err)
+      console.log('Unable to create activation report:', err)
 
       return res.status(500).json({
         error: {
           code: 500,
           message: 'Server Internal Error',
-          details: 'Unable to report blocking',
+          details: 'Unable to create activation report',
         },
       })
     }

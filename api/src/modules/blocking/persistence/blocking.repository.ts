@@ -191,7 +191,7 @@ export default class BlockingRepository implements IBlockingRepository {
     })
   }
 
-  async reportBlocking(): Promise<any> {
+  async createActivationReport(): Promise<any> {
     const deviceType = 'Android Device'
     const activationReportData = []
     const currentDate = new Date()
@@ -201,13 +201,15 @@ export default class BlockingRepository implements IBlockingRepository {
     console.log(`[!] Device type : ` + deviceType)
 
     const customers = await prismaClient.customer.findMany()
-
+    const totalCustomers = customers.length
+    
     for (const [index, { name, email }] of customers.entries()) {
-      console.log(`[!] Customer ${index + 1}: ` + email)
+      console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
 
       const billableQuery = prismaClient.blockingDevice.count({
         where: {
           customerEmail: email,
+          type: deviceType,
           OR: [
             {
               billable: 'True'
@@ -222,6 +224,7 @@ export default class BlockingRepository implements IBlockingRepository {
       const nonBillableQuery = prismaClient.blockingDevice.count({
         where: {
           customerEmail: email,
+          type: deviceType,
           OR: [
             {
               NOT: [
@@ -291,7 +294,12 @@ export default class BlockingRepository implements IBlockingRepository {
   }
 
   async getActivationReport(): Promise<any> {
+    const deviceType = 'Android Device'
+
     const activationReportQuery = prismaClient.activationReport.groupBy({
+      where: {
+        deviceType
+      },
       by: ['customerName'],
       _sum: {
         billable: true,
@@ -305,6 +313,9 @@ export default class BlockingRepository implements IBlockingRepository {
     })
 
     const activationReportTotalsQuery = prismaClient.activationReport.aggregate({
+      where: {
+        deviceType
+      },
       _sum: {
         billable: true,
         nonBillable: true,
@@ -386,7 +397,6 @@ export default class BlockingRepository implements IBlockingRepository {
     const buffer = XLSX.write(workBook, { type: 'buffer', bookType: 'xlsx' })
 
     return buffer
-
   }
 
   async getCustomerReport(name: string): Promise<any> {

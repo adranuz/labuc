@@ -18,7 +18,7 @@ function ActivationReport () {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingBuildReport, setIsLoadingBuildReport] = useState(false)
+  const [isLoadingCreateActivationReport, setIsLoadingCreateActivationReport] = useState(false)
   const [isLoadingDownloadActivationReport, setIsLoadingDownloadActivationReport] = useState(false)
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
   const [data, setData] = useState<any>({})
@@ -50,18 +50,20 @@ function ActivationReport () {
       .finally(() => setIsLoading(false))
   }
 
-  const buildReport = () => {
-    setIsLoadingBuildReport(true)
+  const createActivationReport = () => {
+    setIsLoadingCreateActivationReport(true)
 
-    const url = new URL(`${apiUrl}/blocking/report`)
+    const url = new URL(`${apiUrl}/blocking/report/activation`)
 
-    fetch(url)
+    fetch(url, {
+      method: 'POST',
+    })
       .then(res => res.json())
       .then(() => {
         getActivationReport()
         showSnackbar('El consolidado se generó correctamente', 'success')
       })
-      .finally(() => setIsLoadingBuildReport(false))
+      .finally(() => setIsLoadingCreateActivationReport(false))
   }
 
   const downloadActivationReport = () => {
@@ -129,7 +131,7 @@ function ActivationReport () {
   }
 
   const handleClickBuildReport = () => {
-    buildReport()
+    createActivationReport()
   }
 
   const handleClickDownloadActivationReport = () => {
@@ -176,7 +178,7 @@ function ActivationReport () {
                   startIcon={<BuildIcon />}
                   onClick={() => handleClickBuildReport()}
                   disabled={data?.activationReport?.length !== 0}
-                  loading={isLoadingBuildReport}
+                  loading={isLoadingCreateActivationReport}
                 >
                   Generar
                 </LoadingButton>

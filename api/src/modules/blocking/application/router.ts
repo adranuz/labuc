@@ -9,7 +9,7 @@ export default (cradle: ICradle) => {
   const router = Router();
 
   router.post('/blocking/import', upload.array('files'), cradle.blockingMiddleware.validate(importBlockingSchema), cradle.blockingController.importBlocking);
-  router.get('/blocking/report', cradle.blockingController.reportBlocking);
+  router.post('/blocking/report/activation', cradle.blockingController.createActivationReport);
   router.get('/blocking/report/activation', cradle.blockingController.getActivationReport);
   router.get('/blocking/report/activation/download', cradle.blockingController.getActivationReportFile);
   router.get('/blocking/report/customers', cradle.blockingMiddleware.validate(getCustomerReportSchema), cradle.blockingController.getCustomerReport);

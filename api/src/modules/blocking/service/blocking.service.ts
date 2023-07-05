@@ -9,8 +9,8 @@ export default class BlockingService {
     return this.blockingRepository.importBlocking(data);
   }
 
-  reportBlocking(): Promise<any> {
-    return this.blockingRepository.reportBlocking();
+  createActivationReport(): Promise<any> {
+    return this.blockingRepository.createActivationReport();
   }
 
   getActivationReport(): Promise<any> {
