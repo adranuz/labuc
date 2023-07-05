@@ -228,7 +228,7 @@ const productsData: Prisma.ProductCreateInput[] = [
 async function main() {
   console.log(`[!] Start seeding ...`)
 
-  console.log(`[+] Creating permissions`);
+  console.log(`[+] Creating permissions`)
 
   for (const p of permisionsData) {
     const permission = await prisma.permission.create({
@@ -237,9 +237,9 @@ async function main() {
     console.log(`[-] created permission with id: ${permission.id}`)
   }
 
-  console.log(`[+] All permissions created successfully`);
+  console.log(`[+] All permissions created successfully`)
 
-  console.log(`[+] Creating roles`);
+  console.log(`[+] Creating roles`)
 
   for (const r of rolesData) {
     const role = await prisma.role.create({
@@ -248,9 +248,9 @@ async function main() {
     console.log(`[-] created role with id: ${role.id}`)
   }
 
-  console.log(`[+] All roles created successfully`);
+  console.log(`[+] All roles created successfully`)
 
-  console.log(`[+] Creating users`);
+  console.log(`[+] Creating users`)
 
   for (const u of usersData) {
     const user = await prisma.user.create({
@@ -259,11 +259,9 @@ async function main() {
     console.log(`[-] created user with id: ${user.id}`)
   }
 
-  console.log(`[+] All users created successfully`);
+  console.log(`[+] All users created successfully`)
 
-  console.log(`[!] Seeding finished.`)
-
-  console.log(`[+] Creating products`);
+  console.log(`[+] Creating products`)
 
   for (const p of productsData) {
     const product = await prisma.product.create({
@@ -272,9 +270,9 @@ async function main() {
     console.log(`[-] created product with id: ${product.id}`)
   }
 
-  console.log(`[+] All products created successfully`);
+  console.log(`[+] All products created successfully`)
 
-  console.log(`[+] Creating customers`);
+  console.log(`[+] Creating customers`)
 
   for (const customer of customers) {
     const products = []
@@ -364,7 +362,10 @@ async function main() {
 
   }
 
-  console.log(`[+] All customers created successfully`);
+  console.log(`[+] All customers created successfully`)
+
+  console.log(`[!] Seeding finished.`)
+
 }
 
 main()
