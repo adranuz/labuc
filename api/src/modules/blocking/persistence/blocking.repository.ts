@@ -192,13 +192,17 @@ export default class BlockingRepository implements IBlockingRepository {
   }
 
   async createActivationReport(): Promise<any> {
-    const deviceType = 'Android Device'
-    const activationReportData = []
+    const deviceTypes = [
+      'Android Device',
+      'iOS Device',
+      'Windows Device',
+    ]
+    
     const currentDate = new Date()
     const lastWeekDate = new Date(currentDate.getTime() - (60*60*24*7*1000))
     const lastFortnightDate = new Date(currentDate.getTime() - (60*60*24*15*1000))
 
-    console.log(`[!] Device type : ` + deviceType)
+    const activationReportData = []
 
     const customers = await prismaClient.customer.findMany()
     const totalCustomers = customers.length
@@ -206,82 +210,85 @@ export default class BlockingRepository implements IBlockingRepository {
     for (const [index, { name, email }] of customers.entries()) {
       console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
 
-      const billableQuery = prismaClient.blockingDevice.count({
-        where: {
-          customerEmail: email,
-          type: deviceType,
-          OR: [
-            {
-              billable: 'True'
-            },
-            {
-              status: 'Enrolled',
-              billable: 'False'
-            },
-          ]
-        }
-      })
-      const nonBillableQuery = prismaClient.blockingDevice.count({
-        where: {
-          customerEmail: email,
-          type: deviceType,
-          OR: [
-            {
-              NOT: [
-                {
-                  OR: [
-                    {
-                      billable: 'True'
-                    },
-                    {
-                      status: 'Enrolled',
-                      billable: 'False'
-                    },
-                  ]
+      for (const deviceType of deviceTypes) {
+        console.log(`[!] Device type : ` + deviceType)
+
+        const billableQuery = prismaClient.blockingDevice.count({
+          where: {
+            customerEmail: email,
+            type: deviceType,
+            OR: [
+              {
+                billable: 'True'
+              },
+              {
+                status: 'Enrolled',
+                billable: 'False'
+              },
+            ]
+          }
+        })
+        const nonBillableQuery = prismaClient.blockingDevice.count({
+          where: {
+            customerEmail: email,
+            type: deviceType,
+            OR: [
+              {
+                NOT: [
+                  {
+                    OR: [
+                      {
+                        billable: 'True'
+                      },
+                      {
+                        status: 'Enrolled',
+                        billable: 'False'
+                      },
+                    ]
+                  }
+                ]
+              },
+              {
+                billable: {
+                  equals: null
                 }
-              ]
-            },
-            {
-              billable: {
-                equals: null
-              }
-            },
-          ]
+              },
+            ]
+        }
+        })
+        const billableWeeklyQuery = this.getBillableCustomersQuery(email, lastWeekDate, currentDate)
+        const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, lastWeekDate, currentDate)
+        const billableBiweeklyQuery = this.getBillableCustomersQuery(email, lastFortnightDate, currentDate)
+        const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, lastFortnightDate, currentDate)
+  
+        const [
+          billable,
+          nonBillable,
+          billableWeekly,
+          nonBillableWeekly,
+          billableBiweekly,
+          nonBillableBiweekly,
+        ] = await prismaClient.$transaction([
+          billableQuery,
+          nonBillableQuery,
+          billableWeeklyQuery,
+          nonBillableWeeklyQuery,
+          billableBiweeklyQuery,
+          nonBillableBiweeklyQuery,
+        ])
+  
+        activationReportData.push({
+          customerName: name,
+          customerEmail: email,
+          billable,
+          nonBillable,
+          billableWeekly,
+          nonBillableWeekly,
+          billableBiweekly,
+          nonBillableBiweekly,
+          deviceType,
+        })
       }
-      })
-      const billableWeeklyQuery = this.getBillableCustomersQuery(email, lastWeekDate, currentDate)
-      const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, lastWeekDate, currentDate)
-      const billableBiweeklyQuery = this.getBillableCustomersQuery(email, lastFortnightDate, currentDate)
-      const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, lastFortnightDate, currentDate)
-
-      const [
-        billable,
-        nonBillable,
-        billableWeekly,
-        nonBillableWeekly,
-        billableBiweekly,
-        nonBillableBiweekly,
-      ] = await prismaClient.$transaction([
-        billableQuery,
-        nonBillableQuery,
-        billableWeeklyQuery,
-        nonBillableWeeklyQuery,
-        billableBiweeklyQuery,
-        nonBillableBiweeklyQuery,
-      ])
-
-
-      activationReportData.push({
-        customerName: name,
-        customerEmail: email,
-        billable,
-        nonBillable,
-        billableWeekly,
-        nonBillableWeekly,
-        billableBiweekly,
-        nonBillableBiweekly,
-        deviceType,
-      })
     }
 
     const activationReport = await prismaClient.activationReport.createMany({
@@ -293,13 +300,21 @@ export default class BlockingRepository implements IBlockingRepository {
     }
   }
 
-  async getActivationReport(): Promise<any> {
-    const deviceType = 'Android Device'
+  async getActivationReport(deviceType: string | undefined): Promise<any> {
+    let type = null
+
+    if (deviceType === 'android') {
+      type = 'Android Device'
+    } else if (deviceType === 'ios') {
+      type = 'iOS Device'
+    } else if (deviceType === 'windows') {
+      type = 'Windows Device'
+    }
 
     const activationReportQuery = prismaClient.activationReport.groupBy({
-      where: {
-        deviceType
-      },
+      where: type ? {
+        deviceType: type
+      } : {},
       by: ['customerName'],
       _sum: {
         billable: true,
@@ -313,9 +328,9 @@ export default class BlockingRepository implements IBlockingRepository {
     })
 
     const activationReportTotalsQuery = prismaClient.activationReport.aggregate({
-      where: {
-        deviceType
-      },
+      where: type ? {
+        deviceType: type
+      } : {},
       _sum: {
         billable: true,
         nonBillable: true,

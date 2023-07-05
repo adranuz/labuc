@@ -15,6 +15,12 @@ export const importBlockingSchema = object({
   files: z.any().array().min(1, { message: 'Se requiere al menos un archivo' }),
 })
 
+export const getActivationReportSchema = object({
+  query: object({
+    deviceType: optional(string({ required_error: 'Device type is required' }))
+  })
+})
+
 export const getCustomerReportSchema = object({
   query: object({
     name: string({ required_error: 'Name is required' })
@@ -25,3 +31,4 @@ export type PaginationInput = TypeOf<typeof paginationFilterSchema>['query']
 
 export type ImportBlockingInput = TypeOf<typeof importBlockingSchema>
 export type GetCustomerReportInput = TypeOf<typeof getCustomerReportSchema>['query']
+export type GetActivationReportInput = TypeOf<typeof getActivationReportSchema>['query']

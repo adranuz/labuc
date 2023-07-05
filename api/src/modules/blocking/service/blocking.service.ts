@@ -13,8 +13,8 @@ export default class BlockingService {
     return this.blockingRepository.createActivationReport();
   }
 
-  getActivationReport(): Promise<any> {
-    return this.blockingRepository.getActivationReport();
+  getActivationReport(deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getActivationReport(deviceType);
   }
 
   getActivationReportFile(): Promise<any> {

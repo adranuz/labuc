@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { Multer } from 'multer'
 import BlockingService from '../service/blocking.service'
-import { ImportBlockingInput, GetCustomerReportInput, PaginationInput } from './blocking.schema'
+import { ImportBlockingInput, GetActivationReportInput, GetCustomerReportInput, PaginationInput } from './blocking.schema'
 
 type File = Express.Multer.File
 
@@ -55,11 +55,13 @@ export default class BlockingController {
   }
 
   getActivationReport = async (
-    req: Request,
+    req: Request<{}, {}, {}, GetActivationReportInput>,
     res: Response
   ): Promise<unknown> => {
     try {
-      const activationReport = await this.blockingService.getActivationReport()
+      const { deviceType } = req.query
+
+      const activationReport = await this.blockingService.getActivationReport(deviceType)
 
       res.status(200).json(activationReport)
     } catch (err) {

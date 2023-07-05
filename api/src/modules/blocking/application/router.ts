@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import ICradle from '../../../IoC/icradle.interface';
-import { importBlockingSchema, getCustomerReportSchema, paginationFilterSchema } from './blocking.schema';
+import { importBlockingSchema, getActivationReportSchema, getCustomerReportSchema, paginationFilterSchema } from './blocking.schema';
 
 const multer  = require('multer')
 const upload = multer({ dest: './tmp/' })
@@ -10,7 +10,7 @@ export default (cradle: ICradle) => {
 
   router.post('/blocking/import', upload.array('files'), cradle.blockingMiddleware.validate(importBlockingSchema), cradle.blockingController.importBlocking);
   router.post('/blocking/report/activation', cradle.blockingController.createActivationReport);
-  router.get('/blocking/report/activation', cradle.blockingController.getActivationReport);
+  router.get('/blocking/report/activation', cradle.blockingMiddleware.validate(getActivationReportSchema), cradle.blockingController.getActivationReport);
   router.get('/blocking/report/activation/download', cradle.blockingController.getActivationReportFile);
   router.get('/blocking/report/customers', cradle.blockingMiddleware.validate(getCustomerReportSchema), cradle.blockingController.getCustomerReport);
 

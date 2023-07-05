@@ -140,7 +140,7 @@ model ActivationReport {
   nonBillableBiweekly Int
   deviceType          String
 
-  @@index([customerEmail])
+  @@index([customerEmail, deviceType])
 }
 
 model BlockingDeviceReport {
