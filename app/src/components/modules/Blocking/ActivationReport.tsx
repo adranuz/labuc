@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Box, Container, LinearProgress, Paper, Stack, Tab, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Toolbar, Typography } from '@mui/material'
+import { Box, Button, Container, IconButton, LinearProgress, Paper, Stack, Tab, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow, Toolbar, Typography } from '@mui/material'
 import { LoadingButton, TabContext, TabList, TabPanel } from '@mui/lab'
 import BuildIcon from '@mui/icons-material/Build';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -145,6 +145,46 @@ function ActivationReport () {
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
 
+      <Toolbar disableGutters>
+        <Typography
+          component='h1'
+          variant='h6'
+          noWrap
+          sx={{
+            flexGrow: 1,
+          }}
+        >
+          Consolidado
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2
+          }}
+        >
+          <LoadingButton
+            size='small'
+            color='primary'
+            startIcon={<BuildIcon />}
+            onClick={() => handleClickBuildReport()}
+            disabled={data?.activationReport?.length !== 0}
+            loading={isLoadingCreateActivationReport}
+          >
+            Generar
+          </LoadingButton>
+          <LoadingButton
+            size='small'
+            color='primary'
+            startIcon={<DownloadIcon />}
+            onClick={() => handleClickDownloadActivationReport()}
+            disabled={isLoading || data?.activationReport?.length === 0}
+            loading={isLoadingDownloadActivationReport}
+          >
+            Descargar reporte (.xlsx)
+          </LoadingButton>
+        </Box>
+      </Toolbar>
+
       <Paper variant='outlined' sx={{ position: 'relative' }}>
         <TabContext value={tab}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -156,45 +196,6 @@ function ActivationReport () {
             </TabList>
           </Box>
           <TabPanel value='all' sx={{ padding: 0 }}>
-            <Toolbar>
-              <Typography
-                variant='h6'
-                noWrap
-                component='div'
-                color='primary'
-                sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
-              >
-                Consolidado
-              </Typography>
-
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2
-              }}>
-                <LoadingButton
-                  size='small'
-                  color='primary'
-                  startIcon={<BuildIcon />}
-                  onClick={() => handleClickBuildReport()}
-                  disabled={data?.activationReport?.length !== 0}
-                  loading={isLoadingCreateActivationReport}
-                >
-                  Generar
-                </LoadingButton>
-                <LoadingButton
-                  size='small'
-                  color='primary'
-                  startIcon={<DownloadIcon />}
-                  onClick={() => handleClickDownloadActivationReport()}
-                  disabled={isLoading || data?.activationReport?.length === 0}
-                  loading={isLoadingDownloadActivationReport}
-                >
-                  Descargar reporte (.xlsx)
-                </LoadingButton>
-              </Box>
-            </Toolbar>
-
             { isLoading && (
               <LinearProgress
                 sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4, zIndex: 3 }}
