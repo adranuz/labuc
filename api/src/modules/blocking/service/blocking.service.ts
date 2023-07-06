@@ -17,12 +17,12 @@ export default class BlockingService {
     return this.blockingRepository.getActivationReport(deviceType);
   }
 
-  getActivationReportFile(): Promise<any> {
-    return this.blockingRepository.getActivationReportFile();
+  getActivationReportFile(deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getActivationReportFile(deviceType);
   }
 
-  getCustomerReport(name: string): Promise<any> {
-    return this.blockingRepository.getCustomerReport(name);
+  getCustomerReportFile(deviceType: string | undefined, name: string): Promise<any> {
+    return this.blockingRepository.getCustomerReportFile(deviceType, name);
   }
 
   listImports(data: PaginationFilterDTO): Promise<Option<PublicImportsDTO>> {

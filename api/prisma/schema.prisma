@@ -125,7 +125,38 @@ model BlockingDevice {
   appVersion              String?
   customerEmail           String?
 
-  @@index([billable, status, type, enrolledOn, customerEmail])
+  @@index([billable, status, enrolledOn])
+}
+
+model BlockingDeviceComplete {
+  customerId              String?
+  deviceId                Int       @unique
+  imei                    String?
+  serial                  String?
+  locked                  String?
+  lockType                String?
+  status                  String?
+  isActivated             String?
+  previousStatus          String?
+  previousStatusChangedOn DateTime?
+  make                    String?
+  model                   String?
+  type                    String?
+  deleted                 String?
+  activatedDeviceDeleted  String?
+  registeredOn            DateTime?
+  enrolledOn              DateTime?
+  unregisteredOn          DateTime?
+  deletedOn               DateTime?
+  activationDate          DateTime?
+  billable                String?
+  lastConnectedAt         DateTime?
+  nextLockDate            DateTime?
+  appVersion              String?
+  customerEmail           String?
+  enrolledOnOnlyDate      DateTime? @db.Date
+  billableCalculated      Boolean?
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
 }
 
 model ActivationReport {

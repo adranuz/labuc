@@ -11,8 +11,8 @@ export default (cradle: ICradle) => {
   router.post('/blocking/import', upload.array('files'), cradle.blockingMiddleware.validate(importBlockingSchema), cradle.blockingController.importBlocking);
   router.post('/blocking/report/activation', cradle.blockingController.createActivationReport);
   router.get('/blocking/report/activation', cradle.blockingMiddleware.validate(getActivationReportSchema), cradle.blockingController.getActivationReport);
-  router.get('/blocking/report/activation/download', cradle.blockingController.getActivationReportFile);
-  router.get('/blocking/report/customers', cradle.blockingMiddleware.validate(getCustomerReportSchema), cradle.blockingController.getCustomerReport);
+  router.get('/blocking/report/activation/download', cradle.blockingMiddleware.validate(getActivationReportSchema), cradle.blockingController.getActivationReportFile);
+  router.get('/blocking/report/customer/download', cradle.blockingMiddleware.validate(getCustomerReportSchema), cradle.blockingController.getCustomerReportFile);
 
   router.get('/blocking/imports', cradle.blockingMiddleware.validate(paginationFilterSchema), cradle.blockingController.listImports);
 

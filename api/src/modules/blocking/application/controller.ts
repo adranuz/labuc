@@ -78,13 +78,15 @@ export default class BlockingController {
   }
 
   getActivationReportFile = async (
-    req: Request,
+    req: Request<{}, {}, {}, GetActivationReportInput>,
     res: Response
   ): Promise<unknown> => {
     try {
-      const reportBuffer = await this.blockingService.getActivationReportFile()
+      const { deviceType } = req.query
+
+      const reportBuffer = await this.blockingService.getActivationReportFile(deviceType)
       const currentDate = new Date().toISOString().split('T')[0]
-      res.attachment(`Consolidado - ${currentDate}.xlsx`)
+      res.attachment(`Consolidado ${deviceType} - ${currentDate}.xlsx`)
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
       res.write(reportBuffer)
       res.end()
@@ -101,18 +103,18 @@ export default class BlockingController {
     }
   }
 
-  getCustomerReport = async (
+  getCustomerReportFile = async (
     req: Request<{}, {}, {}, GetCustomerReportInput>,
     res: Response
   ): Promise<unknown> => {
     try {
       const fs = require('node:fs')
 
-      const { name } = req.query
-      const filePath = await this.blockingService.getCustomerReport(name)
+      const { deviceType, name } = req.query
+      const filePath = await this.blockingService.getCustomerReportFile(deviceType, name)
 
       const currentDate = new Date().toISOString().split('T')[0]
-      const fileName = `Reporte ${name} - ${currentDate}.csv`
+      const fileName = `Reporte ${deviceType} - ${name} - ${currentDate}.csv`
 
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
       res.download(filePath, fileName, (err) => {

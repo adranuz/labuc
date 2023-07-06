@@ -1,7 +1,6 @@
 import { Client } from 'pg'
 
 import prismaClient from '../../common/persistence/prisma-client'
-import { Prisma } from '@prisma/client'
 
 import { pipeline } from 'node:stream/promises'
 import { exec } from 'node:child_process'
@@ -48,6 +47,7 @@ export default class BlockingRepository implements IBlockingRepository {
 
     if (truncate === 'true') {
       await pgClient.query(`TRUNCATE "BlockingDevice"`)
+      await pgClient.query(`TRUNCATE "BlockingDeviceComplete"`)
       await pgClient.query(`TRUNCATE "ActivationReport"`)
     }
 
@@ -96,6 +96,54 @@ export default class BlockingRepository implements IBlockingRepository {
         }
     }
 
+    /////////////
+
+    console.log(`[!] Copy to BlockingDeviceComplete...`)
+
+    const query = `
+      INSERT INTO "BlockingDeviceComplete"(
+          "customerId",
+          "deviceId",
+          "imei",
+          "serial",
+          "locked",
+          "lockType",
+          "status",
+          "isActivated",
+          "previousStatus",
+          "previousStatusChangedOn",
+          "make",
+          "model",
+          "type",
+          "deleted",
+          "activatedDeviceDeleted",
+          "registeredOn",
+          "enrolledOn",
+          "unregisteredOn",
+          "deletedOn",
+          "activationDate",
+          "billable",
+          "lastConnectedAt",
+          "nextLockDate",
+          "appVersion",
+          "customerEmail",
+          "enrolledOnOnlyDate",
+          "billableCalculated"
+        )
+      SELECT *,
+        DATE("enrolledOn") as "enrolledOnOnlyDate",
+        CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
+            ELSE false
+        END AS "billableCalculated"
+      FROM "BlockingDevice"
+    `
+
+    await pgClient.query(query)
+
+    console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
+
+    //////////
+
     const elapsedTime = this.getTimeElapsedFromDate(startTime)
 
     const minutes = Math.floor(elapsedTime / 60)
@@ -128,65 +176,30 @@ export default class BlockingRepository implements IBlockingRepository {
     await pgClient.end()
   }
 
-  getBillableCustomersQuery = (email: string, fromDate: Date, toDate: Date) => {
-    return prismaClient.blockingDevice.count({
+  getBillableCustomersQuery = (email: string, deviceType: string, fromDate: Date, toDate: Date) => {
+    return prismaClient.blockingDeviceComplete.count({
       where: {
-        AND: [
-          { customerEmail: email },
-          {
-            enrolledOn: {
-              gte: fromDate,
-              lte: toDate,
-            }
-          },
-        ],
-        OR: [
-          {
-            billable: 'True'
-          },
-          {
-            status: 'Enrolled',
-            billable: 'False'
-          },
-        ]
+        customerEmail: email,
+        type: deviceType,
+        billableCalculated: true,
+        enrolledOnOnlyDate: {
+          gte: fromDate,
+          lte: toDate,
+        }
       }
     })
   }
-
-  getNonBillableCustomersQuery = (email: string, fromDate: Date, toDate: Date) => {
-    return prismaClient.blockingDevice.count({
+ 
+  getNonBillableCustomersQuery = (email: string, deviceType: string, fromDate: Date, toDate: Date) => {
+    return prismaClient.blockingDeviceComplete.count({
       where: {
-        AND: [
-          { customerEmail: email },
-          {
-            enrolledOn: {
-              gte: fromDate,
-              lte: toDate,
-            }
-          },
-        ],
-        OR: [
-          {
-            NOT: [
-              {
-                OR: [
-                  {
-                    billable: 'True'
-                  },
-                  {
-                    status: 'Enrolled',
-                    billable: 'False'
-                  },
-                ]
-              }
-            ]
-          },
-          {
-            billable: {
-              equals: null
-            }
-          },
-        ]
+        customerEmail: email,
+        type: deviceType,
+        billableCalculated: false,
+        enrolledOnOnlyDate: {
+          gte: fromDate,
+          lte: toDate,
+        }
       }
     })
   }
@@ -213,53 +226,24 @@ export default class BlockingRepository implements IBlockingRepository {
       for (const deviceType of deviceTypes) {
         console.log(`[!] Device type : ` + deviceType)
 
-        const billableQuery = prismaClient.blockingDevice.count({
+        const billableQuery = prismaClient.blockingDeviceComplete.count({
           where: {
             customerEmail: email,
             type: deviceType,
-            OR: [
-              {
-                billable: 'True'
-              },
-              {
-                status: 'Enrolled',
-                billable: 'False'
-              },
-            ]
+            billableCalculated: true
           }
         })
-        const nonBillableQuery = prismaClient.blockingDevice.count({
+        const nonBillableQuery = prismaClient.blockingDeviceComplete.count({
           where: {
             customerEmail: email,
             type: deviceType,
-            OR: [
-              {
-                NOT: [
-                  {
-                    OR: [
-                      {
-                        billable: 'True'
-                      },
-                      {
-                        status: 'Enrolled',
-                        billable: 'False'
-                      },
-                    ]
-                  }
-                ]
-              },
-              {
-                billable: {
-                  equals: null
-                }
-              },
-            ]
+            billableCalculated: false
         }
         })
-        const billableWeeklyQuery = this.getBillableCustomersQuery(email, lastWeekDate, currentDate)
-        const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, lastWeekDate, currentDate)
-        const billableBiweeklyQuery = this.getBillableCustomersQuery(email, lastFortnightDate, currentDate)
-        const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, lastFortnightDate, currentDate)
+        const billableWeeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastWeekDate, currentDate)
+        const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastWeekDate, currentDate)
+        const billableBiweeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastFortnightDate, currentDate)
+        const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastFortnightDate, currentDate)
   
         const [
           billable,
@@ -353,8 +337,21 @@ export default class BlockingRepository implements IBlockingRepository {
     }
   }
 
-  async getActivationReportFile(): Promise<any> {
+  async getActivationReportFile(deviceType: string | undefined): Promise<any> {
+    let type = null
+
+    if (deviceType === 'android') {
+      type = 'Android Device'
+    } else if (deviceType === 'ios') {
+      type = 'iOS Device'
+    } else if (deviceType === 'windows') {
+      type = 'Windows Device'
+    }
+
     const activationReportQuery = prismaClient.activationReport.groupBy({
+      where: type ? {
+        deviceType: type
+      } : {},
       by: ['customerName'],
       _sum: {
         billable: true,
@@ -368,6 +365,9 @@ export default class BlockingRepository implements IBlockingRepository {
     })
 
     const activationReportTotalsQuery = prismaClient.activationReport.aggregate({
+      where: type ? {
+        deviceType: type
+      } : {},
       _sum: {
         billable: true,
         nonBillable: true,
@@ -414,7 +414,17 @@ export default class BlockingRepository implements IBlockingRepository {
     return buffer
   }
 
-  async getCustomerReport(name: string): Promise<any> {
+  async getCustomerReportFile(deviceType: string | undefined, name: string): Promise<any> {
+    let type = null
+
+    if (deviceType === 'android') {
+      type = 'Android Device'
+    } else if (deviceType === 'ios') {
+      type = 'iOS Device'
+    } else if (deviceType === 'windows') {
+      type = 'Windows Device'
+    }
+
     const { to: copyTo } = require('pg-copy-streams')
 
     const pgClient = new Client({
@@ -434,7 +444,7 @@ export default class BlockingRepository implements IBlockingRepository {
 
     await pgClient.query(`TRUNCATE "BlockingDeviceReport"`)
 
-    const queryBillable = `
+    const query = `
       INSERT INTO "BlockingDeviceReport"(
           "deviceId",
           "imei",
@@ -476,21 +486,15 @@ export default class BlockingRepository implements IBlockingRepository {
         "deletedOn",
         "activationDate",
         "billable",
-        'Facturable'
-      FROM "BlockingDevice"
+        CASE WHEN "billableCalculated" = true THEN 'Facturable'
+             ELSE 'Sin costo'
+        END
+      FROM "BlockingDeviceComplete"
       WHERE "customerEmail" = '${customer?.email}'
-        AND (
-          billable = 'True'
-          OR (
-            status = 'Enrolled'
-            AND billable = 'False'
-          )
-        )`
-    
-    await pgClient.query(queryBillable)
+      AND "type" = '${type}'
+    `
 
-    const queryNonBillable = `INSERT INTO "BlockingDeviceReport"("deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","billableText") SELECT "deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable",'Sin costo' FROM "BlockingDevice" WHERE "customerEmail" = '${customer?.email}' AND (billable IS NULL OR (NOT (billable = 'True' OR (status = 'Enrolled' AND billable = 'False'))))`
-    await pgClient.query(queryNonBillable)
+    await pgClient.query(query)
 
     const filePath = path.resolve(`./tmp/report-${crypto.randomBytes(4).readUInt32LE(0)}`)
     const sqlCopy = `COPY (SELECT "deviceId" AS "device_id","imei","serial" AS "serial_no","locked","lockType" AS "lock_type","status" AS "estado","previousStatus" AS "previous_status","previousStatusChangedOn" AS "previous_status_changed_on","make","model","type" AS "tipo","deleted","activatedDeviceDeleted" AS "activated_device_deleted","registeredOn" AS "registered_on","enrolledOn" AS "enrolled_on","unregisteredOn" AS "unregistered_on","deletedOn" AS "deleted_on","activationDate" AS "activation_date","billable","billableText" AS "facturables" FROM "BlockingDeviceReport" ORDER BY "deviceId") TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'`

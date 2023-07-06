@@ -115,6 +115,37 @@ CREATE TABLE "BlockingDevice" (
 );
 
 -- CreateTable
+CREATE TABLE "BlockingDeviceComplete" (
+    "customerId" TEXT,
+    "deviceId" INTEGER NOT NULL,
+    "imei" TEXT,
+    "serial" TEXT,
+    "locked" TEXT,
+    "lockType" TEXT,
+    "status" TEXT,
+    "isActivated" TEXT,
+    "previousStatus" TEXT,
+    "previousStatusChangedOn" TIMESTAMP(3),
+    "make" TEXT,
+    "model" TEXT,
+    "type" TEXT,
+    "deleted" TEXT,
+    "activatedDeviceDeleted" TEXT,
+    "registeredOn" TIMESTAMP(3),
+    "enrolledOn" TIMESTAMP(3),
+    "unregisteredOn" TIMESTAMP(3),
+    "deletedOn" TIMESTAMP(3),
+    "activationDate" TIMESTAMP(3),
+    "billable" TEXT,
+    "lastConnectedAt" TIMESTAMP(3),
+    "nextLockDate" TIMESTAMP(3),
+    "appVersion" TEXT,
+    "customerEmail" TEXT,
+    "enrolledOnOnlyDate" DATE,
+    "billableCalculated" BOOLEAN
+);
+
+-- CreateTable
 CREATE TABLE "ActivationReport" (
     "id" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
@@ -212,7 +243,13 @@ CREATE INDEX "Customer_id_email_idx" ON "Customer"("id", "email");
 CREATE UNIQUE INDEX "BlockingDevice_deviceId_key" ON "BlockingDevice"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDevice_billable_status_type_enrolledOn_customerEmai_idx" ON "BlockingDevice"("billable", "status", "type", "enrolledOn", "customerEmail");
+CREATE INDEX "BlockingDevice_billable_status_enrolledOn_idx" ON "BlockingDevice"("billable", "status", "enrolledOn");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BlockingDeviceComplete_deviceId_key" ON "BlockingDeviceComplete"("deviceId");
+
+-- CreateIndex
+CREATE INDEX "BlockingDeviceComplete_type_customerEmail_enrolledOnOnlyDat_idx" ON "BlockingDeviceComplete"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated");
 
 -- CreateIndex
 CREATE INDEX "ActivationReport_customerEmail_deviceType_idx" ON "ActivationReport"("customerEmail", "deviceType");

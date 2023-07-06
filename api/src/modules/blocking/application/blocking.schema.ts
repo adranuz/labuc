@@ -23,6 +23,7 @@ export const getActivationReportSchema = object({
 
 export const getCustomerReportSchema = object({
   query: object({
+    deviceType: optional(string({ required_error: 'Device type is required' })),
     name: string({ required_error: 'Name is required' })
   })
 })
