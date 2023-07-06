@@ -23,64 +23,29 @@ class BlockingRepository {
             const timeTakenInSeconds = timeTaken / 1000;
             return timeTakenInSeconds;
         };
-        this.getBillableCustomersQuery = (email, fromDate, toDate) => {
-            return prisma_client_1.default.blockingDevice.count({
+        this.getBillableCustomersQuery = (email, deviceType, fromDate, toDate) => {
+            return prisma_client_1.default.blockingDeviceComplete.count({
                 where: {
-                    AND: [
-                        { customerEmail: email },
-                        {
-                            enrolledOn: {
-                                gte: fromDate,
-                                lte: toDate,
-                            }
-                        },
-                    ],
-                    OR: [
-                        {
-                            billable: 'True'
-                        },
-                        {
-                            status: 'Enrolled',
-                            billable: 'False'
-                        },
-                    ]
+                    customerEmail: email,
+                    type: deviceType,
+                    billableCalculated: true,
+                    enrolledOnOnlyDate: {
+                        gte: fromDate,
+                        lte: toDate,
+                    }
                 }
             });
         };
-        this.getNonBillableCustomersQuery = (email, fromDate, toDate) => {
-            return prisma_client_1.default.blockingDevice.count({
+        this.getNonBillableCustomersQuery = (email, deviceType, fromDate, toDate) => {
+            return prisma_client_1.default.blockingDeviceComplete.count({
                 where: {
-                    AND: [
-                        { customerEmail: email },
-                        {
-                            enrolledOn: {
-                                gte: fromDate,
-                                lte: toDate,
-                            }
-                        },
-                    ],
-                    OR: [
-                        {
-                            NOT: [
-                                {
-                                    OR: [
-                                        {
-                                            billable: 'True'
-                                        },
-                                        {
-                                            status: 'Enrolled',
-                                            billable: 'False'
-                                        },
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            billable: {
-                                equals: null
-                            }
-                        },
-                    ]
+                    customerEmail: email,
+                    type: deviceType,
+                    billableCalculated: false,
+                    enrolledOnOnlyDate: {
+                        gte: fromDate,
+                        lte: toDate,
+                    }
                 }
             });
         };
@@ -104,6 +69,7 @@ class BlockingRepository {
         const execPromise = node_util_1.default.promisify(node_child_process_1.exec);
         if (truncate === 'true') {
             await pgClient.query(`TRUNCATE "BlockingDevice"`);
+            await pgClient.query(`TRUNCATE "BlockingDeviceComplete"`);
             await pgClient.query(`TRUNCATE "ActivationReport"`);
         }
         const startTime = new Date();
@@ -143,6 +109,48 @@ class BlockingRepository {
                 }
             }
         }
+        /////////////
+        console.log(`[!] Copy to BlockingDeviceComplete...`);
+        const query = `
+      INSERT INTO "BlockingDeviceComplete"(
+          "customerId",
+          "deviceId",
+          "imei",
+          "serial",
+          "locked",
+          "lockType",
+          "status",
+          "isActivated",
+          "previousStatus",
+          "previousStatusChangedOn",
+          "make",
+          "model",
+          "type",
+          "deleted",
+          "activatedDeviceDeleted",
+          "registeredOn",
+          "enrolledOn",
+          "unregisteredOn",
+          "deletedOn",
+          "activationDate",
+          "billable",
+          "lastConnectedAt",
+          "nextLockDate",
+          "appVersion",
+          "customerEmail",
+          "enrolledOnOnlyDate",
+          "billableCalculated"
+        )
+      SELECT *,
+        DATE("enrolledOn") as "enrolledOnOnlyDate",
+        CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
+            ELSE false
+        END AS "billableCalculated"
+      FROM "BlockingDevice"
+    `;
+        await pgClient.query(query);
+        console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`);
+        //////////
         const elapsedTime = this.getTimeElapsedFromDate(startTime);
         const minutes = Math.floor(elapsedTime / 60);
         const seconds = elapsedTime - minutes * 60;
@@ -165,82 +173,59 @@ class BlockingRepository {
         await pgClient.end();
     }
     async createActivationReport() {
-        const deviceType = 'Android Device';
-        const activationReportData = [];
+        const deviceTypes = [
+            'Android Device',
+            'iOS Device',
+            'Windows Device',
+        ];
         const currentDate = new Date();
         const lastWeekDate = new Date(currentDate.getTime() - (60 * 60 * 24 * 7 * 1000));
         const lastFortnightDate = new Date(currentDate.getTime() - (60 * 60 * 24 * 15 * 1000));
-        console.log(`[!] Device type : ` + deviceType);
+        const activationReportData = [];
         const customers = await prisma_client_1.default.customer.findMany();
         const totalCustomers = customers.length;
         for (const [index, { name, email }] of customers.entries()) {
             console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email);
-            const billableQuery = prisma_client_1.default.blockingDevice.count({
-                where: {
+            for (const deviceType of deviceTypes) {
+                console.log(`[!] Device type : ` + deviceType);
+                const billableQuery = prisma_client_1.default.blockingDeviceComplete.count({
+                    where: {
+                        customerEmail: email,
+                        type: deviceType,
+                        billableCalculated: true
+                    }
+                });
+                const nonBillableQuery = prisma_client_1.default.blockingDeviceComplete.count({
+                    where: {
+                        customerEmail: email,
+                        type: deviceType,
+                        billableCalculated: false
+                    }
+                });
+                const billableWeeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastWeekDate, currentDate);
+                const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastWeekDate, currentDate);
+                const billableBiweeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastFortnightDate, currentDate);
+                const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastFortnightDate, currentDate);
+                const [billable, nonBillable, billableWeekly, nonBillableWeekly, billableBiweekly, nonBillableBiweekly,] = await prisma_client_1.default.$transaction([
+                    billableQuery,
+                    nonBillableQuery,
+                    billableWeeklyQuery,
+                    nonBillableWeeklyQuery,
+                    billableBiweeklyQuery,
+                    nonBillableBiweeklyQuery,
+                ]);
+                activationReportData.push({
+                    customerName: name,
                     customerEmail: email,
-                    type: deviceType,
-                    OR: [
-                        {
-                            billable: 'True'
-                        },
-                        {
-                            status: 'Enrolled',
-                            billable: 'False'
-                        },
-                    ]
-                }
-            });
-            const nonBillableQuery = prisma_client_1.default.blockingDevice.count({
-                where: {
-                    customerEmail: email,
-                    type: deviceType,
-                    OR: [
-                        {
-                            NOT: [
-                                {
-                                    OR: [
-                                        {
-                                            billable: 'True'
-                                        },
-                                        {
-                                            status: 'Enrolled',
-                                            billable: 'False'
-                                        },
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            billable: {
-                                equals: null
-                            }
-                        },
-                    ]
-                }
-            });
-            const billableWeeklyQuery = this.getBillableCustomersQuery(email, lastWeekDate, currentDate);
-            const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, lastWeekDate, currentDate);
-            const billableBiweeklyQuery = this.getBillableCustomersQuery(email, lastFortnightDate, currentDate);
-            const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, lastFortnightDate, currentDate);
-            const [billable, nonBillable, billableWeekly, nonBillableWeekly, billableBiweekly, nonBillableBiweekly,] = await prisma_client_1.default.$transaction([
-                billableQuery,
-                nonBillableQuery,
-                billableWeeklyQuery,
-                nonBillableWeeklyQuery,
-                billableBiweeklyQuery,
-                nonBillableBiweeklyQuery,
-            ]);
-            activationReportData.push({
-                customerName: name,
-                customerEmail: email,
-                billable,
-                nonBillable,
-                billableWeekly,
-                nonBillableWeekly,
-                billableBiweekly,
-                nonBillableBiweekly,
-                deviceType,
-            });
+                    billable,
+                    nonBillable,
+                    billableWeekly,
+                    nonBillableWeekly,
+                    billableBiweekly,
+                    nonBillableBiweekly,
+                    deviceType,
+                });
+            }
         }
         const activationReport = await prisma_client_1.default.activationReport.createMany({
             data: activationReportData,
@@ -249,12 +234,21 @@ class BlockingRepository {
             status: 'success'
         };
     }
-    async getActivationReport() {
-        const deviceType = 'Android Device';
+    async getActivationReport(deviceType) {
+        let type = null;
+        if (deviceType === 'android') {
+            type = 'Android Device';
+        }
+        else if (deviceType === 'ios') {
+            type = 'iOS Device';
+        }
+        else if (deviceType === 'windows') {
+            type = 'Windows Device';
+        }
         const activationReportQuery = prisma_client_1.default.activationReport.groupBy({
-            where: {
-                deviceType
-            },
+            where: type ? {
+                deviceType: type
+            } : {},
             by: ['customerName'],
             _sum: {
                 billable: true,
@@ -267,9 +261,9 @@ class BlockingRepository {
             }
         });
         const activationReportTotalsQuery = prisma_client_1.default.activationReport.aggregate({
-            where: {
-                deviceType
-            },
+            where: type ? {
+                deviceType: type
+            } : {},
             _sum: {
                 billable: true,
                 nonBillable: true,
@@ -286,8 +280,21 @@ class BlockingRepository {
             activationReportTotals,
         };
     }
-    async getActivationReportFile() {
+    async getActivationReportFile(deviceType) {
+        let type = null;
+        if (deviceType === 'android') {
+            type = 'Android Device';
+        }
+        else if (deviceType === 'ios') {
+            type = 'iOS Device';
+        }
+        else if (deviceType === 'windows') {
+            type = 'Windows Device';
+        }
         const activationReportQuery = prisma_client_1.default.activationReport.groupBy({
+            where: type ? {
+                deviceType: type
+            } : {},
             by: ['customerName'],
             _sum: {
                 billable: true,
@@ -300,6 +307,9 @@ class BlockingRepository {
             }
         });
         const activationReportTotalsQuery = prisma_client_1.default.activationReport.aggregate({
+            where: type ? {
+                deviceType: type
+            } : {},
             _sum: {
                 billable: true,
                 nonBillable: true,
@@ -332,7 +342,17 @@ class BlockingRepository {
         const buffer = XLSX.write(workBook, { type: 'buffer', bookType: 'xlsx' });
         return buffer;
     }
-    async getCustomerReport(name) {
+    async getCustomerReportFile(deviceType, name) {
+        let type = null;
+        if (deviceType === 'android') {
+            type = 'Android Device';
+        }
+        else if (deviceType === 'ios') {
+            type = 'iOS Device';
+        }
+        else if (deviceType === 'windows') {
+            type = 'Windows Device';
+        }
         const { to: copyTo } = require('pg-copy-streams');
         const pgClient = new pg_1.Client({
             connectionString: process.env.DATABASE_URL,
@@ -347,7 +367,7 @@ class BlockingRepository {
             }
         });
         await pgClient.query(`TRUNCATE "BlockingDeviceReport"`);
-        const queryBillable = `
+        const query = `
       INSERT INTO "BlockingDeviceReport"(
           "deviceId",
           "imei",
@@ -389,19 +409,14 @@ class BlockingRepository {
         "deletedOn",
         "activationDate",
         "billable",
-        'Facturable'
-      FROM "BlockingDevice"
+        CASE WHEN "billableCalculated" = true THEN 'Facturable'
+             ELSE 'Sin costo'
+        END
+      FROM "BlockingDeviceComplete"
       WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}'
-        AND (
-          billable = 'True'
-          OR (
-            status = 'Enrolled'
-            AND billable = 'False'
-          )
-        )`;
-        await pgClient.query(queryBillable);
-        const queryNonBillable = `INSERT INTO "BlockingDeviceReport"("deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","billableText") SELECT "deviceId","imei","serial","locked","lockType","status","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable",'Sin costo' FROM "BlockingDevice" WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}' AND (billable IS NULL OR (NOT (billable = 'True' OR (status = 'Enrolled' AND billable = 'False'))))`;
-        await pgClient.query(queryNonBillable);
+      AND "type" = '${type}'
+    `;
+        await pgClient.query(query);
         const filePath = path.resolve(`./tmp/report-${crypto.randomBytes(4).readUInt32LE(0)}`);
         const sqlCopy = `COPY (SELECT "deviceId" AS "device_id","imei","serial" AS "serial_no","locked","lockType" AS "lock_type","status" AS "estado","previousStatus" AS "previous_status","previousStatusChangedOn" AS "previous_status_changed_on","make","model","type" AS "tipo","deleted","activatedDeviceDeleted" AS "activated_device_deleted","registeredOn" AS "registered_on","enrolledOn" AS "enrolled_on","unregisteredOn" AS "unregistered_on","deletedOn" AS "deleted_on","activationDate" AS "activation_date","billable","billableText" AS "facturables" FROM "BlockingDeviceReport" ORDER BY "deviceId") TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'`;
         const outStream = pgClient.query(copyTo(sqlCopy));

@@ -39,7 +39,8 @@ class BlockingController {
         };
         this.getActivationReport = async (req, res) => {
             try {
-                const activationReport = await this.blockingService.getActivationReport();
+                const { deviceType } = req.query;
+                const activationReport = await this.blockingService.getActivationReport(deviceType);
                 res.status(200).json(activationReport);
             }
             catch (err) {
@@ -55,9 +56,10 @@ class BlockingController {
         };
         this.getActivationReportFile = async (req, res) => {
             try {
-                const reportBuffer = await this.blockingService.getActivationReportFile();
+                const { deviceType } = req.query;
+                const reportBuffer = await this.blockingService.getActivationReportFile(deviceType);
                 const currentDate = new Date().toISOString().split('T')[0];
-                res.attachment(`Consolidado - ${currentDate}.xlsx`);
+                res.attachment(`Consolidado ${deviceType} - ${currentDate}.xlsx`);
                 res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
                 res.write(reportBuffer);
                 res.end();
@@ -73,13 +75,13 @@ class BlockingController {
                 });
             }
         };
-        this.getCustomerReport = async (req, res) => {
+        this.getCustomerReportFile = async (req, res) => {
             try {
                 const fs = require('node:fs');
-                const { name } = req.query;
-                const filePath = await this.blockingService.getCustomerReport(name);
+                const { deviceType, name } = req.query;
+                const filePath = await this.blockingService.getCustomerReportFile(deviceType, name);
                 const currentDate = new Date().toISOString().split('T')[0];
-                const fileName = `Reporte ${name} - ${currentDate}.csv`;
+                const fileName = `Reporte ${deviceType} - ${name} - ${currentDate}.csv`;
                 res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
                 res.download(filePath, fileName, (err) => {
                     if (err) {

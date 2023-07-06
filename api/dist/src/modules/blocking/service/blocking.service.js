@@ -10,14 +10,14 @@ class BlockingService {
     createActivationReport() {
         return this.blockingRepository.createActivationReport();
     }
-    getActivationReport() {
-        return this.blockingRepository.getActivationReport();
+    getActivationReport(deviceType) {
+        return this.blockingRepository.getActivationReport(deviceType);
     }
-    getActivationReportFile() {
-        return this.blockingRepository.getActivationReportFile();
+    getActivationReportFile(deviceType) {
+        return this.blockingRepository.getActivationReportFile(deviceType);
     }
-    getCustomerReport(name) {
-        return this.blockingRepository.getCustomerReport(name);
+    getCustomerReportFile(deviceType, name) {
+        return this.blockingRepository.getCustomerReportFile(deviceType, name);
     }
     listImports(data) {
         return this.blockingRepository.listImports(data);

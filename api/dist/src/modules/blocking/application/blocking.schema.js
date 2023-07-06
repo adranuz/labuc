@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCustomerReportSchema = exports.importBlockingSchema = exports.paginationFilterSchema = void 0;
+exports.getCustomerReportSchema = exports.getActivationReportSchema = exports.importBlockingSchema = exports.paginationFilterSchema = void 0;
 const zod_1 = require("zod");
 exports.paginationFilterSchema = (0, zod_1.object)({
     query: (0, zod_1.object)({
@@ -15,8 +15,14 @@ exports.importBlockingSchema = (0, zod_1.object)({
     }),
     files: zod_1.z.any().array().min(1, { message: 'Se requiere al menos un archivo' }),
 });
+exports.getActivationReportSchema = (0, zod_1.object)({
+    query: (0, zod_1.object)({
+        deviceType: (0, zod_1.optional)((0, zod_1.string)({ required_error: 'Device type is required' }))
+    })
+});
 exports.getCustomerReportSchema = (0, zod_1.object)({
     query: (0, zod_1.object)({
+        deviceType: (0, zod_1.optional)((0, zod_1.string)({ required_error: 'Device type is required' })),
         name: (0, zod_1.string)({ required_error: 'Name is required' })
     })
 });
