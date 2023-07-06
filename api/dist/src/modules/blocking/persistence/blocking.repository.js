@@ -151,6 +151,8 @@ class BlockingRepository {
         await pgClient.query(query);
         console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`);
         //////////
+        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`);
+        await pgClient.end();
         const elapsedTime = this.getTimeElapsedFromDate(startTime);
         const minutes = Math.floor(elapsedTime / 60);
         const seconds = elapsedTime - minutes * 60;
@@ -164,13 +166,6 @@ class BlockingRepository {
         });
         const { id } = importUpdated;
         return { id };
-        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`);
-        // const elapsedTime = this.getTimeElapsedFromDate(startTime)
-        // const minutes = Math.floor(elapsedTime / 60)
-        // const seconds = elapsedTime - minutes * 60
-        console.log(`[!] Execution time: ${minutes} min ${seconds} sec`);
-        console.log('pgClient.end()');
-        await pgClient.end();
     }
     async createActivationReport() {
         const deviceTypes = [
@@ -422,6 +417,7 @@ class BlockingRepository {
         const outStream = pgClient.query(copyTo(sqlCopy));
         const writeStream = fs.createWriteStream(filePath);
         await (0, promises_1.pipeline)(outStream, writeStream);
+        await pgClient.end();
         return filePath;
     }
     async listImports({ perPage = 10, page = 0, q: searchText = '' }) {
