@@ -144,6 +144,9 @@ export default class BlockingRepository implements IBlockingRepository {
 
     //////////
 
+    await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`)
+    await pgClient.end()
+
     const elapsedTime = this.getTimeElapsedFromDate(startTime)
 
     const minutes = Math.floor(elapsedTime / 60)
@@ -162,18 +165,6 @@ export default class BlockingRepository implements IBlockingRepository {
     const { id } = importUpdated
 
     return { id }
-
-    await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`)
-
-    // const elapsedTime = this.getTimeElapsedFromDate(startTime)
-
-    // const minutes = Math.floor(elapsedTime / 60)
-    // const seconds = elapsedTime - minutes * 60
-
-    console.log(`[!] Execution time: ${minutes} min ${seconds} sec`)
-
-    console.log('pgClient.end()')
-    await pgClient.end()
   }
 
   getBillableCustomersQuery = (email: string, deviceType: string, fromDate: Date, toDate: Date) => {
@@ -503,6 +494,8 @@ export default class BlockingRepository implements IBlockingRepository {
     const writeStream = fs.createWriteStream(filePath)
 
     await pipeline(outStream, writeStream)
+
+    await pgClient.end()
 
     return filePath
   }

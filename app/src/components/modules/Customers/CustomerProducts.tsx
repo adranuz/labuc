@@ -73,7 +73,7 @@ function CustomerProducts ({productsList, products, readOnly}) {
 
       <Grid item xs={12} md={6} lg={3}>
         <FormControl variant='standard'>
-        <FormLabel>Dispositivos Start</FormLabel>
+        <FormLabel>SKU Start</FormLabel>
         <RadioGroup>
         {
           skuStart?.map(item => {
@@ -98,7 +98,7 @@ function CustomerProducts ({productsList, products, readOnly}) {
 
       <Grid item xs={12} md={6} lg={3}>
         <FormControl variant='standard'>
-        <FormLabel>Dispositivos End</FormLabel>
+        <FormLabel>SKU End</FormLabel>
         <RadioGroup>
         {
           skuEnd?.map(item => {
