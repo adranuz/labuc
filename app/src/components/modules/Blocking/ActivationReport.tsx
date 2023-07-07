@@ -116,7 +116,6 @@ function ActivationReport () {
 
   const localeDate = (date: string) => {
     if (date)  return new Date(date).toLocaleString('es', {
-      timeZone: 'UTC',
       dateStyle: 'medium',
       timeStyle: 'short',
       hour12: true,

@@ -95,7 +95,6 @@ function BlockingImportsTable () {
 
   const localeDate = (date: string) => {
     return new Date(date).toLocaleString('es', {
-      timeZone: 'UTC',
       dateStyle: 'medium',
       timeStyle: 'short',
       hour12: true,
