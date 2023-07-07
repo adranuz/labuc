@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { MuiFileInput } from 'mui-file-input'
-import { Container, Card, CardContent, Switch, FormControlLabel, Grid, FormLabel, FormControl, Alert, Box, IconButton, Toolbar, Typography } from '@mui/material'
+import { Container, Card, CardContent, Switch, FormControlLabel, Grid, FormLabel, FormControl, Alert, Box, IconButton, Toolbar, Typography, Backdrop, CircularProgress } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import UploadIcon from '@mui/icons-material/Upload'
@@ -161,6 +161,13 @@ function BlockingImportNew () {
           )}
         </CardContent>
       </Card>
+
+      <Backdrop
+        sx={{  color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Container>
   )
 }

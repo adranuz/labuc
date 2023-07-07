@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { Box, Container, LinearProgress, Paper, Tab, Toolbar, Typography } from '@mui/material'
+import { Backdrop, Box, CircularProgress, Container, LinearProgress, Paper, Tab, Toolbar, Typography } from '@mui/material'
 import { LoadingButton, TabContext, TabList, TabPanel } from '@mui/lab'
 import BuildIcon from '@mui/icons-material/Build';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -125,7 +125,6 @@ function ActivationReport () {
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-
       <Toolbar disableGutters>
         <Typography
           component='h1'
@@ -184,19 +183,26 @@ function ActivationReport () {
           ) }
 
           <TabPanel value='all' sx={{ padding: 0 }}>
-            <ActivationReportTable data={data} deviceType={tab} />
+            <ActivationReportTable data={data} deviceType={tab} isLoading={isLoading} />
           </TabPanel>
           <TabPanel value='android' sx={{ padding: 0 }}>
-            <ActivationReportTable data={data} deviceType={tab} />
+            <ActivationReportTable data={data} deviceType={tab} isLoading={isLoading} />
           </TabPanel>
           <TabPanel value='ios' sx={{ padding: 0 }}>
-            <ActivationReportTable data={data} deviceType={tab} />
+            <ActivationReportTable data={data} deviceType={tab} isLoading={isLoading} />
           </TabPanel>
           <TabPanel value='windows' sx={{ padding: 0 }}>
-            <ActivationReportTable data={data} deviceType={tab} />
+            <ActivationReportTable data={data} deviceType={tab} isLoading={isLoading} />
           </TabPanel>
         </TabContext>
       </Paper>
+
+      <Backdrop
+        sx={{  color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoadingCreateActivationReport}
+      >
+        <CircularProgress color='inherit' />
+      </Backdrop>
     </Container>
   )
 }

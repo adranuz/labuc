@@ -6,12 +6,10 @@ import DownloadIcon from '@mui/icons-material/Download';
 
 import apiUrl from '../../../config/api'
 
-function ActivationReportTable ({data, deviceType}) {
-  const [isLoading, setIsLoading] = useState(false)
+function ActivationReportTable ({data, deviceType, isLoading}) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
 
   const downloadCustomerReport = (deviceType: string, name: string, index: number) => {
-    setIsLoading(true)
     setSelectedRowIndex(index)
 
     const url = new URL(`${apiUrl}/blocking/report/customer/download`)
@@ -43,7 +41,6 @@ function ActivationReportTable ({data, deviceType}) {
       })
       .finally(() => {
         setSelectedRowIndex(null)
-        setIsLoading(false)
       })
   }
 
@@ -79,7 +76,7 @@ function ActivationReportTable ({data, deviceType}) {
                     color='primary'
                     startIcon={<DownloadIcon />}
                     onClick={() => handleClickDownloadCustomerReport(row?.customerName, index)}
-                    disabled={isLoading}
+                    disabled={selectedRowIndex !== null || isLoading}
                     loading={selectedRowIndex === index}
                   >
                     Exportar (.csv)
