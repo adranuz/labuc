@@ -195,6 +195,7 @@ model BlockingDeviceReport {
   activationDate          DateTime?
   billable                String?
   billableText            String?
+  enrolledOnCount3Months  Int?
 
   @@index([deviceId])
 }

@@ -22,6 +22,10 @@ const skuEnd = [
   { name: 'HBMPRE' },
 ]
 
+const other = [
+  { name: 'Contar 3 meses' },
+]
+
 function CustomerProducts ({productsList, products, readOnly}) {
   return (
     <Grid container spacing={1}>
@@ -71,7 +75,7 @@ function CustomerProducts ({productsList, products, readOnly}) {
         </FormControl>
       </Grid>
 
-      <Grid item xs={12} md={6} lg={3}>
+      <Grid item xs={12} md={6} lg={2}>
         <FormControl variant='standard'>
         <FormLabel>SKU Start</FormLabel>
         <RadioGroup>
@@ -96,7 +100,7 @@ function CustomerProducts ({productsList, products, readOnly}) {
         </FormControl>
       </Grid>
 
-      <Grid item xs={12} md={6} lg={3}>
+      <Grid item xs={12} md={6} lg={2}>
         <FormControl variant='standard'>
         <FormLabel>SKU End</FormLabel>
         <RadioGroup>
@@ -110,6 +114,32 @@ function CustomerProducts ({productsList, products, readOnly}) {
                     size='small'
                     color='secondary'
                     disabled={readOnly}
+                  />
+                }
+                label={item.name}
+              />
+            )
+          })
+        }
+        </RadioGroup>
+        </FormControl>
+      </Grid>
+
+      <Grid item xs={12} md={6} lg={2}>
+        <FormControl variant='standard'>
+        <FormLabel>Otros</FormLabel>
+        <RadioGroup>
+        {
+          other?.map(item => {
+            return (
+              <FormControlLabel
+                value={item.name}
+                control={
+                  <Checkbox
+                    size='small'
+                    color='secondary'
+                    disabled={readOnly}
+                    defaultChecked
                   />
                 }
                 label={item.name}

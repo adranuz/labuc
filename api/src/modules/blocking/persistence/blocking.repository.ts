@@ -456,7 +456,8 @@ export default class BlockingRepository implements IBlockingRepository {
           "deletedOn",
           "activationDate",
           "billable",
-          "billableText"
+          "billableText",
+          "enrolledOnCount3Months"
         )
       SELECT "deviceId",
         "imei",
@@ -479,16 +480,17 @@ export default class BlockingRepository implements IBlockingRepository {
         "billable",
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
              ELSE 'Sin costo'
-        END
+        END,
+        (SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_DATE, '3 month') "3m")
       FROM "BlockingDeviceComplete"
       WHERE "customerEmail" = '${customer?.email}'
-      AND "type" = '${type}'
+      ${type !== null ? `AND "type" = '${type}'` : ''}
     `
 
     await pgClient.query(query)
 
     const filePath = path.resolve(`./tmp/report-${crypto.randomBytes(4).readUInt32LE(0)}`)
-    const sqlCopy = `COPY (SELECT "deviceId" AS "device_id","imei","serial" AS "serial_no","locked","lockType" AS "lock_type","status" AS "estado","previousStatus" AS "previous_status","previousStatusChangedOn" AS "previous_status_changed_on","make","model","type" AS "tipo","deleted","activatedDeviceDeleted" AS "activated_device_deleted","registeredOn" AS "registered_on","enrolledOn" AS "enrolled_on","unregisteredOn" AS "unregistered_on","deletedOn" AS "deleted_on","activationDate" AS "activation_date","billable","billableText" AS "facturables" FROM "BlockingDeviceReport" ORDER BY "deviceId") TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'`
+    const sqlCopy = `COPY (SELECT "deviceId" AS "device_id","imei","serial" AS "serial_no","locked","lockType" AS "lock_type","status" AS "estado","previousStatus" AS "previous_status","previousStatusChangedOn" AS "previous_status_changed_on","make","model","type" AS "tipo","deleted","activatedDeviceDeleted" AS "activated_device_deleted","registeredOn" AS "registered_on","enrolledOn" AS "enrolled_on","unregisteredOn" AS "unregistered_on","deletedOn" AS "deleted_on","activationDate" AS "activation_date","billable","billableText" AS "facturables","enrolledOnCount3Months" AS "3m" FROM "BlockingDeviceReport" ORDER BY "deviceId") TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'`
 
     const outStream = pgClient.query(copyTo(sqlCopy))
     const writeStream = fs.createWriteStream(filePath)
