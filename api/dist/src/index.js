@@ -20,10 +20,6 @@ app.use(API_PREFIX, (0, router_2.default)(container_1.default.cradle));
 app.use(API_PREFIX, (0, router_3.default)(container_1.default.cradle));
 app.use(API_PREFIX, (0, router_4.default)(container_1.default.cradle));
 app.use(container_1.default.cradle.commonMiddleware.errorHandler);
-app.use(express_1.default.static('../app/dist'));
-const path = require('path');
-const indexPath = path.join(__dirname, "../../app/dist/index.html");
-app.get('*', (_, res) => res.sendFile(indexPath));
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`Application started at port ${port}`);

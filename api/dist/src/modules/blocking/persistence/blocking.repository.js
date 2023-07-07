@@ -418,7 +418,7 @@ class BlockingRepository {
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
              ELSE 'Sin costo'
         END,
-        (SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_DATE, '3 month') "3m")
+        (SELECT COUNT("3m")-1 FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")
       FROM "BlockingDeviceComplete"
       WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}'
       ${type !== null ? `AND "type" = '${type}'` : ''}
