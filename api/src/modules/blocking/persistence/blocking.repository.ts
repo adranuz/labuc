@@ -314,17 +314,29 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
+    const lastBlockingDeviceImportQuery = prismaClient.blockingDeviceImport.findFirst({
+      orderBy: {
+        createdAt: 'desc'
+      },
+      select: {
+        createdAt: true
+      }
+    })
+
     const [
       activationReport,
       activationReportTotals,
+      lastBlockingDeviceImport,
     ] = await prismaClient.$transaction([
       activationReportQuery,
       activationReportTotalsQuery,
+      lastBlockingDeviceImportQuery,
     ])
 
     return {
       activationReport,
       activationReportTotals,
+      lastBlockingDeviceImport,
     }
   }
 

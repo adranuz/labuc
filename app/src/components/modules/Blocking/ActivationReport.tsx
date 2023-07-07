@@ -114,6 +114,15 @@ function ActivationReport () {
     downloadActivationReport(tab)
   }
 
+  const localeDate = (date: string) => {
+    if (date)  return new Date(date).toLocaleString('es', {
+      timeZone: 'UTC',
+      dateStyle: 'medium',
+      timeStyle: 'short',
+      hour12: true,
+    })
+  }
+
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
 
@@ -126,7 +135,7 @@ function ActivationReport () {
             flexGrow: 1,
           }}
         >
-          Consolidado
+          Consolidado {localeDate(data?.lastBlockingDeviceImport?.createdAt)}
         </Typography>
         <Box
           sx={{
