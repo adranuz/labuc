@@ -17,12 +17,6 @@ app.use(API_PREFIX, userRouter(container.cradle))
 app.use(API_PREFIX, customerRouter(container.cradle))
 app.use(API_PREFIX, blockingRouter(container.cradle))
 app.use(container.cradle.commonMiddleware.errorHandler)
-app.use(express.static('../app/dist'))
-
-const path = require('path')
-const indexPath = path.join(__dirname, "../../app/dist/index.html")
-
-app.get('*', (_, res) => res.sendFile(indexPath))
 
 const port = process.env.PORT || 3000
 
