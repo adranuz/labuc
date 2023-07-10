@@ -1,6 +1,8 @@
-import { FormControl, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { FormControl, FormHelperText, Grid, InputAdornment, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 
-function CustomerGeneral ({customer, readOnly}) {
+import { Controller } from 'react-hook-form'
+
+function CustomerGeneral ({readOnly, isLoading, control, errors, register}) {
    return (
     <>
       <Grid container spacing={3}>
@@ -10,8 +12,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='ID'
-            defaultValue={customer?.customId}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.customId?.message}
+            helperText={!!errors.customId?.message && String(errors.customId.message)}
+            {...register('customId')}
           />
         </Grid>
 
@@ -21,8 +25,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='Nombre'
-            defaultValue={customer?.name}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.name?.message}
+            helperText={!!errors.name?.message && String(errors.name.message)}
+            {...register('name')}
           />
         </Grid>
 
@@ -33,8 +39,10 @@ function CustomerGeneral ({customer, readOnly}) {
             size='small'
             label='Correo electrónico'
             type='email'
-            defaultValue={customer?.email}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.email?.message}
+            helperText={!!errors.email?.message && String(errors.email.message)}
+            {...register('email')}
           />
         </Grid>
       </Grid>
@@ -46,21 +54,25 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='País'
-            defaultValue={customer?.country}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.country?.message}
+            helperText={!!errors.country?.message && String(errors.country.message)}
+            {...register('country')}
           />
         </Grid>
 
         <Grid item xs={12} md={4}>
           {
-            readOnly && (
+            (readOnly || isLoading) && (
               <TextField
                 margin='normal'
                 fullWidth
                 size='small'
                 label='Giro'
-                defaultValue={customer?.economicActivity}
-                disabled={readOnly}
+                disabled={readOnly || isLoading}
+                error={!!errors.economicActivity?.message}
+                helperText={!!errors.economicActivity?.message && String(errors.economicActivity.message)}
+                {...register('economicActivity')}
               />
             ) || (
               <FormControl
@@ -69,15 +81,25 @@ function CustomerGeneral ({customer, readOnly}) {
                 size='small'
               >
                 <InputLabel>Giro</InputLabel>
-                <Select
-                  label='Giro'
-                  defaultValue={customer?.economicActivity}
-                >
-                  <MenuItem value=''><em>Ninguno</em></MenuItem>
-                  <MenuItem value='Distribuidor'>Distribuidor</MenuItem>
-                  <MenuItem value='Fintech'>Fintech</MenuItem>
-                  <MenuItem value='Operador / Distribuidor'>Operador / Distribuidor</MenuItem>
-                </Select>
+                <Controller
+                  name='economicActivity'
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label='Giro'
+                      error={!!errors.economicActivity?.message}
+                    >
+                      <MenuItem value=''><em>Ninguno</em></MenuItem>
+                      <MenuItem value='Distribuidor'>Distribuidor</MenuItem>
+                      <MenuItem value='Fintech'>Fintech</MenuItem>
+                      <MenuItem value='Operador / Distribuidor'>Operador / Distribuidor</MenuItem>
+                    </Select>
+                  )}
+                />
+                <FormHelperText error>
+                  {!!errors.economicActivity?.message && String(errors.economicActivity.message)}
+                </FormHelperText>
               </FormControl>
             )
           }
@@ -85,14 +107,16 @@ function CustomerGeneral ({customer, readOnly}) {
 
         <Grid item xs={12} md={4}>
           {
-            readOnly && (
+            (readOnly || isLoading) && (
               <TextField
                 margin='normal'
                 fullWidth
                 size='small'
                 label='Estatus'
-                defaultValue={customer?.status}
-                disabled={readOnly}
+                disabled={readOnly || isLoading}
+                error={!!errors.status?.message}
+                helperText={!!errors.status?.message && String(errors.status.message)}
+                {...register('status')}
               />
             ) || (
               <FormControl
@@ -101,16 +125,26 @@ function CustomerGeneral ({customer, readOnly}) {
                 size='small'
               >
                 <InputLabel>Estatus</InputLabel>
-                <Select
-                  label='Estatus'
-                  defaultValue={customer?.status}
-                >
-                  <MenuItem value=''><em>Ninguno</em></MenuItem>
-                  <MenuItem value='Activo'>Activo</MenuItem>
-                  <MenuItem value='Prospecto'>Prospecto</MenuItem>
-                  <MenuItem value='Pruebas'>Pruebas</MenuItem>
-                  <MenuItem value='Suspendido'>Suspendido</MenuItem>
-                </Select>
+                <Controller
+                  name='status'
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label='Estatus'
+                      error={!!errors.status?.message}
+                    >
+                      <MenuItem value=''><em>Ninguno</em></MenuItem>
+                      <MenuItem value='Activo'>Activo</MenuItem>
+                      <MenuItem value='Prospecto'>Prospecto</MenuItem>
+                      <MenuItem value='Pruebas'>Pruebas</MenuItem>
+                      <MenuItem value='Suspendido'>Suspendido</MenuItem>
+                    </Select>
+                  )}
+                />
+                <FormHelperText error>
+                  {!!errors.status?.message && String(errors.status.message)}
+                </FormHelperText>
               </FormControl>
             )
           }
@@ -124,8 +158,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='RFC'
-            defaultValue={customer?.rfc}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.rfc?.message}
+            helperText={!!errors.rfc?.message && String(errors.rfc.message)}
+            {...register('rfc')}
           />
         </Grid>
 
@@ -135,8 +171,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='Razón social'
-            defaultValue={customer?.registeredName}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.registeredName?.message}
+            helperText={!!errors.registeredName?.message && String(errors.registeredName.message)}
+            {...register('registeredName')}
           />
         </Grid>
 
@@ -146,8 +184,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='Domicilio fiscal'
-            defaultValue={customer?.address}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.address?.message}
+            helperText={!!errors.address?.message && String(errors.address.message)}
+            {...register('address')}
           />
         </Grid>
       </Grid>
@@ -159,8 +199,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='Nombre del vendedor'
-            defaultValue={customer?.sellerName}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.sellerName?.message}
+            helperText={!!errors.sellerName?.message && String(errors.sellerName.message)}
+            {...register('sellerName')}
           />
         </Grid>
 
@@ -172,8 +214,10 @@ function CustomerGeneral ({customer, readOnly}) {
             label='Vigencia de comisión'
             type='date'
             InputLabelProps={{ shrink: true }}
-            defaultValue={customer?.comissionTerm?.slice(0, 10)}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.comissionTerm?.message}
+            helperText={!!errors.comissionTerm?.message && String(errors.comissionTerm.message)}
+            {...register('comissionTerm')}
           />
         </Grid>
 
@@ -186,7 +230,7 @@ function CustomerGeneral ({customer, readOnly}) {
             type='number'
             InputProps={{
               inputProps: {
-                disabled: readOnly,
+                disabled: readOnly || isLoading,
                 step: 1,
                 min: 0,
               },
@@ -194,8 +238,10 @@ function CustomerGeneral ({customer, readOnly}) {
                 <InputAdornment position='end'>%</InputAdornment>
               )
             }}
-            defaultValue={customer?.percentageComissions || 0}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.percentageComissions?.message}
+            helperText={!!errors.percentageComissions?.message && String(errors.percentageComissions.message)}
+            {...register('percentageComissions')}
           />
         </Grid>
       </Grid>
@@ -207,8 +253,10 @@ function CustomerGeneral ({customer, readOnly}) {
             fullWidth
             size='small'
             label='Comentarios del vendedor'
-            defaultValue={customer?.sellerComments}
-            disabled={readOnly}
+            disabled={readOnly || isLoading}
+            error={!!errors.sellerComments?.message}
+            helperText={!!errors.sellerComments?.message && String(errors.sellerComments.message)}
+            {...register('sellerComments')}
           />
         </Grid>
       </Grid>

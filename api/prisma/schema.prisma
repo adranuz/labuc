@@ -78,12 +78,16 @@ model Customer {
   status               String
   sellerName           String
   sellerComments       String
-  comissionTerm        DateTime
+  comissionTerm        DateTime?
   percentageComissions Int
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
   products             Product[]
   contacts             Contact[]
+  devices              String[]
+  skuStart             String
+  skuEnd               String
+  sku3m                Boolean   @default(false)
 
   @@index([id, email])
 }

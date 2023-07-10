@@ -140,7 +140,7 @@ function BlockingImportNew () {
               />
             </Grid>
           </Grid>
-          <FormControl sx={{ m: 1.5 }} variant='standard'>
+          <FormControl variant='standard' sx={{ m: 1.5 }}>
             <FormLabel>Restablecer tablas</FormLabel>
             <FormControlLabel
               control={

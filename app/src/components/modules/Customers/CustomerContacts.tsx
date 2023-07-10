@@ -1,9 +1,11 @@
-import { Grid, TextField, FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import { Grid, TextField, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material'
 
-function CustomerContacts ({contacts, readOnly}) {
+import { Controller } from 'react-hook-form'
+
+function CustomerContacts ({readOnly, isLoading, control, fields, errors}) {
   return (
     <>
-      {contacts?.map(contact => {
+      {fields?.map((field, index) => {
         return (
           <Grid container spacing={3}>
             <Grid item xs={12} md={2}>
@@ -14,7 +16,7 @@ function CustomerContacts ({contacts, readOnly}) {
                     fullWidth
                     size='small'
                     label='Tipo'
-                    defaultValue={contact?.type === 'com' ? 'Comercial' : 'Tecnología'}
+                    defaultValue={field?.type === 'com' ? 'Comercial' : 'Tecnología'}
                     disabled={readOnly}
                   />
                 ) || (
@@ -24,51 +26,68 @@ function CustomerContacts ({contacts, readOnly}) {
                     size='small'
                   >
                     <InputLabel>Tipo</InputLabel>
-                    <Select
-                      label='Tipo'
-                      defaultValue={contact?.type}
-                    >
-                      <MenuItem value='com'>Comercial</MenuItem>
-                      <MenuItem value='tec'>Tecnología</MenuItem>
-                    </Select>
+                    <Controller
+                      name={`contacts.${index}.type`}
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          label='Tipo'
+                          error={Boolean(errors?.contacts && errors.contacts[index]?.type)}
+                        >
+                          <MenuItem value='com'>Comercial</MenuItem>
+                          <MenuItem value='tec'>Tecnología</MenuItem>
+                        </Select>
+                      )}
+                    />
+                    <FormHelperText error>
+                      {errors?.contacts && errors.contacts[index]?.type?.message}
+                    </FormHelperText>
                   </FormControl>
                 )
               }
             </Grid>
 
             <Grid item xs={12} md={5}>
-              <TextField
-                margin='normal'
-                fullWidth
-                size='small'
-                label='Nombre'
-                defaultValue={contact?.name}
-                disabled={readOnly}
+            <Controller
+                key={field?.id}
+                name={`contacts.${index}.name`}
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    margin='normal'
+                    fullWidth
+                    size='small'
+                    label='Nombre'
+                    disabled={readOnly || isLoading}
+                    error={Boolean(errors?.contacts && errors.contacts[index]?.name)}
+                    helperText={errors?.contacts && errors.contacts[index]?.name?.message}
+                    {...field}
+                  />
+                )}
               />
             </Grid>
 
             <Grid item xs={12} md={5}>
-              <TextField
-                margin='normal'
-                fullWidth
-                size='small'
-                label='Correo electrónico'
-                defaultValue={contact?.email}
-                disabled={readOnly}
+              <Controller
+                key={field?.id}
+                name={`contacts.${index}.email`}
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    margin='normal'
+                    fullWidth
+                    size='small'
+                    label='Correo electrónico'
+                    disabled={readOnly || isLoading}
+                    error={Boolean(errors?.contacts && errors.contacts[index]?.email)}
+                    helperText={errors?.contacts && errors.contacts[index]?.email?.message}
+                    {...field}
+                  />
+                )}
               />
             </Grid>
           </Grid>
-
-          // <ListItem>
-          //   <ListItemAvatar>
-          //     <Avatar sx={{ bgcolor: useTheme().palette.secondary.light }}>
-          //       { contact.type === 'tec' && <EngineeringIcon /> }
-          //       { contact.type === 'com' && <SupportAgentIcon /> }
-          //       { contact.type !== 'tec' && contact.type !== 'com' && <PersonIcon /> }
-          //     </Avatar>
-          //   </ListItemAvatar>
-          //   <ListItemText primary={contact.name} secondary={contact.email} />
-          // </ListItem>
         )
       })}
     </>
