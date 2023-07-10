@@ -183,14 +183,14 @@ function CustomersTable () {
               />
             </Search>
 
-            <Button
+            {/* <Button
               size='small'
               color='primary'
               startIcon={<AddIcon />}
               onClick={() => handleClickCreate()}
             >
               Agregar
-            </Button>
+            </Button> */}
           </Box>
         </Toolbar>
 

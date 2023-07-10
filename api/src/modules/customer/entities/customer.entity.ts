@@ -13,7 +13,7 @@ export default interface CustomerEntity {
   status: string
   sellerName: string
   sellerComments: string
-  comissionTerm: Date
+  comissionTerm: string
   percentageComissions: number
   products: Pick<Product, 'name' | 'shortName'>[]
   contacts: Pick<Contact, 'name' | 'email' | 'type'>[]

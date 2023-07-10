@@ -98,7 +98,7 @@ function UserEdit ({ user, roles }: Props) {
         return
       }
 
-      navigate('/admin/users')
+      toUsers()
       showSnackbar('El usuario se actualizó correctamente', 'success')
     })
     .catch(_ => showSnackbar('Error al intentar acualizar el usuario', 'error'))

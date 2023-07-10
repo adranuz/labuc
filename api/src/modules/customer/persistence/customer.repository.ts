@@ -82,6 +82,11 @@ export default class CustomerRepository implements ICustomerRepository {
       sellerComments,
       comissionTerm,
       percentageComissions,
+      products,
+      devices,
+      skuStart,
+      skuEnd,
+      sku3m,
      } = customer
     const updatedCustomer = await prismaClient.customer.update({
       where: {
@@ -100,6 +105,14 @@ export default class CustomerRepository implements ICustomerRepository {
         sellerComments,
         comissionTerm,
         percentageComissions,
+        products: {
+          set: [],
+          connect: products
+        },
+        devices,
+        skuStart,
+        skuEnd,
+        sku3m,
       },
       include: {
         products: {

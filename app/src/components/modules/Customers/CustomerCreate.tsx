@@ -38,7 +38,7 @@ function CustomerCreate () {
             <CircularProgress />
           </Box>
         ) || (
-          <CustomerForm productsList={productsList} />
+          <CustomerForm productsList={productsList} newCustomer />
         )
       }
     </Container>

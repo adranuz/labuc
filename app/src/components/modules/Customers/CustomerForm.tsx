@@ -18,6 +18,9 @@ import CustomerGeneral from './CustomerGeneral'
 import CustomerContacts from './CustomerContacts'
 import CustomerProducts from './CustomerProducts'
 
+import { useCommonStore } from '../../../store/common'
+import apiUrl from '../../../config/api'
+
 const ISO_DATE_REGEX = /^\d{4}-[01]\d-[0-3]\d$|^$/
 
 const customerSchema = object({
@@ -32,17 +35,17 @@ const customerSchema = object({
   status: string(),
   sellerName: string(),
   sellerComments: string(),
-  comissionTerm: string().regex(ISO_DATE_REGEX, 'La vigencia de comisión debe estar en formato yyyy-MM-dd').nullable(),
+  comissionTerm: string().regex(ISO_DATE_REGEX, 'La vigencia de comisión debe estar en formato yyyy-MM-dd'),
   percentageComissions: z.coerce.number()
     .gte(0, 'El porcentaje de comisión debe ser mayor o igual a 0')
     .lte(100, 'El porcentaje de comisión debe ser menor o igual a 100'),
+  products: z.array(object({
+    shortName: string()
+  })),
   contacts: z.array(object({
     type: string(),
     name: string().optional(),
     email: string().optional()
-  })),
-  products: z.array(object({
-    shortName: string()
   })),
   devices: z.array(string()),
   skuStart: string(),
@@ -62,6 +65,8 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false)
+  const showSnackbar = useCommonStore((state) => state.showSnackbar)
 
   const [tab, setTab] = useState(searchParams.get('tab') || 'general')
 
@@ -91,11 +96,11 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
       registeredName: customer?.registeredName || '',
       address: customer?.address || '',
       sellerName: customer?.sellerName || '',
-      comissionTerm: customer?.comissionTerm?.slice(0, 10) || null,
+      comissionTerm: customer?.comissionTerm?.slice(0, 10) || '',
       percentageComissions: customer?.percentageComissions || 0,
       sellerComments: customer?.sellerComments || '',
-      contacts: customer?.contacts || [{ type: 'com' }, { type: 'tec' }],
       products: customer?.products || [],
+      contacts: customer?.contacts || [{ type: 'com' }, { type: 'tec' }],
       devices: customer?.devices || [],
       skuStart: customer?.skuStart || '',
       skuEnd: customer?.skuEnd || '',
@@ -118,9 +123,63 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
   }
 
   const onSubmit: SubmitHandler<any> = (data) => {
-    console.log(data)
-    toCustomer()
+    if (newCustomer) {
+      createCustomer(data)
+    } else {
+      updateCustomer(customer.id, data)
+    }
   }
+
+  const updateCustomer = (id, data) => {
+    setIsSubmitLoading(true)
+
+    const url = new URL(`${apiUrl}/customers/${id}`)
+
+    fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if (!res.ok) {
+        showSnackbar('Error al intentar acualizar el cliente', 'error')
+        return
+      }
+
+      toCustomer()
+      showSnackbar('El cliente se actualizó correctamente', 'success')
+    })
+    .catch(_ => showSnackbar('Error al intentar acualizar el cliente', 'error'))
+    .finally(() => setIsSubmitLoading(false))
+  }
+
+  const createCustomer = (data) => {
+    setIsSubmitLoading(true)
+
+    const url = new URL(`${apiUrl}/customers`)
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    })
+      .then(res => {
+        if (!res.ok) {
+          showSnackbar('Error al intentar crear el cliente', 'error')
+          return
+        }
+
+        toCustomers()
+        showSnackbar('El cliente se creó correctamente', 'success')
+      })
+      .catch(_ => showSnackbar('Error al intentar crear el cliente', 'error'))
+      .finally(() => setIsSubmitLoading(false))
+  }
+
 
   const toCustomers = () => {
     if (location.state) {
@@ -208,7 +267,8 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
               disableElevation
               startIcon={<SaveAltIcon />}
               type='submit'
-              disabled={readOnly}
+              disabled={readOnly || isSubmitLoading}
+              loading={isSubmitLoading}
             >
               Guardar
             </LoadingButton>
@@ -227,7 +287,7 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
             <TabPanel value='general'>
               <CustomerGeneral
                 readOnly={readOnly}
-                isLoading={isLoading}
+                isLoading={isLoading || isSubmitLoading}
                 control={control}
                 register={register}
                 errors={errors}
@@ -236,7 +296,7 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
             <TabPanel value='contacts'>
               <CustomerContacts
                 readOnly={readOnly}
-                isLoading={isLoading}
+                isLoading={isLoading || isSubmitLoading}
                 control={control}
                 fields={fields}
                 errors={errors}
@@ -247,7 +307,7 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
                 productsList={productsList}
                 products={customer?.products}
                 readOnly={readOnly}
-                isLoading={isLoading}
+                isLoading={isLoading || isSubmitLoading}
                 control={control}
                 register={register}
                 errors={errors}

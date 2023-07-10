@@ -1,5 +1,7 @@
 import { coerce, object, optional, string, TypeOf, z } from 'zod'
 
+const ISO_DATE_REGEX = /^\d{4}-[01]\d-[0-3]\d$|^$/
+
 const params = {
   params: object({
     id: string().uuid(),
@@ -43,16 +45,17 @@ export const updateCustomerSchema = object({
     economicActivity: string(),
     status: string(),
     sellerComments: string(),
-    comissionTerm: z.date(),
-    percentageComissions: z.number(),
+    comissionTerm: string().regex(ISO_DATE_REGEX, 'La vigencia de comisión debe estar en formato yyyy-MM-dd'),
+    percentageComissions: z.coerce.number()
+      .gte(0, 'El porcentaje de comisión debe ser mayor o igual a 0')
+      .lte(100, 'El porcentaje de comisión debe ser menor o igual a 100'),
     products: object({
-      name: string({ required_error: 'Product name is required' }),
       shortName: string({ required_error: 'Product short name is required' }),
     }).array(),
     contacts: object({
+      type: string({ required_error: 'Contact type is required' }),
       name: string({ required_error: 'Contact name is required' }),
       email: string({ required_error: 'Contact email is required' }),
-      type: string({ required_error: 'Contact type is required' }),
     }).array(),
   }).partial()
 })

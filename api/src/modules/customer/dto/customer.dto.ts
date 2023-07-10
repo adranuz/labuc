@@ -26,10 +26,14 @@ export interface UpdateCustomerDTO {
   status?: string
   sellerName?: string
   sellerComments?: string
-  comissionTerm?: Date
+  comissionTerm?: string
   percentageComissions?: number
-  products?: Pick<Product, 'name' | 'shortName'>[]
+  products?: Pick<Product, 'shortName'>[]
   contacts?: Pick<Contact, 'name' | 'email' | 'type'>[]
+  devices?: string[]
+  skuStart?: string
+  skuEnd?: string
+  sku3m?: boolean
 }
 
 export type PublicCustomerDTO = CustomerEntity;
