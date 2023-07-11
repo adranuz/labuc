@@ -91,8 +91,8 @@ function BlockingImportNew() {
           <ArrowBackIcon />
         </IconButton>
         <Typography
-          component='h1'
-          variant='h6'
+          component='h2'
+          variant='h5'
           noWrap
           sx={{
             flexGrow: 1,

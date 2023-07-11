@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close'
 
 import apiUrl from '../../../config/api'
 
-function BlockingImportsTable () {
+function BlockingImportsTable() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -25,14 +25,14 @@ function BlockingImportsTable () {
   }, [])
 
   const getImports = ({ perPage, page, q }) => {
-    
+
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/blocking/imports`)
 
     const params = {
       perPage: String(perPage),
-      page: String(page), 
+      page: String(page),
       q,
     }
 
@@ -47,7 +47,7 @@ function BlockingImportsTable () {
   }
 
   const handleChangePage = (_: unknown, page: number) => {
-    const newFilters = {...filters, page }
+    const newFilters = { ...filters, page }
     setFilters(newFilters)
     getImports(newFilters)
     setSearchParams({
@@ -59,7 +59,7 @@ function BlockingImportsTable () {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const perPage = parseInt(event.target.value)
-    const newFilters = {...filters, perPage, page: 0 }
+    const newFilters = { ...filters, perPage, page: 0 }
     setFilters(newFilters)
     getImports(newFilters)
     setSearchParams({
@@ -84,9 +84,9 @@ function BlockingImportsTable () {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor(seconds % 3600 / 60)
     const s = (seconds % 60).toFixed(2)
-    
-    return `${h > 0 ? h + ' hr ' : ''}${m > 0 ? m + ' min ' : ''}${s} seg`  
- }
+
+    return `${h > 0 ? h + ' hr ' : ''}${m > 0 ? m + ' min ' : ''}${s} seg`
+  }
 
   const prettyBytes = (size: number) => {
     const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
@@ -106,9 +106,9 @@ function BlockingImportsTable () {
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
         <Toolbar>
           <Typography
-            variant='h6'
+            component='h2'
+            variant='h5'
             noWrap
-            component='div'
             color='primary'
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
@@ -131,51 +131,51 @@ function BlockingImportsTable () {
           </Box>
         </Toolbar>
 
-        { isLoading && (
+        {isLoading && (
           <LinearProgress
             sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
           />
-        ) }
+        )}
 
         <TableContainer>
-        <Table size='small'>
-          <TableHead>
-            <TableRow>
-              <TableCell>Fecha de importación</TableCell>
-              <TableCell align='right'>Total de archivos</TableCell>
-              <TableCell align='right'>Tamaño total de los archivos</TableCell>
-              <TableCell align='center'>Restablecer tablas</TableCell>
-              <TableCell align='right'>Duración de la importación</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {importsList?.data?.map((row) => (
-              <TableRow key={row.id} selected={row.id === searchParams.get('selected')}>
-                <TableCell>{localeDate(row.createdAt)}</TableCell>
-                <TableCell align='right'>{row.totalFiles}</TableCell>
-                <TableCell align='right'>{prettyBytes(row.totalFilesSize)}</TableCell>
-                <TableCell align='center'>
-                  {
-                    row.truncate
-                      ? (
-                        <Tooltip title='Si' arrow>
-                          <CheckIcon color='success' />
-                        </Tooltip>
-                        )
-                      : (
-                        <Tooltip title='No' arrow>
-                          <CloseIcon color='error' />
-                        </Tooltip>
-                      )
-                  }
-                  </TableCell>
-                <TableCell align='right'>{prettySeconds(getDifferenceInSeconds(row.startedAt, row.finishedAt))}</TableCell>
+          <Table size='small'>
+            <TableHead>
+              <TableRow>
+                <TableCell>Fecha de importación</TableCell>
+                <TableCell align='right'>Total de archivos</TableCell>
+                <TableCell align='right'>Tamaño total de los archivos</TableCell>
+                <TableCell align='center'>Restablecer tablas</TableCell>
+                <TableCell align='right'>Duración de la importación</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
+            </TableHead>
+            <TableBody>
+              {importsList?.data?.map((row) => (
+                <TableRow key={row.id} selected={row.id === searchParams.get('selected')}>
+                  <TableCell>{localeDate(row.createdAt)}</TableCell>
+                  <TableCell align='right'>{row.totalFiles}</TableCell>
+                  <TableCell align='right'>{prettyBytes(row.totalFilesSize)}</TableCell>
+                  <TableCell align='center'>
+                    {
+                      row.truncate
+                        ? (
+                          <Tooltip title='Si' arrow>
+                            <CheckIcon color='success' />
+                          </Tooltip>
+                        )
+                        : (
+                          <Tooltip title='No' arrow>
+                            <CloseIcon color='error' />
+                          </Tooltip>
+                        )
+                    }
+                  </TableCell>
+                  <TableCell align='right'>{prettySeconds(getDifferenceInSeconds(row.startedAt, row.finishedAt))}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component='div'
           count={importsList?.total || 0}
@@ -193,13 +193,13 @@ function BlockingImportsTable () {
             type === 'first'
               ? 'Ir a la primera página'
               : type === 'last'
-              ? 'Ir a la última página'
-              : type === 'next'
-              ? 'Ir a la página siguiente'
-              : 'Regresar a la pagina anterior'
+                ? 'Ir a la última página'
+                : type === 'next'
+                  ? 'Ir a la página siguiente'
+                  : 'Regresar a la pagina anterior'
           }
         />
-    </Paper>
+      </Paper>
     </Box>
   )
 }

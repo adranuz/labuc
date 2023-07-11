@@ -56,7 +56,7 @@ function Login() {
 
   return (
     <>
-      <Typography component='h2' variant='h5' gutterBottom>
+      <Typography variant='h5' component='h2' gutterBottom>
         Iniciar sesión
       </Typography>
 

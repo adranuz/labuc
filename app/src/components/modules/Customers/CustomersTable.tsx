@@ -156,9 +156,9 @@ function CustomersTable() {
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
         <Toolbar>
           <Typography
-            variant='h6'
+            component='h2'
+            variant='h5'
             noWrap
-            component='div'
             color='primary'
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >

@@ -1,4 +1,4 @@
-import { CardContent, Checkbox, FormControl, FormControlLabel, FormLabel, FormHelperText, Grid, InputLabel, MenuItem, Select, CardHeader, Card, Stack } from '@mui/material'
+import { CardContent, Checkbox, FormControl, FormControlLabel, FormLabel, FormHelperText, Grid, InputLabel, MenuItem, Select, CardHeader, Card, Stack, Typography } from '@mui/material'
 
 import { Controller } from 'react-hook-form'
 
@@ -41,7 +41,10 @@ function CustomerProducts({ productsList, products, readOnly, isLoading, control
     <Grid container spacing={3}>
       <Grid item xs={12} md={6} lg={4}>
         <Card variant='outlined'>
-          <CardHeader title='Productos generales' />
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>Productos generales</Typography>}
+            sx={{ pb: 0 }}
+          />
           <CardContent>
             <FormControl variant='standard' error={!!errors.products?.message}>
               <Controller
@@ -71,7 +74,10 @@ function CustomerProducts({ productsList, products, readOnly, isLoading, control
 
       <Grid item xs={12} md={6} lg={4}>
         <Card variant='outlined' sx={{ height: '100%' }}>
-          <CardHeader title='Dispositivos' />
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>Dispositivos</Typography>}
+            sx={{ pb: 0 }}
+          />
           <CardContent>
             <FormControl variant='standard' error={!!errors.devices?.message}>
               <Controller
@@ -101,7 +107,10 @@ function CustomerProducts({ productsList, products, readOnly, isLoading, control
 
       <Grid item xs={12} md={6} lg={4}>
         <Card variant='outlined' sx={{ height: '100%' }}>
-          <CardHeader title='SKUs' />
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>SKUs</Typography>}
+            sx={{ pb: 0 }}
+          />
           <CardContent>
             <Stack direction='row' spacing={2} useFlexGap>
               <FormControl

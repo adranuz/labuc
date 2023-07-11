@@ -19,7 +19,7 @@ function CustomerContacts({ readOnly, isLoading, control, fields, errors, delete
             sx={{ height: '300px' }}
           >
             <CardHeader
-              title='Información de contacto'
+              title={<Typography component='h1' variant='h6'>Información de contacto</Typography>}
               action={
                 readOnly || (
                   <IconButton
@@ -30,6 +30,7 @@ function CustomerContacts({ readOnly, isLoading, control, fields, errors, delete
                   </IconButton>
                 )
               }
+              sx={{ pb: 0 }}
             />
             <CardContent>
               {

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, FormControl, FormHelperText, Grid, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material'
+import { Card, CardContent, CardHeader, FormControl, FormHelperText, Grid, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 
 import { Controller } from 'react-hook-form'
 
@@ -7,7 +7,10 @@ function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
     <Grid container spacing={3}>
       <Grid item xs={12} md={6} lg={4}>
         <Card variant='outlined'>
-          <CardHeader title='Información básica' />
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>Información básica</Typography>}
+            sx={{ pb: 0 }}
+          />
           <CardContent>
             <Stack direction='row' spacing={2} useFlexGap>
               <TextField
@@ -104,7 +107,10 @@ function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
 
       <Grid item xs={12} md={6} lg={4}>
         <Card variant='outlined'>
-          <CardHeader title='Información fiscal' />
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>Información fiscal</Typography>}
+            sx={{ pb: 0 }}
+          />
           <CardContent>
             {
               (readOnly || isLoading) && (
@@ -186,7 +192,10 @@ function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
 
       <Grid item xs={12} md={6} lg={4}>
         <Card variant='outlined'>
-          <CardHeader title='Información de venta' />
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>Información de venta</Typography>}
+            sx={{ pb: 0 }}
+          />
           <CardContent>
             <TextField
               margin='normal'

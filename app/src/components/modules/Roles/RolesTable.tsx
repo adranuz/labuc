@@ -52,7 +52,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }))
 
-function RolesTable () {
+function RolesTable() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -69,14 +69,14 @@ function RolesTable () {
   }, [])
 
   const getRoles = ({ perPage, page, q }) => {
-    
+
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/roles`)
 
     const params = {
       perPage: String(perPage),
-      page: String(page), 
+      page: String(page),
       q,
     }
 
@@ -91,7 +91,7 @@ function RolesTable () {
   }
 
   const handleChangePage = (_: unknown, page: number) => {
-    const newFilters = {...filters, page }
+    const newFilters = { ...filters, page }
     setFilters(newFilters)
     getRoles(newFilters)
     setSearchParams({
@@ -103,7 +103,7 @@ function RolesTable () {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const perPage = parseInt(event.target.value)
-    const newFilters = {...filters, perPage, page: 0 }
+    const newFilters = { ...filters, perPage, page: 0 }
     setFilters(newFilters)
     getRoles(newFilters)
     setSearchParams({
@@ -115,7 +115,7 @@ function RolesTable () {
 
   const onSearchChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const q = event.target.value
-    const newFilters = {...filters, q, page: 0 }
+    const newFilters = { ...filters, q, page: 0 }
     setFilters(newFilters)
     getRoles(newFilters)
     setSearchParams({
@@ -132,15 +132,15 @@ function RolesTable () {
   const handleClickCreate = () => {
     navigate('/admin/roles/create')
   }
-  
+
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
         <Toolbar>
           <Typography
-            variant='h6'
+            component='h2'
+            variant='h5'
             noWrap
-            component='div'
             color='primary'
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
@@ -176,47 +176,47 @@ function RolesTable () {
           </Box>
         </Toolbar>
 
-        { isLoading && (
+        {isLoading && (
           <LinearProgress
             sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
           />
-        ) }
+        )}
 
         <TableContainer>
-        <Table size='small'>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell align='right'>No. de permisos</TableCell>
-              <TableCell align='right'>No. de usuarios</TableCell>
-              <TableCell align='right'>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rolesList?.data?.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell sx={{ textTransform: 'capitalize' }}>{row.name}</TableCell>
-                <TableCell align='right'>{row.permissions?.length}</TableCell>
-                <TableCell align='right'>{row._count.users}</TableCell>
-                <TableCell>
-                  <Stack direction='row' spacing={1} justifyContent='flex-end'>
-                    <Button
-                      size='small'
-                      color='info'
-                      startIcon={<EditIcon />}
-                      onClick={() => handleClickEdit(row.id)}
-                    >
-                      Editar
-                    </Button>
-                    <ConfirmRoleDeletion id={row.id} name={row.name} onFinished={() => getRoles(filters)} />
-                  </Stack>
-                </TableCell>
+          <Table size='small'>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre</TableCell>
+                <TableCell align='right'>No. de permisos</TableCell>
+                <TableCell align='right'>No. de usuarios</TableCell>
+                <TableCell align='right'>Acciones</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
+            </TableHead>
+            <TableBody>
+              {rolesList?.data?.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell sx={{ textTransform: 'capitalize' }}>{row.name}</TableCell>
+                  <TableCell align='right'>{row.permissions?.length}</TableCell>
+                  <TableCell align='right'>{row._count.users}</TableCell>
+                  <TableCell>
+                    <Stack direction='row' spacing={1} justifyContent='flex-end'>
+                      <Button
+                        size='small'
+                        color='info'
+                        startIcon={<EditIcon />}
+                        onClick={() => handleClickEdit(row.id)}
+                      >
+                        Editar
+                      </Button>
+                      <ConfirmRoleDeletion id={row.id} name={row.name} onFinished={() => getRoles(filters)} />
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component='div'
           count={rolesList?.total || 0}
@@ -234,13 +234,13 @@ function RolesTable () {
             type === 'first'
               ? 'Ir a la primera página'
               : type === 'last'
-              ? 'Ir a la última página'
-              : type === 'next'
-              ? 'Ir a la página siguiente'
-              : 'Regresar a la pagina anterior'
+                ? 'Ir a la última página'
+                : type === 'next'
+                  ? 'Ir a la página siguiente'
+                  : 'Regresar a la pagina anterior'
           }
         />
-    </Paper>
+      </Paper>
     </Box>
   )
 }

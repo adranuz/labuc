@@ -14,7 +14,7 @@ import ActivationReportTable from './ActivationReportTable'
 import apiUrl from '../../../config/api'
 import { useCommonStore } from '../../../store/common'
 
-function ActivationReport () {
+function ActivationReport() {
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -115,7 +115,7 @@ function ActivationReport () {
   }
 
   const localeDate = (date: string) => {
-    if (date)  return new Date(date).toLocaleString('es', {
+    if (date) return new Date(date).toLocaleString('es', {
       dateStyle: 'medium',
       timeStyle: 'short',
       hour12: true,
@@ -126,8 +126,8 @@ function ActivationReport () {
     <Container sx={{ mt: 4, mb: 4 }}>
       <Toolbar disableGutters>
         <Typography
-          component='h1'
-          variant='h6'
+          component='h2'
+          variant='h5'
           noWrap
           sx={{
             flexGrow: 1,
@@ -177,11 +177,11 @@ function ActivationReport () {
             </TabList>
           </Box>
 
-          { isLoading && (
+          {isLoading && (
             <LinearProgress
               sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4, zIndex: 3 }}
             />
-          ) }
+          )}
 
           <TabPanel value='all' sx={{ padding: 0 }}>
             <ActivationReportTable data={data} deviceType={tab} isLoading={isLoading} />
@@ -199,7 +199,7 @@ function ActivationReport () {
       </Paper>
 
       <Backdrop
-        sx={{  color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={isLoadingCreateActivationReport}
       >
         <CircularProgress color='inherit' />

@@ -52,10 +52,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }))
 
-function UsersTable () {
+function UsersTable() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  
+
   const [isLoading, setIsLoading] = useState(false)
   const [usersList, setUsersList] = useState<any>({})
   const [filters, setFilters] = useState({
@@ -69,14 +69,14 @@ function UsersTable () {
   }, [])
 
   const getUsers = ({ perPage, page, q }) => {
-    
+
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/users`)
 
     const params = {
       perPage: String(perPage),
-      page: String(page), 
+      page: String(page),
       q,
     }
 
@@ -91,7 +91,7 @@ function UsersTable () {
   }
 
   const handleChangePage = (_: unknown, page: number) => {
-    const newFilters = {...filters, page }
+    const newFilters = { ...filters, page }
     setFilters(newFilters)
     getUsers(newFilters)
     setSearchParams({
@@ -103,7 +103,7 @@ function UsersTable () {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const perPage = parseInt(event.target.value)
-    const newFilters = {...filters, perPage, page: 0 }
+    const newFilters = { ...filters, perPage, page: 0 }
     setFilters(newFilters)
     getUsers(newFilters)
     setSearchParams({
@@ -115,7 +115,7 @@ function UsersTable () {
 
   const onSearchChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const q = event.target.value
-    const newFilters = {...filters, q, page: 0 }
+    const newFilters = { ...filters, q, page: 0 }
     setFilters(newFilters)
     getUsers(newFilters)
     setSearchParams({
@@ -132,15 +132,15 @@ function UsersTable () {
   const handleClickCreate = () => {
     navigate('/admin/users/create')
   }
-  
+
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
         <Toolbar>
           <Typography
-            variant='h6'
+            component='h2'
+            variant='h5'
             noWrap
-            component='div'
             color='primary'
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
@@ -176,62 +176,62 @@ function UsersTable () {
           </Box>
         </Toolbar>
 
-        { isLoading && (
+        {isLoading && (
           <LinearProgress
             sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
           />
-        ) }
+        )}
 
         <TableContainer>
-        <Table size='small'>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell>Correo electrónico</TableCell>
-              <TableCell>Roles</TableCell>
-              <TableCell align='right'>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {usersList?.data?.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.email}</TableCell>
-                <TableCell>
-                  <Stack direction='row' spacing={1}>
-                    {row.roles?.map(role => {
-                      return (
-                        <Chip
-                          key={role.name}
-                          label={role.name}
-                          variant='outlined'
-                          size='small'
-                          color='primary'
-                          sx={{ textTransform: 'capitalize' }}
-                        />
-                      )
-                    })}
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <Stack direction='row' spacing={1} justifyContent='flex-end'>
-                    <Button
-                      size='small'
-                      color='info'
-                      startIcon={<EditIcon />}
-                      onClick={() => handleClickEdit(row.id)}
-                    >
-                      Editar
-                    </Button>
-                    <ConfirmUserDeletion id={row.id} name={row.name} onFinished={() => getUsers(filters)} />
-                  </Stack>
-                </TableCell>
+          <Table size='small'>
+            <TableHead>
+              <TableRow>
+                <TableCell>Nombre</TableCell>
+                <TableCell>Correo electrónico</TableCell>
+                <TableCell>Roles</TableCell>
+                <TableCell align='right'>Acciones</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
+            </TableHead>
+            <TableBody>
+              {usersList?.data?.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.email}</TableCell>
+                  <TableCell>
+                    <Stack direction='row' spacing={1}>
+                      {row.roles?.map(role => {
+                        return (
+                          <Chip
+                            key={role.name}
+                            label={role.name}
+                            variant='outlined'
+                            size='small'
+                            color='primary'
+                            sx={{ textTransform: 'capitalize' }}
+                          />
+                        )
+                      })}
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction='row' spacing={1} justifyContent='flex-end'>
+                      <Button
+                        size='small'
+                        color='info'
+                        startIcon={<EditIcon />}
+                        onClick={() => handleClickEdit(row.id)}
+                      >
+                        Editar
+                      </Button>
+                      <ConfirmUserDeletion id={row.id} name={row.name} onFinished={() => getUsers(filters)} />
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component='div'
           count={usersList?.total || 0}
@@ -249,13 +249,13 @@ function UsersTable () {
             type === 'first'
               ? 'Ir a la primera página'
               : type === 'last'
-              ? 'Ir a la última página'
-              : type === 'next'
-              ? 'Ir a la página siguiente'
-              : 'Regresar a la pagina anterior'
+                ? 'Ir a la última página'
+                : type === 'next'
+                  ? 'Ir a la página siguiente'
+                  : 'Regresar a la pagina anterior'
           }
         />
-    </Paper>
+      </Paper>
     </Box>
   )
 }
