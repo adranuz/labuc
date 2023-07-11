@@ -94,7 +94,35 @@ class BlockingRepository {
                 console.log(`[!] Customer ${index + 1}: ` + customerEmail);
                 await pgClient.query(`SET datestyle = dmy`);
                 await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`);
-                const sqlCopy = `COPY "BlockingDevice" ("customerId","deviceId","imei","serial","locked","lockType","status","isActivated","previousStatus","previousStatusChangedOn","make","model","type","deleted","activatedDeviceDeleted","registeredOn","enrolledOn","unregisteredOn","deletedOn","activationDate","billable","lastConnectedAt","nextLockDate","appVersion") FROM STDIN WITH (FORMAT CSV, NULL 'NA')`;
+                const sqlCopy = `
+            COPY "BlockingDevice" (
+              "customerId",
+              "deviceId",
+              "imei",
+              "serial",
+              "locked",
+              "lockType",
+              "status",
+              "isActivated",
+              "previousStatus",
+              "previousStatusChangedOn",
+              "make",
+              "model",
+              "type",
+              "deleted",
+              "activatedDeviceDeleted",
+              "registeredOn",
+              "enrolledOn",
+              "unregisteredOn",
+              "deletedOn",
+              "activationDate",
+              "billable",
+              "lastConnectedAt",
+              "nextLockDate",
+              "appVersion"
+            )
+            FROM STDIN WITH (FORMAT CSV, NULL 'NA')
+          `;
                 const ingestStream = pgClient.query(copyFrom(sqlCopy));
                 await (0, promises_1.pipeline)(sourceStream, ingestStream);
                 console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`);
@@ -109,8 +137,7 @@ class BlockingRepository {
                 }
             }
         }
-        /////////////
-        console.log(`[!] Copy to BlockingDeviceComplete...`);
+        console.log(`[!] Coping to BlockingDeviceComplete...`);
         const query = `
       INSERT INTO "BlockingDeviceComplete"(
           "customerId",
@@ -150,7 +177,9 @@ class BlockingRepository {
     `;
         await pgClient.query(query);
         console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`);
-        //////////
+        console.log(`[!] Fixing null in BlockingDeviceComplete...`);
+        const queryToFixNull = `UPDATE public."BlockingDeviceComplete" SET "imei" = NULL WHERE "imei" = E'null\n'`;
+        await pgClient.query(queryToFixNull);
         await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`);
         await pgClient.end();
         const elapsedTime = this.getTimeElapsedFromDate(startTime);
@@ -393,8 +422,8 @@ class BlockingRepository {
           "deletedOn",
           "activationDate",
           "billable",
-          "billableText",
-          "enrolledOnCount3Months"
+          "billableText"
+          ${(customer === null || customer === void 0 ? void 0 : customer.sku3m) ? `,"enrolledOnCount3Months"` : ''}
         )
       SELECT "deviceId",
         "imei",
@@ -417,15 +446,41 @@ class BlockingRepository {
         "billable",
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
              ELSE 'Sin costo'
-        END,
-        (SELECT COUNT("3m")-1 FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")
+        END
+        ${(customer === null || customer === void 0 ? void 0 : customer.sku3m) ? `,(SELECT COUNT("3m")-1 FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
       FROM "BlockingDeviceComplete"
       WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}'
       ${type !== null ? `AND "type" = '${type}'` : ''}
     `;
         await pgClient.query(query);
         const filePath = path.resolve(`./tmp/report-${crypto.randomBytes(4).readUInt32LE(0)}`);
-        const sqlCopy = `COPY (SELECT "deviceId" AS "device_id","imei","serial" AS "serial_no","locked","lockType" AS "lock_type","status" AS "estado","previousStatus" AS "previous_status","previousStatusChangedOn" AS "previous_status_changed_on","make","model","type" AS "tipo","deleted","activatedDeviceDeleted" AS "activated_device_deleted","registeredOn" AS "registered_on","enrolledOn" AS "enrolled_on","unregisteredOn" AS "unregistered_on","deletedOn" AS "deleted_on","activationDate" AS "activation_date","billable","billableText" AS "facturables","enrolledOnCount3Months" AS "3m" FROM "BlockingDeviceReport" ORDER BY "deviceId") TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'`;
+        const sqlCopy = `
+      COPY (
+        SELECT "deviceId" AS "device_id",
+          "imei",
+          "serial" AS "serial_no",
+          "locked",
+          "lockType" AS "lock_type",
+          "status" AS "estado",
+          "previousStatus" AS "previous_status",
+          "previousStatusChangedOn" AS "previous_status_changed_on",
+          "make",
+          "model",
+          "type" AS "tipo",
+          "deleted",
+          "activatedDeviceDeleted" AS "activated_device_deleted",
+          "registeredOn" AS "registered_on",
+          "enrolledOn" AS "enrolled_on",
+          "unregisteredOn" AS "unregistered_on",
+          "deletedOn" AS "deleted_on",
+          "activationDate" AS "activation_date",
+          "billable",
+          "billableText" AS "facturables"
+          ${(customer === null || customer === void 0 ? void 0 : customer.sku3m) ? `,"enrolledOnCount3Months" AS "3m"` : ''}
+        FROM "BlockingDeviceReport"
+        ORDER BY "deviceId"
+      ) TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'
+    `;
         const outStream = pgClient.query(copyTo(sqlCopy));
         const writeStream = fs.createWriteStream(filePath);
         await (0, promises_1.pipeline)(outStream, writeStream);

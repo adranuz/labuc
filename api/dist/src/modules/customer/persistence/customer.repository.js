@@ -60,7 +60,7 @@ class CustomerRepository {
         return foundCustomer;
     }
     async updateCustomer(id, customer) {
-        const { customId, name, email, country, registeredName, rfc, address, economicActivity, status, sellerComments, comissionTerm, percentageComissions, } = customer;
+        const { customId, name, email, country, registeredName, rfc, address, economicActivity, status, sellerComments, comissionTerm, percentageComissions, products, devices, skuStart, skuEnd, sku3m, skuHBMF, skuHBMPRE, } = customer;
         const updatedCustomer = await prisma_client_1.default.customer.update({
             where: {
                 id
@@ -78,6 +78,16 @@ class CustomerRepository {
                 sellerComments,
                 comissionTerm,
                 percentageComissions,
+                products: {
+                    set: [],
+                    connect: products
+                },
+                devices,
+                skuStart,
+                skuEnd,
+                sku3m,
+                skuHBMF,
+                skuHBMPRE,
             },
             include: {
                 products: {

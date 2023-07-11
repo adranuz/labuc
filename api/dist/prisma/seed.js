@@ -291,7 +291,7 @@ async function main() {
                 status: customer.status || '',
                 sellerName: customer.vendedor || '',
                 sellerComments: customer.comentarios || '',
-                comissionTerm: new Date(),
+                comissionTerm: customer.vigencia_comision || '',
                 percentageComissions: customer.porcentaje_comision || 0,
                 products: {
                     connect: products
