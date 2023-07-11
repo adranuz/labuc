@@ -6,7 +6,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 
 import apiUrl from '../../../config/api'
 
-function ActivationReportTable ({data, deviceType, isLoading}) {
+function ActivationReportTable({ data, deviceType, isLoading }) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
 
   const downloadCustomerReport = (deviceType: string, name: string, index: number) => {
@@ -20,7 +20,7 @@ function ActivationReportTable ({data, deviceType, isLoading}) {
     }
 
     url.search = new URLSearchParams(params).toString()
-  
+
     let filename = ''
 
     fetch(url)
@@ -96,7 +96,7 @@ function ActivationReportTable ({data, deviceType, isLoading}) {
           }}
         >
           <TableRow>
-            <TableCell colSpan={6} sx={{padding: 0}}></TableCell>
+            <TableCell colSpan={6} sx={{ padding: 0 }}></TableCell>
           </TableRow>
 
           <TableRow>
@@ -107,7 +107,7 @@ function ActivationReportTable ({data, deviceType, isLoading}) {
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableBiweekly}</TableCell>
             <TableCell align='right' variant='head'></TableCell>
           </TableRow>
-      </TableFooter>
+        </TableFooter>
       </Table>
     </TableContainer>
   )

@@ -98,7 +98,7 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
       registeredName: customer?.registeredName || '',
       address: customer?.address || '',
       sellerName: customer?.sellerName || '',
-      comissionTerm: customer?.comissionTerm?.slice(0, 10) || '',
+      comissionTerm: customer?.comissionTerm?.length >= 10 ? customer?.comissionTerm?.slice(0, 10) : '',
       percentageComissions: customer?.percentageComissions || 0,
       sellerComments: customer?.sellerComments || '',
       products: customer?.products || [],
