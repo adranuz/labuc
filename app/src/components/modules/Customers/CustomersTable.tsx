@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Box, LinearProgress, Chip, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Toolbar, Typography, Button } from '@mui/material'
+import { Box, LinearProgress, Chip, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Toolbar, Typography, Button, Tooltip } from '@mui/material'
 import { styled, alpha, useTheme } from '@mui/material/styles'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
+import AndroidIcon from '@mui/icons-material/Android'
+import AppleIcon from '@mui/icons-material/Apple'
+import LaptopWindowsIcon from '@mui/icons-material/LaptopWindows'
+import InfoIcon from '@mui/icons-material/Info'
 
 import ConfirmCustomerDeletion from './ConfirmCustomerDeletion'
 import apiUrl from '../../../config/api'
@@ -207,7 +211,8 @@ function CustomersTable() {
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell>Nombre</TableCell>
-                <TableCell>Productos</TableCell>
+                <TableCell align='center'>Productos</TableCell>
+                <TableCell align='center'>Dispositivos</TableCell>
                 <TableCell>Estatus</TableCell>
                 <TableCell align='right'>Acciones</TableCell>
               </TableRow>
@@ -223,19 +228,39 @@ function CustomersTable() {
                   <TableCell>{row.customId}</TableCell>
                   <TableCell>{row.name}</TableCell>
                   <TableCell>
-                    <Stack direction='row' spacing={1}>
-                      {row.products?.map(product => {
-                        return (
-                          <Chip
-                            key={product.shortName}
-                            label={product.name}
-                            variant='outlined'
-                            size='small'
-                            color='primary'
-                            onClick={() => handleClickDetails(row.id)}
-                          />
-                        )
-                      })}
+                    <Stack direction='row' spacing={1} justifyContent='center'>
+                      <Typography>
+                        {row.products?.length}
+                      </Typography>
+                      <Tooltip
+                        title={
+                          row.products?.length === 0
+                            ? <em>Sin productos</em>
+                            : row.products.map(device => (<div>{device.name}<br /></div>))
+                        }
+                        arrow
+                      >
+                        <InfoIcon color='info' />
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction='row' spacing={0.5} justifyContent='center'>
+                      <Tooltip title='Android'>
+                        <AndroidIcon
+                          color={(row.devices.find(device => device === 'android')) ? 'primary' : 'disabled'}
+                        />
+                      </Tooltip>
+                      <Tooltip title='iOS'>
+                        <AppleIcon
+                          color={(row.devices.find(device => device === 'ios')) ? 'primary' : 'disabled'}
+                        />
+                      </Tooltip>
+                      <Tooltip title='Windows'>
+                        <LaptopWindowsIcon
+                          color={(row.devices.find(device => device === 'windows')) ? 'primary' : 'disabled'}
+                        />
+                      </Tooltip>
                     </Stack>
                   </TableCell>
                   <TableCell>

@@ -218,6 +218,7 @@ export default class CustomerRepository implements ICustomerRepository {
         sellerComments: true,
         comissionTerm: true,
         percentageComissions: true,
+        devices: true,
         products: {
           select: {
             name: true,

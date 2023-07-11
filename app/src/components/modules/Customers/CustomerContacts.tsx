@@ -1,4 +1,4 @@
-import { Typography, Stack, Card, Grid, IconButton, TextField, FormControl, FormHelperText, InputLabel, MenuItem, Select, CardHeader, CardContent } from '@mui/material'
+import { Typography, Stack, Card, Grid, IconButton, TextField, FormControl, FormHelperText, InputLabel, MenuItem, Select, CardHeader, CardContent, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import AddIcon from '@mui/icons-material/Add'
 import { alpha } from '@mui/material/styles'
@@ -22,12 +22,14 @@ function CustomerContacts({ readOnly, isLoading, control, fields, errors, delete
               title={<Typography component='h1' variant='h6'>Información de contacto</Typography>}
               action={
                 readOnly || (
-                  <IconButton
-                    size='small'
-                    onClick={() => handleClickDelete(index)}
-                  >
-                    <CloseIcon />
-                  </IconButton>
+                  <Tooltip title='Eliminar' arrow>
+                    <IconButton
+                      size='small'
+                      onClick={() => handleClickDelete(index)}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Tooltip>
                 )
               }
               sx={{ pb: 0 }}
