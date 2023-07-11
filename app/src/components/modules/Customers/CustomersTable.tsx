@@ -52,7 +52,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }))
 
-function CustomersTable () {
+function CustomersTable() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -69,14 +69,14 @@ function CustomersTable () {
   }, [])
 
   const getCustomers = ({ perPage, page, q }) => {
-    
+
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/customers`)
 
     const params = {
       perPage: String(perPage),
-      page: String(page), 
+      page: String(page),
       q,
     }
 
@@ -91,7 +91,7 @@ function CustomersTable () {
   }
 
   const handleChangePage = (_: unknown, page: number) => {
-    const newFilters = {...filters, page }
+    const newFilters = { ...filters, page }
     setFilters(newFilters)
     getCustomers(newFilters)
     setSearchParams({
@@ -103,7 +103,7 @@ function CustomersTable () {
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const perPage = parseInt(event.target.value)
-    const newFilters = {...filters, perPage, page: 0 }
+    const newFilters = { ...filters, perPage, page: 0 }
     setFilters(newFilters)
     getCustomers(newFilters)
     setSearchParams({
@@ -115,7 +115,7 @@ function CustomersTable () {
 
   const onSearchChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const q = event.target.value
-    const newFilters = {...filters, q, page: 0 }
+    const newFilters = { ...filters, q, page: 0 }
     setFilters(newFilters)
     getCustomers(newFilters)
     setSearchParams({
@@ -183,22 +183,23 @@ function CustomersTable () {
               />
             </Search>
 
-            {/* <Button
+            <Button
               size='small'
               color='primary'
               startIcon={<AddIcon />}
               onClick={() => handleClickCreate()}
+              disabled
             >
               Agregar
-            </Button> */}
+            </Button>
           </Box>
         </Toolbar>
 
-        { isLoading && (
+        {isLoading && (
           <LinearProgress
             sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
           />
-        ) }
+        )}
 
         <TableContainer>
           <Table size='small'>
@@ -294,13 +295,13 @@ function CustomersTable () {
             type === 'first'
               ? 'Ir a la primera página'
               : type === 'last'
-              ? 'Ir a la última página'
-              : type === 'next'
-              ? 'Ir a la página siguiente'
-              : 'Regresar a la pagina anterior'
+                ? 'Ir a la última página'
+                : type === 'next'
+                  ? 'Ir a la página siguiente'
+                  : 'Regresar a la pagina anterior'
           }
         />
-    </Paper>
+      </Paper>
     </Box>
   )
 }

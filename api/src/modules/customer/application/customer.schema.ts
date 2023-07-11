@@ -45,7 +45,7 @@ export const updateCustomerSchema = object({
     economicActivity: string(),
     status: string(),
     sellerComments: string(),
-    comissionTerm: string().regex(ISO_DATE_REGEX, 'La vigencia de comisión debe estar en formato yyyy-MM-dd'),
+    comissionTerm: string().regex(ISO_DATE_REGEX, 'La fecha debe estar en formato yyyy-MM-dd'),
     percentageComissions: z.coerce.number()
       .gte(0, 'El porcentaje de comisión debe ser mayor o igual a 0')
       .lte(100, 'El porcentaje de comisión debe ser menor o igual a 100'),

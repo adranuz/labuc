@@ -20,8 +20,8 @@ const updateUserSchema = object({
     .nonempty({ message: 'Se requiere la dirección de correo electrónico' })
     .email('La dirección de correo electrónico es inválida'),
   roles: array(object({
-      name: string({ required_error: 'Se requiere el nombre del rol' })
-    })).nonempty({ message: 'Se requiere al menos un rol' }),
+    name: string({ required_error: 'Se requiere el nombre del rol' })
+  })).nonempty({ message: 'Se requiere al menos un rol' }),
 })
 
 const createUserSchema = object({
@@ -31,8 +31,8 @@ const createUserSchema = object({
     .min(1, { message: 'Se requiere la dirección de correo electrónico' })
     .email('La dirección de correo electrónico es inválida'),
   roles: array(object({
-      name: string({ required_error: 'Se requiere el nombre del rol' })
-    })).nonempty({ message: 'Se requiere al menos un rol' }),
+    name: string({ required_error: 'Se requiere el nombre del rol' })
+  })).nonempty({ message: 'Se requiere al menos un rol' }),
   password: string({ required_error: 'Se requiere la contraseña' })
     .nonempty({ message: 'Se requiere la contraseña' })
     .min(8, 'La contraseña debe tener más de 8 caracteres'),
@@ -43,7 +43,7 @@ interface Props {
   roles?: any
 }
 
-function UserEdit ({ user, roles }: Props) {
+function UserEdit({ user, roles }: Props) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -92,17 +92,17 @@ function UserEdit ({ user, roles }: Props) {
       },
       body: JSON.stringify(data)
     })
-    .then(res => {
-      if (!res.ok) {
-        showSnackbar('Error al intentar acualizar el usuario', 'error')
-        return
-      }
+      .then(res => {
+        if (!res.ok) {
+          showSnackbar('Error al intentar acualizar el usuario', 'error')
+          return
+        }
 
-      toUsers()
-      showSnackbar('El usuario se actualizó correctamente', 'success')
-    })
-    .catch(_ => showSnackbar('Error al intentar acualizar el usuario', 'error'))
-    .finally(() => setIsLoading(false))
+        toUsers()
+        showSnackbar('El usuario se actualizó correctamente', 'success')
+      })
+      .catch(_ => showSnackbar('Error al intentar acualizar el usuario', 'error'))
+      .finally(() => setIsLoading(false))
   }
 
   const createUser = (data) => {
@@ -146,11 +146,11 @@ function UserEdit ({ user, roles }: Props) {
     <Box component='form' onSubmit={handleSubmit(onSubmit)} noValidate>
       <Toolbar disableGutters>
         <IconButton
-            size='large'
-            color='inherit'
-            sx={{ mr: 2 }}
-            onClick={handleClickBack}
-          >
+          size='large'
+          color='inherit'
+          sx={{ mr: 2 }}
+          onClick={handleClickBack}
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography
@@ -179,6 +179,7 @@ function UserEdit ({ user, roles }: Props) {
           <LoadingButton
             variant='contained'
             size='small'
+            loadingPosition='start'
             disableElevation
             startIcon={<SaveAltIcon />}
             type='submit'
@@ -190,6 +191,39 @@ function UserEdit ({ user, roles }: Props) {
       </Toolbar>
       <Card variant='outlined'>
         <CardContent>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                margin='normal'
+                required
+                fullWidth
+                size='small'
+                label='Nombre'
+                autoFocus
+                autoComplete='name'
+                error={!!errors.name?.message}
+                helperText={!!errors.name?.message && String(errors.name.message)}
+                {...register('name')}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                margin='normal'
+                required
+                fullWidth
+                size='small'
+                label='Correo electrónico'
+                autoComplete='email'
+                error={!!errors.email?.message}
+                helperText={!!errors.email?.message && String(errors.email.message)}
+                {...register('email')}
+                disabled={user ? true : false}
+              />
+            </Grid>
+          </Grid>
+
+          {!user && (
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -197,48 +231,15 @@ function UserEdit ({ user, roles }: Props) {
                   required
                   fullWidth
                   size='small'
-                  label='Nombre'
-                  autoFocus
-                  autoComplete='name'
-                  error={!!errors.name?.message}
-                  helperText={!!errors.name?.message && String(errors.name.message)}
-                  {...register('name')}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  margin='normal'
-                  required
-                  fullWidth
-                  size='small'
-                  label='Correo electrónico'
-                  autoComplete='email'
-                  error={!!errors.email?.message}
-                  helperText={!!errors.email?.message && String(errors.email.message)}
-                  {...register('email')}
-                  disabled={user ? true : false}
+                  label='Contraseña'
+                  type='password'
+                  error={!!errors.password?.message}
+                  helperText={!!errors.password?.message && String(errors.password.message)}
+                  {...register('password')}
                 />
               </Grid>
             </Grid>
-
-            {!user && (
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                      margin='normal'
-                      required
-                      fullWidth
-                      size='small'
-                      label='Contraseña'
-                      type='password'
-                      error={!!errors.password?.message}
-                      helperText={!!errors.password?.message && String(errors.password.message)}
-                      {...register('password')}
-                    />
-                </Grid>
-              </Grid>
-            )}
+          )}
 
           <FormControl sx={{ m: 1.5 }} variant='standard' error={!!errors.roles?.message}>
             <FormLabel>Roles</FormLabel>

@@ -7,7 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import { useCommonStore } from '../../../store/common'
 import apiUrl from '../../../config/api'
 
-export default function ConfirmUserDeletion({id, name, onFinished}) {
+export default function ConfirmUserDeletion({ id, name, onFinished }) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -30,8 +30,8 @@ export default function ConfirmUserDeletion({id, name, onFinished}) {
     const url = new URL(`${apiUrl}/users/${id}`)
 
     fetch(url, {
-        method: 'DELETE'
-      })
+      method: 'DELETE'
+    })
       .then(res => res.json())
       .then(_ => {
         showSnackbar('El usuario se eliminó corretamente', 'success')
@@ -84,7 +84,7 @@ export default function ConfirmUserDeletion({id, name, onFinished}) {
             </Alert>
             <Box m={2}>
               <Typography variant='caption'>Nombre del usuario</Typography>
-              <Typography mt={1} color='black'>{ name }</Typography>
+              <Typography mt={1} color='black'>{name}</Typography>
             </Box>
           </DialogContentText>
           <DialogActions>
@@ -94,6 +94,7 @@ export default function ConfirmUserDeletion({id, name, onFinished}) {
               variant='contained'
               color='error'
               size='small'
+              loadingPosition='start'
               disableElevation
               autoFocus
               onClick={handleClickDelete}

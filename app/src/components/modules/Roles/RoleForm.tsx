@@ -16,8 +16,8 @@ const roleSchema = object({
   name: string({ required_error: 'Se requiere el nombre' })
     .nonempty({ message: 'Se requiere el nombre' }),
   permissions: array(object({
-      action: string({ required_error: 'Se requiere el nombre del rol' })
-    })).nonempty({ message: 'Se requiere al menos un permiso' }),
+    action: string({ required_error: 'Se requiere el nombre del rol' })
+  })).nonempty({ message: 'Se requiere al menos un permiso' }),
 })
 
 interface Props {
@@ -25,7 +25,7 @@ interface Props {
   permissions?: any
 }
 
-function RoleEdit ({ role, permissions }: Props) {
+function RoleEdit({ role, permissions }: Props) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -73,17 +73,17 @@ function RoleEdit ({ role, permissions }: Props) {
       },
       body: JSON.stringify(data)
     })
-    .then(res => {
-      if (!res.ok) {
-        showSnackbar('Error al intentar actualizar el rol', 'error')
-        return
-      }
+      .then(res => {
+        if (!res.ok) {
+          showSnackbar('Error al intentar actualizar el rol', 'error')
+          return
+        }
 
-      navigate('/admin/roles')
-      showSnackbar('El rol se actualizó correctamente', 'success')
-    })
-    .catch(_ => showSnackbar('Error al actualizar crear el rol', 'error'))
-    .finally(() => setIsLoading(false))
+        navigate('/admin/roles')
+        showSnackbar('El rol se actualizó correctamente', 'success')
+      })
+      .catch(_ => showSnackbar('Error al actualizar crear el rol', 'error'))
+      .finally(() => setIsLoading(false))
   }
 
   const createRole = (data) => {
@@ -98,17 +98,17 @@ function RoleEdit ({ role, permissions }: Props) {
       },
       body: JSON.stringify(data)
     })
-    .then(res => {
-      if (!res.ok) {
-        showSnackbar('Error al intentar crear el rol', 'error')
-        return
-      }
+      .then(res => {
+        if (!res.ok) {
+          showSnackbar('Error al intentar crear el rol', 'error')
+          return
+        }
 
-      toRoles()
-      showSnackbar('El rol se creó correctamente', 'success')
-    })
-    .catch(_ => showSnackbar('Error al intentar crear el rol', 'error'))
-    .finally(() => setIsLoading(false))
+        toRoles()
+        showSnackbar('El rol se creó correctamente', 'success')
+      })
+      .catch(_ => showSnackbar('Error al intentar crear el rol', 'error'))
+      .finally(() => setIsLoading(false))
   }
 
   const handleClickBack = () => {
@@ -127,11 +127,11 @@ function RoleEdit ({ role, permissions }: Props) {
     <Box component='form' onSubmit={handleSubmit(onSubmit)} noValidate>
       <Toolbar disableGutters>
         <IconButton
-            size='large'
-            color='inherit'
-            sx={{ mr: 2 }}
-            onClick={handleClickBack}
-          >
+          size='large'
+          color='inherit'
+          sx={{ mr: 2 }}
+          onClick={handleClickBack}
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography
@@ -160,6 +160,7 @@ function RoleEdit ({ role, permissions }: Props) {
           <LoadingButton
             variant='contained'
             size='small'
+            loadingPosition='start'
             disableElevation
             startIcon={<SaveAltIcon />}
             type='submit'

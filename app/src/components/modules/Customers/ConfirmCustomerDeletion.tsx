@@ -90,6 +90,7 @@ export default function ConfirmCustomerDeletion({id, name, onFinished, disabled 
               variant='contained'
               color='error'
               size='small'
+              loadingPosition='start'
               disableElevation
               autoFocus
               onClick={handleClickDelete}

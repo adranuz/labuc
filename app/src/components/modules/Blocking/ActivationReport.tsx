@@ -144,6 +144,7 @@ function ActivationReport () {
           <LoadingButton
             size='small'
             color='primary'
+            loadingPosition='start'
             startIcon={<BuildIcon />}
             onClick={() => handleClickBuildReport()}
             disabled={data?.activationReport?.length !== 0}
@@ -154,6 +155,7 @@ function ActivationReport () {
           <LoadingButton
             size='small'
             color='primary'
+            loadingPosition='start'
             startIcon={<DownloadIcon />}
             onClick={() => handleClickDownloadActivationReport()}
             disabled={isLoading || data?.activationReport?.length === 0}

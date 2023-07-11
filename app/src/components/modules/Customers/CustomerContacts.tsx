@@ -1,14 +1,37 @@
-import { Grid, TextField, FormControl, FormHelperText, InputLabel, MenuItem, Select } from '@mui/material'
+import { Typography, Stack, Card, Grid, IconButton, TextField, FormControl, FormHelperText, InputLabel, MenuItem, Select, CardHeader, CardContent } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import AddIcon from '@mui/icons-material/Add'
+import { alpha } from '@mui/material/styles'
 
 import { Controller } from 'react-hook-form'
 
-function CustomerContacts ({readOnly, isLoading, control, fields, errors}) {
+function CustomerContacts({ readOnly, isLoading, control, fields, errors, deleteContactByIndex, addContact }) {
+  const handleClickDelete = (index: number) => {
+    deleteContactByIndex(index)
+  }
+
   return (
-    <>
-      {fields?.map((field, index) => {
-        return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={2}>
+    <Grid container spacing={3}>
+      {fields?.map((field, index) => (
+        <Grid item xs={12} md={4}>
+          <Card
+            variant='outlined'
+            sx={{ height: '300px' }}
+          >
+            <CardHeader
+              title='Información de contacto'
+              action={
+                readOnly || (
+                  <IconButton
+                    size='small'
+                    onClick={() => handleClickDelete(index)}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                )
+              }
+            />
+            <CardContent>
               {
                 readOnly && (
                   <TextField
@@ -46,10 +69,8 @@ function CustomerContacts ({readOnly, isLoading, control, fields, errors}) {
                   </FormControl>
                 )
               }
-            </Grid>
 
-            <Grid item xs={12} md={5}>
-            <Controller
+              <Controller
                 key={field?.id}
                 name={`contacts.${index}.name`}
                 control={control}
@@ -66,9 +87,7 @@ function CustomerContacts ({readOnly, isLoading, control, fields, errors}) {
                   />
                 )}
               />
-            </Grid>
 
-            <Grid item xs={12} md={5}>
               <Controller
                 key={field?.id}
                 name={`contacts.${index}.email`}
@@ -86,11 +105,46 @@ function CustomerContacts ({readOnly, isLoading, control, fields, errors}) {
                   />
                 )}
               />
-            </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+      {
+        readOnly || (
+          <Grid item xs={12} md={4}>
+            <Card
+              variant='outlined'
+              sx={{
+                height: '300px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                ':hover': {
+                  backgroundColor: (theme) => alpha(theme.palette.common.black, 0.02)
+                },
+              }}
+              onClick={addContact}
+            >
+              <CardContent>
+                <Stack
+                  spacing={1}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <AddIcon />
+                  <Typography variant='caption'>
+                    Agregar contacto
+                  </Typography>
+                </Stack>
+              </CardContent>
+            </Card>
           </Grid>
         )
-      })}
-    </>
+      }
+    </Grid>
   )
 }
 

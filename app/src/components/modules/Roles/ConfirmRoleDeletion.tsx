@@ -83,6 +83,7 @@ export default function ConfirmRoleDeletion({id, name, onFinished}) {
               variant='contained'
               color='error'
               size='small'
+              loadingPosition='start'
               disableElevation
               autoFocus
               onClick={handleClickDelete}

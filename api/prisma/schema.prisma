@@ -88,6 +88,8 @@ model Customer {
   skuStart             String?
   skuEnd               String?
   sku3m                Boolean   @default(false)
+  skuHBMF              Boolean   @default(false)
+  skuHBMPRE            Boolean   @default(false)
 
   @@index([id, email])
 }

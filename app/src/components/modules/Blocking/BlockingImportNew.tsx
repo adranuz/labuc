@@ -11,7 +11,7 @@ import UploadIcon from '@mui/icons-material/Upload'
 import { useCommonStore } from '../../../store/common'
 import apiUrl from '../../../config/api'
 
-function BlockingImportNew () {
+function BlockingImportNew() {
   const navigate = useNavigate()
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
 
@@ -47,25 +47,25 @@ function BlockingImportNew () {
     for (const file of files) {
       data.append('files', file, file.name)
     }
-    
+
     fetch(url, {
       method: 'POST',
       body: data
     })
-    .then((res) => {
-      if (!res.ok) {
+      .then((res) => {
+        if (!res.ok) {
           setError(true)
           return
-      }
-      
-      return res.json()
-  })
-    .then(data => {
-      toImports(data.id)
-      showSnackbar('La importación se completó correctamente', 'success')
-    })
-    .catch(_ => setError(true))
-    .finally(() => setIsLoading(false))
+        }
+
+        return res.json()
+      })
+      .then(data => {
+        toImports(data.id)
+        showSnackbar('La importación se completó correctamente', 'success')
+      })
+      .catch(_ => setError(true))
+      .finally(() => setIsLoading(false))
   }
 
   const handleClickBack = () => {
@@ -83,11 +83,11 @@ function BlockingImportNew () {
     <Container sx={{ mt: 4, mb: 4 }}>
       <Toolbar disableGutters>
         <IconButton
-            size='large'
-            color='inherit'
-            sx={{ mr: 2 }}
-            onClick={handleClickBack}
-          >
+          size='large'
+          color='inherit'
+          sx={{ mr: 2 }}
+          onClick={handleClickBack}
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography
@@ -109,6 +109,7 @@ function BlockingImportNew () {
           <LoadingButton
             loading={isLoading}
             variant='contained'
+            loadingPosition='start'
             size='small'
             disableElevation
             startIcon={<UploadIcon />}
@@ -122,7 +123,7 @@ function BlockingImportNew () {
       <Card variant='outlined'>
         <CardContent>
           {error && (
-            <Alert severity='error' sx={{marginBottom: 1}}>
+            <Alert severity='error' sx={{ marginBottom: 1 }}>
               La importación falló. Intentelo nuevamente.
             </Alert>
           )}
@@ -163,7 +164,7 @@ function BlockingImportNew () {
       </Card>
 
       <Backdrop
-        sx={{  color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={isLoading}
       >
         <CircularProgress color='inherit' />

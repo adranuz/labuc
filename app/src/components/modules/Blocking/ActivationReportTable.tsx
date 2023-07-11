@@ -74,6 +74,7 @@ function ActivationReportTable ({data, deviceType, isLoading}) {
                   <LoadingButton
                     size='small'
                     color='primary'
+                    loadingPosition='start'
                     startIcon={<DownloadIcon />}
                     onClick={() => handleClickDownloadCustomerReport(row?.customerName, index)}
                     disabled={selectedRowIndex !== null || isLoading}

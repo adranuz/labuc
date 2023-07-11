@@ -34,6 +34,8 @@ export interface UpdateCustomerDTO {
   skuStart?: string
   skuEnd?: string
   sku3m?: boolean
+  skuHBMF?: boolean
+  skuHBMPRE?: boolean
 }
 
 export type PublicCustomerDTO = CustomerEntity;

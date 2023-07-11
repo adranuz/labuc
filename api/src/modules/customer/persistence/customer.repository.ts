@@ -87,6 +87,8 @@ export default class CustomerRepository implements ICustomerRepository {
       skuStart,
       skuEnd,
       sku3m,
+      skuHBMF,
+      skuHBMPRE,
      } = customer
     const updatedCustomer = await prismaClient.customer.update({
       where: {
@@ -113,6 +115,8 @@ export default class CustomerRepository implements ICustomerRepository {
         skuStart,
         skuEnd,
         sku3m,
+        skuHBMF,
+        skuHBMPRE,
       },
       include: {
         products: {

@@ -1,4 +1,4 @@
-import { Checkbox, FormControl, FormControlLabel, FormLabel, FormHelperText, Grid, InputLabel, MenuItem, Select, Switch } from '@mui/material'
+import { CardContent, Checkbox, FormControl, FormControlLabel, FormLabel, FormHelperText, Grid, InputLabel, MenuItem, Select, CardHeader, Card, Stack } from '@mui/material'
 
 import { Controller } from 'react-hook-form'
 
@@ -12,19 +12,15 @@ const skuStart = [
   { name: 'HBM3M' },
   { name: 'HBM3A' },
   { name: 'HBM1A' },
-  { name: 'HBMF ' },
-  { name: 'HBMPRE' },
 ]
 
 const skuEnd = [
   { name: 'HBM3M' },
   { name: 'HBM3A' },
   { name: 'HBM1A' },
-  { name: 'HBMF ' },
-  { name: 'HBMPRE' },
 ]
 
-function CustomerProducts ({productsList, products, readOnly, isLoading, control, register, errors, getValues, setValue}) {
+function CustomerProducts({ productsList, products, readOnly, isLoading, control, register, errors, getValues, setValue }) {
   const handleCheckDevice = (checkedDevice) => {
     const { devices } = getValues()
     const newDevices = devices?.find(device => device === checkedDevice.value)
@@ -44,128 +40,168 @@ function CustomerProducts ({productsList, products, readOnly, isLoading, control
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6} lg={4}>
-        <FormControl variant='standard' error={!!errors.products?.message}>
-          <FormLabel>Productos Generales</FormLabel>
-          <Controller
-            name='products'
-            render={() => productsList?.data?.map((item) => (
+        <Card variant='outlined'>
+          <CardHeader title='Productos generales' />
+          <CardContent>
+            <FormControl variant='standard' error={!!errors.products?.message}>
+              <Controller
+                name='products'
+                render={() => productsList?.data?.map((item) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size='small'
+                        color='secondary'
+                        disabled={readOnly || isLoading}
+                        onChange={() => handleCheckProduct(item)}
+                        defaultChecked={!!products?.find(product => product.shortName === item.shortName)}
+                      />
+                    }
+                    key={item.id}
+                    label={item.name}
+                  />
+                ))}
+                control={control}
+              />
+              <FormHelperText>{!!errors.products?.message && String(errors.products.message)}</FormHelperText>
+            </FormControl>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} md={6} lg={4}>
+        <Card variant='outlined' sx={{ height: '100%' }}>
+          <CardHeader title='Dispositivos' />
+          <CardContent>
+            <FormControl variant='standard' error={!!errors.devices?.message}>
+              <Controller
+                name='devices'
+                render={() => devices?.map((item) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size='small'
+                        color='secondary'
+                        disabled={readOnly || isLoading}
+                        onChange={() => handleCheckDevice(item)}
+                        defaultChecked={!!getValues()?.devices?.find(device => device === item.value)}
+                      />
+                    }
+                    key={item.name}
+                    label={item.name}
+                  />
+                ))}
+                control={control}
+              />
+              <FormHelperText>{!!errors.devices?.message && String(errors.devices.message)}</FormHelperText>
+            </FormControl>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} md={6} lg={4}>
+        <Card variant='outlined' sx={{ height: '100%' }}>
+          <CardHeader title='SKUs' />
+          <CardContent>
+            <Stack direction='row' spacing={2} useFlexGap>
+              <FormControl
+                margin='normal'
+                fullWidth
+                size='small'
+              >
+                <InputLabel>SKU Start</InputLabel>
+                <Controller
+                  name='skuStart'
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label='SKU Start'
+                      disabled={readOnly || isLoading}
+                      error={!!errors.skuStart?.message}
+                    >
+                      <MenuItem value=''><em>Ninguno</em></MenuItem>
+                      {
+                        skuStart.map(({ name }) => <MenuItem value={name}>{name}</MenuItem>)
+                      }
+                    </Select>
+                  )}
+                />
+                <FormHelperText error>
+                  {!!errors.skuStart?.message && String(errors.skuStart.message)}
+                </FormHelperText>
+              </FormControl>
+
+              <FormControl
+                margin='normal'
+                fullWidth
+                size='small'
+              >
+                <InputLabel>SKU End</InputLabel>
+                <Controller
+                  name='skuEnd'
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label='SKU End'
+                      disabled={readOnly || isLoading}
+                      error={!!errors.skuEnd?.message}
+                    >
+                      <MenuItem value=''><em>Ninguno</em></MenuItem>
+                      {
+                        skuEnd.map(({ name }) => <MenuItem value={name}>{name}</MenuItem>)
+                      }
+                    </Select>
+                  )}
+                />
+                <FormHelperText error>
+                  {!!errors.skuEnd?.message && String(errors.skuEnd.message)}
+                </FormHelperText>
+              </FormControl>
+            </Stack>
+
+            <FormControl variant='standard' sx={{ mt: 1 }} >
+              <FormLabel>Otros</FormLabel>
               <FormControlLabel
                 control={
                   <Checkbox
                     size='small'
                     color='secondary'
                     disabled={readOnly || isLoading}
-                    onChange={() => handleCheckProduct(item)}
-                    defaultChecked={!!products?.find(product => product.shortName === item.shortName)}
+                    defaultChecked={getValues()?.sku3m}
+                    {...register('sku3m')}
                   />
                 }
-                key={item.id}
-                label={item.name}
+                label='Contar 3 meses'
               />
-            ))}
-            control={control}
-          />
-          <FormHelperText>{!!errors.products?.message && String(errors.products.message)}</FormHelperText>
-        </FormControl>
-      </Grid>
-
-      <Grid item xs={12} md={6} lg={4}>
-        <FormControl variant='standard' error={!!errors.devices?.message}>
-          <FormLabel>Dispositivos</FormLabel>
-            <Controller
-              name='devices'
-              render={() => devices?.map((item) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      size='small'
-                      color='secondary'
-                      disabled={readOnly || isLoading}
-                      onChange={() => handleCheckDevice(item)}
-                      defaultChecked={!!getValues()?.devices?.find(device => device === item.value)}
-                    />
-                  }
-                  key={item.name}
-                  label={item.name}
-                />
-              ))}
-              control={control}
-            />
-          <FormHelperText>{!!errors.devices?.message && String(errors.devices.message)}</FormHelperText>
-        </FormControl>
-      </Grid>
-
-      <Grid item xs={12} md={6} lg={4}>
-        <FormControl
-          margin='normal'
-          fullWidth
-          size='small'
-        >
-          <InputLabel>SKU Start</InputLabel>
-          <Controller
-            name='skuStart'
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                label='SKU Start'
-                disabled={readOnly || isLoading}
-                error={!!errors.skuStart?.message}
-              >
-                <MenuItem value=''><em>Ninguno</em></MenuItem>
-                {
-                  skuStart.map(({name}) => <MenuItem value={name}>{name}</MenuItem>)
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size='small'
+                    color='secondary'
+                    disabled={readOnly || isLoading}
+                    defaultChecked={getValues()?.skuHBMF}
+                    {...register('skuHBMF')}
+                  />
                 }
-              </Select>
-            )}
-          />
-          <FormHelperText error>
-            {!!errors.skuStart?.message && String(errors.skuStart.message)}
-          </FormHelperText>
-        </FormControl>
-
-        <FormControl
-          margin='normal'
-          fullWidth
-          size='small'
-        >
-          <InputLabel>SKU End</InputLabel>
-          <Controller
-            name='skuEnd'
-            control={control}
-            render={({ field }) => (
-              <Select
-                {...field}
-                label='SKU End'
-                disabled={readOnly || isLoading}
-                error={!!errors.skuEnd?.message}
-              >
-                <MenuItem value=''><em>Ninguno</em></MenuItem>
-                {
-                  skuEnd.map(({name}) => <MenuItem value={name}>{name}</MenuItem>)
-                }
-              </Select>
-            )}
-          />
-          <FormHelperText error>
-            {!!errors.skuEnd?.message && String(errors.skuEnd.message)}
-          </FormHelperText>
-        </FormControl>
-
-        <FormControl variant='standard' sx={{ mt: 1 }} >
-          <FormLabel>Contar 3 meses</FormLabel>
-          <FormControlLabel
-            control={
-              <Switch
-                color='secondary'
-                disabled={readOnly || isLoading}
-                defaultChecked={getValues()?.sku3m}
-                {...register('sku3m')}
+                label='HBMF'
               />
-            }
-            label='Habilitar'
-          />
-        </FormControl>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    size='small'
+                    color='secondary'
+                    disabled={readOnly || isLoading}
+                    defaultChecked={getValues()?.skuHBMPRE}
+                    {...register('skuHBMPRE')}
+                  />
+                }
+                label='HBMPRE'
+              />
+            </FormControl>
+          </CardContent>
+        </Card>
       </Grid>
     </Grid>
   )

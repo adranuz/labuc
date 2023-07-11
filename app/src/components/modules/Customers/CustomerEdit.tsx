@@ -6,10 +6,11 @@ import { Box, CircularProgress, Container } from '@mui/material'
 import CustomerForm from './CustomerForm'
 import apiUrl from '../../../config/api'
 
-function CustomerEdit () {
+function CustomerEdit() {
   const params = useParams()
 
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false)
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false)
   const [customer, setCustomer] = useState({})
   const [productsList, setProductsList] = useState<any>({})
 
@@ -20,7 +21,7 @@ function CustomerEdit () {
   }, [])
 
   const getCustomer = ({ id }) => {
-    setIsLoading(true)
+    setIsLoadingCustomer(true)
 
     const url = new URL(`${apiUrl}/customers/${id}`)
 
@@ -29,11 +30,11 @@ function CustomerEdit () {
       .then(data => {
         setCustomer(data)
       })
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsLoadingCustomer(false))
   }
 
   const getProducts = () => {
-    setIsLoading(true)
+    setIsLoadingProducts(true)
 
     const url = new URL(`${apiUrl}/products`)
 
@@ -42,13 +43,13 @@ function CustomerEdit () {
       .then(data => {
         setProductsList(data)
       })
-      .finally(() => setIsLoading(false))
+      .finally(() => setIsLoadingProducts(false))
   }
-  
+
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
       {
-        isLoading && (
+        (isLoadingCustomer || isLoadingProducts) && (
           <Box
             sx={{
               display: 'flex',

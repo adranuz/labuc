@@ -19,7 +19,7 @@ const loginSchema = object({
 
 export type LoginInput = TypeOf<typeof loginSchema>
 
-function Login () {
+function Login() {
   const navigate = useNavigate()
 
   const [showPassword, setShowPassword] = useState(false)
@@ -35,25 +35,25 @@ function Login () {
     resolver: zodResolver(loginSchema)
   })
 
-  const onSubmit: SubmitHandler<LoginInput> = ({email, password}) => {
+  const onSubmit: SubmitHandler<LoginInput> = ({ email, password }) => {
     setIsLoading(true)
     fetch(`${apiUrl}/login`, {
       method: 'POST',
-      body: JSON.stringify({email, password}),
+      body: JSON.stringify({ email, password }),
       headers: {
         'Content-Type': 'application/json'
       }
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data?.token) {
-        localStorage.setItem('token', data.token)
-        navigate('/')
-      }
-    })
-    .finally(() => setIsLoading(false))
+      .then(res => res.json())
+      .then(data => {
+        if (data?.token) {
+          localStorage.setItem('token', data.token)
+          navigate('/')
+        }
+      })
+      .finally(() => setIsLoading(false))
   }
-  
+
   return (
     <>
       <Typography component='h2' variant='h5' gutterBottom>
@@ -114,6 +114,7 @@ function Login () {
               loading={isLoading}
               variant='contained'
               size='small'
+              loadingPosition='start'
               sx={{ mt: 1 }}
               fullWidth
               disableElevation
@@ -129,4 +130,3 @@ function Login () {
 }
 
 export default Login
- 

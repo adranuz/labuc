@@ -35,7 +35,7 @@ const customerSchema = object({
   status: string(),
   sellerName: string(),
   sellerComments: string(),
-  comissionTerm: string().regex(ISO_DATE_REGEX, 'La vigencia de comisión debe estar en formato yyyy-MM-dd'),
+  comissionTerm: string().regex(ISO_DATE_REGEX, 'La fecha debe estar en formato yyyy-MM-dd'),
   percentageComissions: z.coerce.number()
     .gte(0, 'El porcentaje de comisión debe ser mayor o igual a 0')
     .lte(100, 'El porcentaje de comisión debe ser menor o igual a 100'),
@@ -50,7 +50,9 @@ const customerSchema = object({
   devices: z.array(string()),
   skuStart: string(),
   skuEnd: string(),
-  sku3m: z.boolean()
+  sku3m: z.boolean(),
+  skuHBMF: z.boolean(),
+  skuHBMPRE: z.boolean(),
 })
 
 interface Props {
@@ -61,7 +63,7 @@ interface Props {
   isLoading?: boolean
 }
 
-function CustomerForm ({customer, productsList = null, readOnly = false, newCustomer = false, isLoading = false}: Props) {
+function CustomerForm({ customer, productsList = null, readOnly = false, newCustomer = false, isLoading = false }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -104,12 +106,14 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
       devices: customer?.devices || [],
       skuStart: customer?.skuStart || '',
       skuEnd: customer?.skuEnd || '',
-      sku3m: customer?.sku3m || false
+      sku3m: customer?.sku3m || false,
+      skuHBMF: customer?.skuHBMF || false,
+      skuHBMPRE: customer?.skuHBMPRE || false,
     },
     resolver: zodResolver(customerSchema),
   })
 
-  const { fields } = useFieldArray({
+  const { append, fields, remove } = useFieldArray({
     name: 'contacts',
     control: control,
   })
@@ -142,17 +146,17 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
       },
       body: JSON.stringify(data)
     })
-    .then(res => {
-      if (!res.ok) {
-        showSnackbar('Error al intentar acualizar el cliente', 'error')
-        return
-      }
+      .then(res => {
+        if (!res.ok) {
+          showSnackbar('Error al intentar acualizar el cliente', 'error')
+          return
+        }
 
-      toCustomer()
-      showSnackbar('El cliente se actualizó correctamente', 'success')
-    })
-    .catch(_ => showSnackbar('Error al intentar acualizar el cliente', 'error'))
-    .finally(() => setIsSubmitLoading(false))
+        toCustomer()
+        showSnackbar('El cliente se actualizó correctamente', 'success')
+      })
+      .catch(_ => showSnackbar('Error al intentar acualizar el cliente', 'error'))
+      .finally(() => setIsSubmitLoading(false))
   }
 
   const createCustomer = (data) => {
@@ -183,7 +187,7 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
 
   const toCustomers = () => {
     if (location.state) {
-      const {perPage, page, q} = location.state
+      const { perPage, page, q } = location.state
       navigate({
         pathname: '/admin/customers',
         search: `?perPage=${perPage}&page=${page}&q=${q}`,
@@ -208,7 +212,16 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
       search: `?tab=${tab}`,
     })
   }
-  
+
+  const deleteContactByIndex = (index: number) => {
+    remove(index)
+  }
+
+  const addContact = () => {
+    console.log('addContact')
+    append({ type: 'com', name: '', email: '' })
+  }
+
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
       <Box component='form' onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -228,16 +241,16 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
             sx={
               customer?.name
                 ? {
-                    flexGrow: 1,
-                  }
+                  flexGrow: 1,
+                }
                 : {
-                    flexGrow: 1,
-                    fontStyle: 'italic'
-                  }
+                  flexGrow: 1,
+                  fontStyle: 'italic'
+                }
             }
           >
             {
-              newCustomer ? 'Cliente sin nombre' :  customer?.name
+              newCustomer ? 'Cliente sin nombre' : customer?.name
             }
           </Typography>
           <Box
@@ -258,12 +271,13 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
             <ConfirmCustomerDeletion
               id={customer?.id}
               name={customer?.name}
-              onFinished={() => {}}
+              onFinished={() => { }}
               disabled={!readOnly}
             />
             <LoadingButton
               variant='contained'
               size='small'
+              loadingPosition='start'
               disableElevation
               startIcon={<SaveAltIcon />}
               type='submit'
@@ -300,6 +314,8 @@ function CustomerForm ({customer, productsList = null, readOnly = false, newCust
                 control={control}
                 fields={fields}
                 errors={errors}
+                deleteContactByIndex={deleteContactByIndex}
+                addContact={addContact}
               />
             </TabPanel>
             <TabPanel value='products'>
