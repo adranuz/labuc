@@ -1,17 +1,17 @@
 import { Container, Box } from '@mui/material'
 import { Outlet } from 'react-router-dom'
-import logo from '../../../assets/logo.png';
+import logo from '../../../assets/logo.png'
 
-function DefaultLayout () {
+function DefaultLayout() {
   return (
-    <Container maxWidth='sm'>
-       <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
+    <Container maxWidth='xs'>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         <Box
           component="img"
           sx={{ height: 64, my: 4 }}

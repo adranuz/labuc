@@ -1,10 +1,20 @@
 import { useState } from 'react'
 import { useNavigate, useLocation, matchRoutes } from 'react-router-dom'
 
-import { Box, Collapse, Divider, Drawer, Link, List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Toolbar } from '@mui/material'
-import ExpandMore from '@mui/icons-material/ExpandMore'
+import Box from '@mui/material/Box'
+import Collapse from '@mui/material/Collapse'
+import Divider from '@mui/material/Divider'
+import Drawer from '@mui/material/Drawer'
 import ExpandLess from '@mui/icons-material/ExpandLess'
-import * as MUIcon from '@mui/icons-material'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import Icon from '@mui/material/Icon'
+import Link from '@mui/material/Link'
+import List from '@mui/material/List'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
+import Toolbar from '@mui/material/Toolbar'
 
 import logo from '../../../assets/logo.png'
 
@@ -42,7 +52,7 @@ const navigationData: navigation[] = [
         matchRoutes: [
           { path: '/' },
         ],
-        icon: 'Dashboard',
+        icon: 'dashboard',
       },
     ],
   },
@@ -64,7 +74,7 @@ const navigationData: navigation[] = [
           { path: '/admin/roles/create' },
           { path: '/admin/roles/:id/edit' },
         ],
-        icon: 'Lock',
+        icon: 'lock',
         children: [
           {
             id: 'users',
@@ -76,7 +86,7 @@ const navigationData: navigation[] = [
               { path: '/admin/users/create' },
               { path: '/admin/users/:id/edit' },
             ],
-            icon: 'People',
+            icon: 'people',
           },
           {
             id: 'roles',
@@ -88,7 +98,7 @@ const navigationData: navigation[] = [
               { path: '/admin/roles/create' },
               { path: '/admin/roles/:id/edit' },
             ],
-            icon: 'LockPerson',
+            icon: 'lock_person',
           },
         ],
       },
@@ -103,7 +113,7 @@ const navigationData: navigation[] = [
           { path: '/admin/customers/:id' },
           { path: '/admin/customers/:id/edit' },
         ],
-        icon: 'Business',
+        icon: 'business',
       },
     ]
   },
@@ -121,7 +131,7 @@ const navigationData: navigation[] = [
           { path: '/tool/blocking/imports' },
           { path: '/tool/blocking/imports/new' },
         ],
-        icon: 'AppBlocking',
+        icon: 'app_blocking',
         children: [
           {
             id: 'imports',
@@ -131,7 +141,7 @@ const navigationData: navigation[] = [
             matchRoutes: [
               { path: '/tool/blocking/imports' },
             ],
-            icon: 'UploadFile',
+            icon: 'upload_file',
           },
           {
             id: 'activation-report',
@@ -141,7 +151,7 @@ const navigationData: navigation[] = [
             matchRoutes: [
               { path: '/tool/blocking/report/activation' },
             ],
-            icon: 'Assessment',
+            icon: 'assessment',
           },
         ],
       },
@@ -149,7 +159,7 @@ const navigationData: navigation[] = [
   }
 ]
 
-function DrawerContent () {
+function DrawerContent() {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -159,12 +169,12 @@ function DrawerContent () {
     if (!routes) return false
 
     const routeMatched = matchRoutes(routes, location)
-    
+
     return routeMatched ? true : false
   }
 
   const getOpenCollapseValue = (item: navigationChildren) => {
-    const {id, open, matchRoutes} = item
+    const { id, open, matchRoutes } = item
     if (open === null) {
       const newOpen = isRouteMatch(matchRoutes)
       if (newOpen) {
@@ -173,11 +183,6 @@ function DrawerContent () {
       return newOpen
     }
     return open
-  }
-
-  const Icon = (variation, props = {}) => {
-    const IconName = MUIcon[variation]
-    return <IconName {...props} />
   }
 
   const toogleCollapseListItem = (id: string) => {
@@ -234,14 +239,14 @@ function DrawerContent () {
                       selected={isRouteMatch(itemTwo?.matchRoutes)}
                     >
                       <ListItemIcon>
-                        { Icon(itemTwo.icon) }
+                        <Icon>{itemTwo.icon}</Icon>
                       </ListItemIcon>
                       <ListItemText
                         primary={itemTwo.title}
                         primaryTypographyProps={
                           isRouteMatch(itemTwo?.matchRoutes)
-                          ? { fontWeight: 'medium' }
-                          : {}
+                            ? { fontWeight: 'medium' }
+                            : {}
                         }
                       />
                     </ListItemButton>
@@ -251,12 +256,12 @@ function DrawerContent () {
                         onClick={() => { toogleCollapseListItem(itemTwo.id) }}
                       >
                         <ListItemIcon>
-                          { Icon(itemTwo.icon) }
+                          <Icon>{itemTwo.icon}</Icon>
                         </ListItemIcon>
                         <ListItemText
                           primary={itemTwo.title}
                         />
-                        { getOpenCollapseValue(itemTwo) ? <ExpandLess /> : <ExpandMore /> }
+                        {getOpenCollapseValue(itemTwo) ? <ExpandLess /> : <ExpandMore />}
                       </ListItemButton>
                       <Collapse in={getOpenCollapseValue(itemTwo)} timeout='auto' unmountOnExit>
                         <List component='div' disablePadding>
@@ -264,20 +269,20 @@ function DrawerContent () {
                             itemTwo?.children?.map(itemThree => (
                               itemThree.type === 'item' && (
                                 <ListItemButton
-                                   key={itemThree.id}
+                                  key={itemThree.id}
                                   onClick={() => { navigate(itemThree.url) }}
                                   selected={isRouteMatch(itemThree?.matchRoutes)}
                                   sx={{ pl: 4 }}
                                 >
                                   <ListItemIcon>
-                                    { Icon(itemThree.icon) }
+                                    <Icon>{itemThree.icon}</Icon>
                                   </ListItemIcon>
                                   <ListItemText
                                     primary={itemThree.title}
                                     primaryTypographyProps={
                                       isRouteMatch(itemThree?.matchRoutes)
-                                      ? { fontWeight: 'medium' }
-                                      : {}
+                                        ? { fontWeight: 'medium' }
+                                        : {}
                                     }
                                   />
                                 </ListItemButton>

@@ -1,7 +1,9 @@
-import { Alert, Snackbar as SnackbarMui } from "@mui/material"
+import Alert from "@mui/material/Alert"
+import SnackbarMui from "@mui/material/Snackbar"
+
 import { useCommonStore } from '../../store/common'
 
-function Snackbar () {
+function Snackbar() {
   const snackbarOpen = useCommonStore((state) => state.snackbarOpen)
   const snackbarMessage = useCommonStore((state) => state.snackbarMessage)
   const snackbarSeverity = useCommonStore((state) => state.snackbarSeverity)
@@ -17,13 +19,13 @@ function Snackbar () {
         horizontal: 'right',
       }}
     >
-    <Alert
-      onClose={hideSnackbar}
-      severity={snackbarSeverity}
-    >
-      {snackbarMessage}
-    </Alert>
-  </SnackbarMui>
+      <Alert
+        onClose={hideSnackbar}
+        severity={snackbarSeverity}
+      >
+        {snackbarMessage}
+      </Alert>
+    </SnackbarMui>
   )
 }
 
