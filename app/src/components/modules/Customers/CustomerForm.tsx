@@ -146,7 +146,7 @@ function CustomerForm ({ customer, productsList = null, readOnly = false, newCus
     if (newCustomer) {
       createCustomer(data)
     } else {
-      updateCustomer(customer.id, data)
+      updateCustomer(customer?.id, data)
     }
   }
 

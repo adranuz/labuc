@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Box, LinearProgress, Chip, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Toolbar, Typography, Button, Tooltip } from '@mui/material'
+import { Box, LinearProgress, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Toolbar, Typography, Button, Tooltip } from '@mui/material'
 import { styled, alpha, useTheme } from '@mui/material/styles'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
@@ -146,13 +146,13 @@ function CustomersTable () {
     })
   }
 
-  const getStatusColor = (status: string) => {
-    if (status === 'Activo') return 'success'
-    if (status === 'Prospecto') return 'info'
-    if (status === 'Pruebas') return 'warning'
-    if (status === 'Suspendido') return 'error'
-    return 'info'
-  }
+  // const getStatusColor = (status: string) => {
+  //   if (status === 'Activo') return 'success'
+  //   if (status === 'Prospecto') return 'info'
+  //   if (status === 'Pruebas') return 'warning'
+  //   if (status === 'Suspendido') return 'error'
+  //   return 'info'
+  // }
 
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>

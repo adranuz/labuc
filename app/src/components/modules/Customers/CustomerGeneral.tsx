@@ -10,9 +10,47 @@ import { Controller } from 'react-hook-form'
 interface Props {
   readOnly: boolean
   isLoading: boolean
-  control: Control
+  control: Control<Customer, any>
   errors: FieldErrors
   register: UseFormRegister<any>
+}
+
+interface Customer {
+  id: string
+  customId: string
+  name: string
+  email: string
+  country: string
+  registeredName: string
+  rfc: string
+  address: string
+  economicActivity: string
+  status: string
+  sellerName: string
+  sellerComments: string
+  comissionTerm: string
+  percentageComissions: number
+  createdAt: Date
+  updatedAt: Date
+  devices: string[]
+  skuStart: string
+  skuEnd: string
+  sku3m: boolean
+  skuHBMF: boolean
+  skuHBMPRE: boolean
+  products: Product[]
+  contacts: Contact[]
+}
+
+interface Contact {
+  name: string
+  email: string
+  type: string
+}
+
+interface Product {
+  name: string
+  shortName: string
 }
 
 function CustomerGeneral ({ readOnly, isLoading, control, errors, register }: Props) {

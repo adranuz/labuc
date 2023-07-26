@@ -6,12 +6,50 @@ import { Box, CircularProgress, Container } from '@mui/material'
 import CustomerForm from './CustomerForm'
 import apiUrl from '../../../config/api'
 
-function CustomerEdit() {
+interface Customer {
+  id: string
+  customId: string
+  name: string
+  email: string
+  country: string
+  registeredName: string
+  rfc: string
+  address: string
+  economicActivity: string
+  status: string
+  sellerName: string
+  sellerComments: string
+  comissionTerm: string
+  percentageComissions: number
+  createdAt: Date
+  updatedAt: Date
+  devices: string[]
+  skuStart: string
+  skuEnd: string
+  sku3m: boolean
+  skuHBMF: boolean
+  skuHBMPRE: boolean
+  products: Product[]
+  contacts: Contact[]
+}
+
+interface Contact {
+  name: string
+  email: string
+  type: string
+}
+
+interface Product {
+  name: string
+  shortName: string
+}
+
+function CustomerEdit () {
   const params = useParams()
 
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false)
   const [isLoadingProducts, setIsLoadingProducts] = useState(false)
-  const [customer, setCustomer] = useState({})
+  const [customer, setCustomer] = useState<Customer | undefined>(undefined)
   const [productsList, setProductsList] = useState<any>({})
 
   useEffect(() => {
@@ -26,7 +64,7 @@ function CustomerEdit() {
     const url = new URL(`${apiUrl}/customers/${id}`)
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setCustomer(data)
       })
@@ -39,7 +77,7 @@ function CustomerEdit() {
     const url = new URL(`${apiUrl}/products`)
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setProductsList(data)
       })
@@ -54,7 +92,7 @@ function CustomerEdit() {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <CircularProgress />
