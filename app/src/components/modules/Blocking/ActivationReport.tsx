@@ -3,8 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Backdrop, Box, CircularProgress, Container, LinearProgress, Paper, Tab, Toolbar, Typography } from '@mui/material'
 import { LoadingButton, TabContext, TabList, TabPanel } from '@mui/lab'
-import BuildIcon from '@mui/icons-material/Build';
-import DownloadIcon from '@mui/icons-material/Download';
+import BuildIcon from '@mui/icons-material/Build'
+import DownloadIcon from '@mui/icons-material/Download'
 import AndroidIcon from '@mui/icons-material/Android'
 import AppleIcon from '@mui/icons-material/Apple'
 import LaptopWindowsIcon from '@mui/icons-material/LaptopWindows'
@@ -14,7 +14,7 @@ import ActivationReportTable from './ActivationReportTable'
 import apiUrl from '../../../config/api'
 import { useCommonStore } from '../../../store/common'
 
-function ActivationReport() {
+function ActivationReport () {
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -28,7 +28,7 @@ function ActivationReport() {
   const handleChangeTab = (_: React.SyntheticEvent, value: string) => {
     setTab(value)
     setSearchParams({
-      tab: value,
+      tab: value
     })
     getActivationReport(value)
   }
@@ -49,7 +49,7 @@ function ActivationReport() {
     url.search = new URLSearchParams(params).toString()
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setData(data)
       })
@@ -62,9 +62,9 @@ function ActivationReport() {
     const url = new URL(`${apiUrl}/blocking/report/activation`)
 
     fetch(url, {
-      method: 'POST',
+      method: 'POST'
     })
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(() => {
         getActivationReport(tab)
         showSnackbar('El consolidado se generó correctamente', 'success')
@@ -86,19 +86,19 @@ function ActivationReport() {
     let filename = ''
 
     fetch(url)
-      .then(res => {
+      .then(async res => {
         const header = res.headers.get('Content-Disposition')
         if (header) {
           const parts = header.split(';')
           filename = parts[1].split('=')[1].replaceAll('\"', '')
         }
-        return res.blob()
+        return await res.blob()
       })
       .then(blob => URL.createObjectURL(blob))
       .then((href) => {
         Object.assign(document.createElement('a'), {
           href,
-          download: filename,
+          download: filename
         }).click()
       })
       .finally(() => {
@@ -115,11 +115,13 @@ function ActivationReport() {
   }
 
   const localeDate = (date: string) => {
-    if (date) return new Date(date).toLocaleString('es', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      hour12: true,
-    })
+    if (date) {
+      return new Date(date).toLocaleString('es', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        hour12: true
+      })
+    }
   }
 
   return (
@@ -130,7 +132,7 @@ function ActivationReport() {
           variant='h5'
           noWrap
           sx={{
-            flexGrow: 1,
+            flexGrow: 1
           }}
         >
           Consolidado {localeDate(data?.lastBlockingDeviceImport?.createdAt)}
@@ -179,7 +181,7 @@ function ActivationReport() {
 
           {isLoading && (
             <LinearProgress
-              sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4, zIndex: 3 }}
+              sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderTopLeftRadius: 4, borderTopRightRadius: 4, zIndex: 3 }}
             />
           )}
 

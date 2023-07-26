@@ -9,6 +9,7 @@ import util from "node:util"
 import Option from '../../common/types/Option.type'
 import { ImportBlockingDTO, ImportBlockingResponseDTO, PaginationFilterDTO , PublicImportsDTO} from '../dto/blocking.dto'
 import IBlockingRepository from '../service/IBlockingRepository'
+
 export default class BlockingRepository implements IBlockingRepository {
   toDate = (datetime: string) => {
     if (datetime === 'NA') return null
@@ -48,6 +49,7 @@ export default class BlockingRepository implements IBlockingRepository {
     if (truncate === 'true') {
       await pgClient.query(`TRUNCATE "BlockingDevice"`)
       await pgClient.query(`TRUNCATE "BlockingDeviceComplete"`)
+      await pgClient.query(`TRUNCATE "BlockingDeviceCompleteSku"`)
       await pgClient.query(`TRUNCATE "ActivationReport"`)
     }
 
@@ -231,6 +233,29 @@ export default class BlockingRepository implements IBlockingRepository {
       'iOS Device',
       'Windows Device',
     ]
+
+    const skus = [
+      {
+        name: 'HBM3M',
+        intervalStart: '3 month 1 day',
+        intervalEnd: '3 month'
+      },
+      {
+        name: 'HBM1A',
+        intervalStart: '1 year 1 day',
+        intervalEnd: '1 year'
+      },
+      {
+        name: 'HBM3A',
+        intervalStart: '3 year 1 day',
+        intervalEnd: '3 year'
+      }
+    ]
+
+    const pgClient = new Client({
+      connectionString: process.env.DATABASE_URL,
+    })
+    await pgClient.connect()
     
     const currentDate = new Date()
     const lastWeekDate = new Date(currentDate.getTime() - (60*60*24*7*1000))
@@ -241,7 +266,7 @@ export default class BlockingRepository implements IBlockingRepository {
     const customers = await prismaClient.customer.findMany()
     const totalCustomers = customers.length
     
-    for (const [index, { name, email }] of customers.entries()) {
+    for (const [index, { name, email, skuStart, skuEnd }] of customers.entries()) {
       console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
 
       for (const deviceType of deviceTypes) {
@@ -294,11 +319,83 @@ export default class BlockingRepository implements IBlockingRepository {
           deviceType,
         })
       }
-    }
 
+      console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
+      console.log(`[+] SKU Start : ` + skuStart)
+      console.log(`[+] SKU End   : ` + skuEnd)
+
+      const intervalStart = (skus.find(sku => sku.name === skuStart))?.intervalStart
+      const intervalEnd = (skus.find(sku => sku.name === skuEnd))?.intervalEnd
+
+      const query = `
+        INSERT INTO "BlockingDeviceCompleteSku"(
+            "customerId",
+            "deviceId",
+            "imei",
+            "serial",
+            "locked",
+            "lockType",
+            "status",
+            "isActivated",
+            "previousStatus",
+            "previousStatusChangedOn",
+            "make",
+            "model",
+            "type",
+            "deleted",
+            "activatedDeviceDeleted",
+            "registeredOn",
+            "enrolledOn",
+            "unregisteredOn",
+            "deletedOn",
+            "activationDate",
+            "billable",
+            "lastConnectedAt",
+            "nextLockDate",
+            "appVersion",
+            "customerEmail",
+            "enrolledOnOnlyDate",
+            "billableCalculated",
+            "customerName",
+            "skuStartCounter",
+            "skuEndCounter"
+          )
+        SELECT *,
+          '${name}',
+          ${intervalStart ? `
+          CASE
+            WHEN (
+              SELECT COUNT(*)
+              FROM generate_series("enrolledOnOnlyDate", CURRENT_DATE, '${intervalStart}')
+            ) = 1 AND "billableCalculated" = true THEN 1
+            ELSE 0
+          END,
+          ` : 'NULL,'}
+          ${intervalStart && intervalEnd ? `
+          CASE
+            WHEN (
+              SELECT COUNT(*)
+              FROM generate_series("enrolledOnOnlyDate", CURRENT_DATE, '${intervalStart}')
+            ) > 1 AND "billableCalculated" = true THEN (
+              SELECT COUNT(*)
+              FROM generate_series("enrolledOnOnlyDate" + INTERVAL '${intervalStart}', CURRENT_DATE, '${intervalEnd}')
+            )
+            ELSE 0
+          END
+          ` : 'NULL'}
+        FROM "BlockingDeviceComplete"
+        WHERE "customerEmail" = '${email}'
+      `
+
+      await pgClient.query(query)
+    }
+    
+    await pgClient.end()
+    
     const activationReport = await prismaClient.activationReport.createMany({
       data: activationReportData,
     })
+
 
     return {
       status: 'success'
@@ -353,20 +450,75 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
+    const skuReportQuery = prismaClient.blockingDeviceCompleteSku.groupBy({
+      where: type ? {
+        type
+      } : {},
+      by: ['customerName'],
+      _sum: {
+        skuStartCounter: true,
+        skuEndCounter: true
+      },
+    })
+
+    const skuReportTotalsQuery = prismaClient.blockingDeviceCompleteSku.aggregate({
+      where: type ? {
+        type
+      } : {},
+      _sum: {
+        skuStartCounter: true,
+        skuEndCounter: true
+      },
+    })
+
     const [
       activationReport,
       activationReportTotals,
       lastBlockingDeviceImport,
+      skuReport,
+      skuReportTotals
     ] = await prismaClient.$transaction([
       activationReportQuery,
       activationReportTotalsQuery,
       lastBlockingDeviceImportQuery,
+      skuReportQuery,
+      skuReportTotalsQuery
     ])
 
+    let data = []
+
+    if (skuReport?.length > 0) {
+      for (const {_sum, customerName} of activationReport) {
+        const foundItem = skuReport.find(item => item.customerName === customerName)
+          data.push(
+            foundItem
+              ? {
+                  customerName,
+                  _sum: {
+                    ..._sum,
+                    skuStartCounter: foundItem?._sum?.skuStartCounter ? foundItem._sum.skuStartCounter : 0,
+                    skuEndCounter: foundItem?._sum?.skuEndCounter ? foundItem._sum.skuEndCounter : 0,
+                  },
+                }
+              : {
+                  customerName,
+                  _sum: {
+                    ..._sum,
+                    skuStartCounter: 0,
+                    skuEndCounter: 0
+                  }
+                }
+          )
+      }
+    } else {
+      data = activationReport
+    }
+
     return {
-      activationReport,
+      activationReport: data,
       activationReportTotals,
       lastBlockingDeviceImport,
+      skuReportTotals,
     }
   }
 
@@ -409,31 +561,69 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
+    const skuReportQuery = prismaClient.blockingDeviceCompleteSku.groupBy({
+      where: type ? {
+        type
+      } : {},
+      by: ['customerName'],
+      _sum: {
+        skuStartCounter: true,
+        skuEndCounter: true
+      },
+    })
+
+    const skuReportTotalsQuery = prismaClient.blockingDeviceCompleteSku.aggregate({
+      where: type ? {
+        type
+      } : {},
+      _sum: {
+        skuStartCounter: true,
+        skuEndCounter: true
+      },
+    })
+
     const [
       activationReport,
       activationReportTotals,
+      skuReport,
+      skuReportTotals
     ] = await prismaClient.$transaction([
       activationReportQuery,
       activationReportTotalsQuery,
+      skuReportQuery,
+      skuReportTotalsQuery
     ])
 
     const data = []
 
     for (const {_sum, customerName} of activationReport) {
-      data.push({
-        customerName,
-        ..._sum,
-      })
+      const foundItem = skuReport.find(item => item.customerName === customerName)
+        data.push(
+          foundItem
+            ? {
+                customerName,
+                ..._sum,
+                skuStartCounter: foundItem?._sum?.skuStartCounter ? foundItem._sum.skuStartCounter : 0,
+                skuEndCounter: foundItem?._sum?.skuEndCounter ? foundItem._sum.skuEndCounter : 0,
+              }
+            : {
+                customerName,
+                ..._sum,
+                skuStartCounter: 0,
+                skuEndCounter: 0
+              }
+        )
     }
 
     data.push({
       customerName: 'Totales',
-      ...activationReportTotals?._sum
+      ...activationReportTotals?._sum,
+      ...skuReportTotals?._sum
     })
 
     const XLSX = require('xlsx')
 
-    const heading = [['Cliente', 'Facturables', 'No Facturables', 'APS', 'APQ']];
+    const heading = [['Cliente', 'Facturables', 'No Facturables', 'APS', 'APQ', 'SKU Start', 'SKU End']];
 
     const workBook = XLSX.utils.book_new()
     const workSheet = XLSX.utils.json_to_sheet([])
@@ -499,7 +689,9 @@ export default class BlockingRepository implements IBlockingRepository {
           "activationDate",
           "billable",
           "billableText"
-          ${customer?.sku3m ? `,"enrolledOnCount3Months"` : ''}
+          ${customer?.sku3m ? `,"sku3mCounter"` : ''}
+          ,"skuStartCounter",
+          "skuEndCounter"
         )
       SELECT "deviceId",
         "imei",
@@ -523,8 +715,10 @@ export default class BlockingRepository implements IBlockingRepository {
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
              ELSE 'Sin costo'
         END
-        ${customer?.sku3m ? `,(SELECT COUNT("3m")-1 FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
-      FROM "BlockingDeviceComplete"
+        ${customer?.sku3m ? `,(SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
+        ,"skuStartCounter",
+        "skuEndCounter"
+      FROM "BlockingDeviceCompleteSku"
       WHERE "customerEmail" = '${customer?.email}'
       ${type !== null ? `AND "type" = '${type}'` : ''}
     `
@@ -554,7 +748,9 @@ export default class BlockingRepository implements IBlockingRepository {
           "activationDate" AS "activation_date",
           "billable",
           "billableText" AS "facturables"
-          ${customer?.sku3m ? `,"enrolledOnCount3Months" AS "3m"` : ''}
+          ${customer?.sku3m ? `,"sku3mCounter" AS "3m"` : ''}
+          ,"skuStartCounter" AS "sku_start",
+          "skuEndCounter" AS "sku_end"
         FROM "BlockingDeviceReport"
         ORDER BY "deviceId"
       ) TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'

@@ -15,14 +15,14 @@ const Search = styled('div')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   backgroundColor: useTheme().palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.15) : alpha(theme.palette.common.black, 0.05),
   '&:hover': {
-    backgroundColor: useTheme().palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.25) : alpha(theme.palette.common.black, 0.15),
+    backgroundColor: useTheme().palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.25) : alpha(theme.palette.common.black, 0.15)
   },
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
+    width: 'auto'
+  }
 }))
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -32,7 +32,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   pointerEvents: 'none',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'center'
 }))
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -46,13 +46,13 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     [theme.breakpoints.up('sm')]: {
       width: '12ch',
       '&:focus': {
-        width: '20ch',
-      },
-    },
-  },
+        width: '20ch'
+      }
+    }
+  }
 }))
 
-function UsersTable() {
+function UsersTable () {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -69,7 +69,6 @@ function UsersTable() {
   }, [])
 
   const getUsers = ({ perPage, page, q }) => {
-
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/users`)
@@ -77,13 +76,13 @@ function UsersTable() {
     const params = {
       perPage: String(perPage),
       page: String(page),
-      q,
+      q
     }
 
     url.search = new URLSearchParams(params).toString()
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setUsersList(data)
       })
@@ -97,7 +96,7 @@ function UsersTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -109,7 +108,7 @@ function UsersTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -121,7 +120,7 @@ function UsersTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -151,7 +150,8 @@ function UsersTable() {
             display: 'flex',
             alignItems: 'center',
             gap: 2
-          }}>
+          }}
+          >
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
@@ -178,7 +178,7 @@ function UsersTable() {
 
         {isLoading && (
           <LinearProgress
-            sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
+            sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderTopLeftRadius: 4, borderTopRightRadius: 4 }}
           />
         )}
 
@@ -241,8 +241,7 @@ function UsersTable() {
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage='Filas por página:'
           labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
+            `${from}-${to} de ${count}`}
           showFirstButton
           showLastButton
           getItemAriaLabel={(type) =>
@@ -252,8 +251,7 @@ function UsersTable() {
                 ? 'Ir a la última página'
                 : type === 'next'
                   ? 'Ir a la página siguiente'
-                  : 'Regresar a la pagina anterior'
-          }
+                  : 'Regresar a la pagina anterior'}
         />
       </Paper>
     </Box>

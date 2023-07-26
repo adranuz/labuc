@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close'
 
 import apiUrl from '../../../config/api'
 
-function BlockingImportsTable() {
+function BlockingImportsTable () {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -25,7 +25,6 @@ function BlockingImportsTable() {
   }, [])
 
   const getImports = ({ perPage, page, q }) => {
-
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/blocking/imports`)
@@ -33,13 +32,13 @@ function BlockingImportsTable() {
     const params = {
       perPage: String(perPage),
       page: String(page),
-      q,
+      q
     }
 
     url.search = new URLSearchParams(params).toString()
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setImportsList(data)
       })
@@ -53,7 +52,7 @@ function BlockingImportsTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -65,7 +64,7 @@ function BlockingImportsTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -97,7 +96,7 @@ function BlockingImportsTable() {
     return new Date(date).toLocaleString('es', {
       dateStyle: 'medium',
       timeStyle: 'short',
-      hour12: true,
+      hour12: true
     })
   }
 
@@ -119,7 +118,8 @@ function BlockingImportsTable() {
             display: 'flex',
             alignItems: 'center',
             gap: 2
-          }}>
+          }}
+          >
             <Button
               size='small'
               color='primary'
@@ -133,7 +133,7 @@ function BlockingImportsTable() {
 
         {isLoading && (
           <LinearProgress
-            sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
+            sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderTopLeftRadius: 4, borderTopRightRadius: 4 }}
           />
         )}
 
@@ -185,8 +185,7 @@ function BlockingImportsTable() {
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage='Filas por página:'
           labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
+            `${from}-${to} de ${count}`}
           showFirstButton
           showLastButton
           getItemAriaLabel={(type) =>
@@ -196,8 +195,7 @@ function BlockingImportsTable() {
                 ? 'Ir a la última página'
                 : type === 'next'
                   ? 'Ir a la página siguiente'
-                  : 'Regresar a la pagina anterior'
-          }
+                  : 'Regresar a la pagina anterior'}
         />
       </Paper>
     </Box>

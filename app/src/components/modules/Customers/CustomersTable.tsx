@@ -19,14 +19,14 @@ const Search = styled('div')(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   backgroundColor: useTheme().palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.15) : alpha(theme.palette.common.black, 0.05),
   '&:hover': {
-    backgroundColor: useTheme().palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.25) : alpha(theme.palette.common.black, 0.15),
+    backgroundColor: useTheme().palette.mode === 'dark' ? alpha(theme.palette.common.white, 0.25) : alpha(theme.palette.common.black, 0.15)
   },
   marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
+    width: 'auto'
+  }
 }))
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -36,7 +36,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   pointerEvents: 'none',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
+  justifyContent: 'center'
 }))
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -50,13 +50,13 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     [theme.breakpoints.up('sm')]: {
       width: '12ch',
       '&:focus': {
-        width: '20ch',
-      },
-    },
-  },
+        width: '20ch'
+      }
+    }
+  }
 }))
 
-function CustomersTable() {
+function CustomersTable () {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -73,7 +73,6 @@ function CustomersTable() {
   }, [])
 
   const getCustomers = ({ perPage, page, q }) => {
-
     setIsLoading(true)
 
     const url = new URL(`${apiUrl}/customers`)
@@ -81,13 +80,13 @@ function CustomersTable() {
     const params = {
       perPage: String(perPage),
       page: String(page),
-      q,
+      q
     }
 
     url.search = new URLSearchParams(params).toString()
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setCustomersList(data)
       })
@@ -101,7 +100,7 @@ function CustomersTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -113,7 +112,7 @@ function CustomersTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -125,7 +124,7 @@ function CustomersTable() {
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
-      q: newFilters.q,
+      q: newFilters.q
     })
   }
 
@@ -173,7 +172,8 @@ function CustomersTable() {
             display: 'flex',
             alignItems: 'center',
             gap: 2
-          }}>
+          }}
+          >
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
@@ -201,7 +201,7 @@ function CustomersTable() {
 
         {isLoading && (
           <LinearProgress
-            sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderRadius: 4 }}
+            sx={{ position: 'absolute', top: '0', left: 0, right: 0, borderTopLeftRadius: 4, borderTopRightRadius: 4 }}
           />
         )}
 
@@ -213,7 +213,9 @@ function CustomersTable() {
                 <TableCell>Nombre</TableCell>
                 <TableCell align='center'>Productos</TableCell>
                 <TableCell align='center'>Dispositivos</TableCell>
-                <TableCell>Estatus</TableCell>
+                <TableCell align='center'>SKU Start</TableCell>
+                <TableCell align='center'>SKU End</TableCell>
+                {/* <TableCell>Estatus</TableCell> */}
                 <TableCell align='right'>Acciones</TableCell>
               </TableRow>
             </TableHead>
@@ -263,7 +265,7 @@ function CustomersTable() {
                       </Tooltip>
                     </Stack>
                   </TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     {
                       row.status && (
                         <Chip
@@ -275,7 +277,9 @@ function CustomersTable() {
                         />
                       )
                     }
-                  </TableCell>
+                  </TableCell> */}
+                  <TableCell>{row.skuStart}</TableCell>
+                  <TableCell>{row.skuEnd}</TableCell>
                   <TableCell>
                     <Stack direction='row' spacing={1} justifyContent='flex-end'>
                       {/* <Button
@@ -312,8 +316,7 @@ function CustomersTable() {
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage='Filas por página:'
           labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} de ${count}`
-          }
+            `${from}-${to} de ${count}`}
           showFirstButton
           showLastButton
           getItemAriaLabel={(type) =>
@@ -323,8 +326,7 @@ function CustomersTable() {
                 ? 'Ir a la última página'
                 : type === 'next'
                   ? 'Ir a la página siguiente'
-                  : 'Regresar a la pagina anterior'
-          }
+                  : 'Regresar a la pagina anterior'}
         />
       </Paper>
     </Box>

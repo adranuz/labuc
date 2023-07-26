@@ -31,86 +31,86 @@ const AuthRoutes = (): RouteObject => {
     children: [
       {
         path: '/',
-        element: <DashboardPage />,
+        element: <DashboardPage />
       },
       {
         path: 'admin/users',
         children: [
           {
             path: '',
-            element: <UsersPage />,
+            element: <UsersPage />
           },
           {
             path: 'create',
-            element: <UserCreatePage />,
+            element: <UserCreatePage />
           },
           {
             path: ':id/edit',
-            element: <UserEditPage />,
-          },
-        ],
+            element: <UserEditPage />
+          }
+        ]
       },
       {
         path: 'admin/roles',
         children: [
           {
             path: '',
-            element: <RolesPage />,
+            element: <RolesPage />
           },
           {
             path: 'create',
-            element: <RoleCreatePage />,
+            element: <RoleCreatePage />
           },
           {
             path: ':id/edit',
-            element: <RoleEditPage />,
-          },
-        ],
+            element: <RoleEditPage />
+          }
+        ]
       },
       {
         path: 'admin/customers',
         children: [
           {
             path: '',
-            element: <CustomersPage />,
+            element: <CustomersPage />
           },
           {
             path: 'create',
-            element: <CustomerCreatePage />,
+            element: <CustomerCreatePage />
           },
           {
             path: ':id',
-            element: <CustomerDetailsPage />,
+            element: <CustomerDetailsPage />
           },
           {
             path: ':id/edit',
-            element: <CustomerEditPage />,
-          },
-        ],
+            element: <CustomerEditPage />
+          }
+        ]
       },
       {
         path: 'tool/blocking',
         children: [
           {
             path: 'imports',
-            element: <BlockingImportsPage />,
+            element: <BlockingImportsPage />
           },
           {
             path: 'imports/new',
-            element: <BlockingImportNewPage />,
+            element: <BlockingImportNewPage />
           },
           {
             path: 'report',
             children: [
               {
                 path: 'activation',
-                element: <ActivationReportPage />,
-              },
+                element: <ActivationReportPage />
+              }
             ]
-          },
-        ],
-      },
-    ],
+          }
+        ]
+      }
+    ]
   }
 }
 

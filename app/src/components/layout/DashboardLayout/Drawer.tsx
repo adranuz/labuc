@@ -18,7 +18,7 @@ import Toolbar from '@mui/material/Toolbar'
 
 import logo from '../../../assets/logo.png'
 
-const drawerWidth: number = 240
+const drawerWidth = 240
 
 interface navigation {
   id: string
@@ -50,11 +50,11 @@ const navigationData: navigation[] = [
         type: 'item',
         url: '/',
         matchRoutes: [
-          { path: '/' },
+          { path: '/' }
         ],
-        icon: 'dashboard',
-      },
-    ],
+        icon: 'dashboard'
+      }
+    ]
   },
   {
     id: 'administration',
@@ -72,7 +72,7 @@ const navigationData: navigation[] = [
           { path: '/admin/users/:id/edit' },
           { path: '/admin/roles' },
           { path: '/admin/roles/create' },
-          { path: '/admin/roles/:id/edit' },
+          { path: '/admin/roles/:id/edit' }
         ],
         icon: 'lock',
         children: [
@@ -84,9 +84,9 @@ const navigationData: navigation[] = [
             matchRoutes: [
               { path: '/admin/users' },
               { path: '/admin/users/create' },
-              { path: '/admin/users/:id/edit' },
+              { path: '/admin/users/:id/edit' }
             ],
-            icon: 'people',
+            icon: 'people'
           },
           {
             id: 'roles',
@@ -96,11 +96,11 @@ const navigationData: navigation[] = [
             matchRoutes: [
               { path: '/admin/roles' },
               { path: '/admin/roles/create' },
-              { path: '/admin/roles/:id/edit' },
+              { path: '/admin/roles/:id/edit' }
             ],
-            icon: 'lock_person',
-          },
-        ],
+            icon: 'lock_person'
+          }
+        ]
       },
       {
         id: 'customers',
@@ -111,10 +111,10 @@ const navigationData: navigation[] = [
           { path: '/admin/customers' },
           { path: '/admin/customers/create' },
           { path: '/admin/customers/:id' },
-          { path: '/admin/customers/:id/edit' },
+          { path: '/admin/customers/:id/edit' }
         ],
-        icon: 'business',
-      },
+        icon: 'business'
+      }
     ]
   },
   {
@@ -130,6 +130,7 @@ const navigationData: navigation[] = [
         matchRoutes: [
           { path: '/tool/blocking/imports' },
           { path: '/tool/blocking/imports/new' },
+          { path: '/tool/blocking/report/activation' }
         ],
         icon: 'app_blocking',
         children: [
@@ -139,9 +140,9 @@ const navigationData: navigation[] = [
             type: 'item',
             url: '/tool/blocking/imports',
             matchRoutes: [
-              { path: '/tool/blocking/imports' },
+              { path: '/tool/blocking/imports' }
             ],
-            icon: 'upload_file',
+            icon: 'upload_file'
           },
           {
             id: 'activation-report',
@@ -149,17 +150,17 @@ const navigationData: navigation[] = [
             type: 'item',
             url: '/tool/blocking/report/activation',
             matchRoutes: [
-              { path: '/tool/blocking/report/activation' },
+              { path: '/tool/blocking/report/activation' }
             ],
-            icon: 'assessment',
-          },
-        ],
-      },
+            icon: 'assessment'
+          }
+        ]
+      }
     ]
   }
 ]
 
-function DrawerContent() {
+function DrawerContent () {
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -170,7 +171,7 @@ function DrawerContent() {
 
     const routeMatched = matchRoutes(routes, location)
 
-    return routeMatched ? true : false
+    return (routeMatched != null)
   }
 
   const getOpenCollapseValue = (item: navigationChildren) => {
@@ -189,7 +190,7 @@ function DrawerContent() {
     const newNavigation = [...navigation]
     newNavigation?.map(item => {
       const itemFound = item?.children.find(itemThree => itemThree.id === id)
-      if (itemFound) {
+      if (itemFound != null) {
         itemFound.open = !itemFound.open
       }
     })
@@ -210,7 +211,7 @@ function DrawerContent() {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'center'
         }}
       >
         <Link href='/'>

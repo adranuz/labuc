@@ -2,11 +2,11 @@ import { useState } from 'react'
 
 import { Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, TableRow } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
-import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from '@mui/icons-material/Download'
 
 import apiUrl from '../../../config/api'
 
-function ActivationReportTable({ data, deviceType, isLoading }) {
+function ActivationReportTable ({ data, deviceType, isLoading }) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
 
   const downloadCustomerReport = (deviceType: string, name: string, index: number) => {
@@ -24,19 +24,19 @@ function ActivationReportTable({ data, deviceType, isLoading }) {
     let filename = ''
 
     fetch(url)
-      .then(res => {
+      .then(async res => {
         const header = res.headers.get('Content-Disposition')
         if (header) {
           const parts = header.split(';')
           filename = parts[1].split('=')[1].replaceAll('\"', '')
         }
-        return res.blob()
+        return await res.blob()
       })
       .then(blob => URL.createObjectURL(blob))
       .then((href) => {
         Object.assign(document.createElement('a'), {
           href,
-          download: filename,
+          download: filename
         }).click()
       })
       .finally(() => {
@@ -58,6 +58,8 @@ function ActivationReportTable({ data, deviceType, isLoading }) {
             <TableCell align='right'>No Facturables</TableCell>
             <TableCell align='right'>APS</TableCell>
             <TableCell align='right'>APQ</TableCell>
+            <TableCell align='right'>SKU Start</TableCell>
+            <TableCell align='right'>SKU End</TableCell>
             <TableCell align='right'>Acciones</TableCell>
           </TableRow>
         </TableHead>
@@ -69,6 +71,20 @@ function ActivationReportTable({ data, deviceType, isLoading }) {
               <TableCell align='right'>{row?._sum?.nonBillable}</TableCell>
               <TableCell align='right'>{row?._sum?.billableWeekly}</TableCell>
               <TableCell align='right'>{row?._sum?.billableBiweekly}</TableCell>
+              <TableCell align='right'>
+                {
+                  row?._sum?.skuStartCounter >= 0
+                    ? row?._sum?.skuStartCounter
+                    : 0
+                }
+              </TableCell>
+              <TableCell align='right'>
+                {
+                  row?._sum?.skuEndCounter >= 0
+                    ? row?._sum?.skuEndCounter
+                    : 0
+                }
+              </TableCell>
               <TableCell>
                 <Stack direction='row' spacing={1} justifyContent='flex-end'>
                   <LoadingButton
@@ -92,11 +108,11 @@ function ActivationReportTable({ data, deviceType, isLoading }) {
             left: 0,
             bottom: 0,
             zIndex: 2,
-            position: 'sticky',
+            position: 'sticky'
           }}
         >
           <TableRow>
-            <TableCell colSpan={6} sx={{ padding: 0 }}></TableCell>
+            <TableCell colSpan={8} sx={{ padding: 0 }} />
           </TableRow>
 
           <TableRow>
@@ -105,7 +121,9 @@ function ActivationReportTable({ data, deviceType, isLoading }) {
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.nonBillable}</TableCell>
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableWeekly}</TableCell>
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableBiweekly}</TableCell>
-            <TableCell align='right' variant='head'></TableCell>
+            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuStartCounter}</TableCell>
+            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuEndCounter}</TableCell>
+            <TableCell align='right' variant='head' />
           </TableRow>
         </TableFooter>
       </Table>

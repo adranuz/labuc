@@ -1,8 +1,23 @@
-import { Card, CardContent, CardHeader, FormControl, FormHelperText, Grid, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
+
+import { useState } from 'react'
+import { type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
+
+import { Card, CardContent, CardHeader, FormControl, FormHelperText, Grid, IconButton, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 import { Controller } from 'react-hook-form'
 
-function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
+interface Props {
+  readOnly: boolean
+  isLoading: boolean
+  control: Control
+  errors: FieldErrors
+  register: UseFormRegister<any>
+}
+
+function CustomerGeneral ({ readOnly, isLoading, control, errors, register }: Props) {
+  const [showCopyEmail, setShowCopyEmail] = useState(false)
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={6} lg={4}>
@@ -19,8 +34,8 @@ function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
                 size='small'
                 label='ID'
                 disabled={readOnly || isLoading}
-                error={!!errors.customId?.message}
-                helperText={!!errors.customId?.message && String(errors.customId.message)}
+                error={Boolean(errors.customId?.message)}
+                helperText={Boolean(errors.customId?.message) && String(errors.customId?.message)}
                 {...register('customId')}
               />
 
@@ -85,10 +100,22 @@ function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
               size='small'
               label='Correo electrónico'
               type='email'
-              disabled={readOnly || isLoading}
+              disabled={isLoading}
               error={!!errors.email?.message}
               helperText={!!errors.email?.message && String(errors.email.message)}
               {...register('email')}
+              onMouseEnter={() => readOnly && setShowCopyEmail(true)}
+              onMouseLeave={() => readOnly && setShowCopyEmail(false)}
+              InputProps={{
+                readOnly,
+                endAdornment: showCopyEmail && (
+                  <InputAdornment position='end'>
+                    <IconButton edge='end' size='small'>
+                      <ContentCopyIcon fontSize='small' />
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }}
             />
 
             <TextField
@@ -231,7 +258,7 @@ function CustomerGeneral({ readOnly, isLoading, control, errors, register }) {
                 inputProps: {
                   disabled: readOnly || isLoading,
                   step: 1,
-                  min: 0,
+                  min: 0
                 },
                 endAdornment: (
                   <InputAdornment position='end'>%</InputAdornment>

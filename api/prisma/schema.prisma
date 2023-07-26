@@ -159,9 +159,43 @@ model BlockingDeviceComplete {
   lastConnectedAt         DateTime?
   nextLockDate            DateTime?
   appVersion              String?
-  customerEmail           String?
+  customerEmail           String
   enrolledOnOnlyDate      DateTime? @db.Date
   billableCalculated      Boolean?
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
+}
+
+model BlockingDeviceCompleteSku {
+  customerId              String?
+  deviceId                Int       @unique
+  imei                    String?
+  serial                  String?
+  locked                  String?
+  lockType                String?
+  status                  String?
+  isActivated             String?
+  previousStatus          String?
+  previousStatusChangedOn DateTime?
+  make                    String?
+  model                   String?
+  type                    String?
+  deleted                 String?
+  activatedDeviceDeleted  String?
+  registeredOn            DateTime?
+  enrolledOn              DateTime?
+  unregisteredOn          DateTime?
+  deletedOn               DateTime?
+  activationDate          DateTime?
+  billable                String?
+  lastConnectedAt         DateTime?
+  nextLockDate            DateTime?
+  appVersion              String?
+  customerEmail           String
+  enrolledOnOnlyDate      DateTime? @db.Date
+  billableCalculated      Boolean?
+  customerName            String
+  skuStartCounter         Int?
+  skuEndCounter           Int?
   @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
 }
 
@@ -177,7 +211,7 @@ model ActivationReport {
   nonBillableBiweekly Int
   deviceType          String
 
-  @@index([customerEmail, deviceType])
+  @@index([customerName, deviceType])
 }
 
 model BlockingDeviceReport {
@@ -201,7 +235,9 @@ model BlockingDeviceReport {
   activationDate          DateTime?
   billable                String?
   billableText            String?
-  enrolledOnCount3Months  Int?
+  sku3mCounter            Int?
+  skuStartCounter         Int?
+  skuEndCounter           Int?
 
   @@index([deviceId])
 }

@@ -52,30 +52,68 @@ const customerSchema = object({
   skuEnd: string(),
   sku3m: z.boolean(),
   skuHBMF: z.boolean(),
-  skuHBMPRE: z.boolean(),
+  skuHBMPRE: z.boolean()
 })
 
 interface Props {
-  customer?: any
+  customer?: Customer
   productsList?: any
   readOnly?: boolean
   newCustomer?: boolean
   isLoading?: boolean
 }
 
-function CustomerForm({ customer, productsList = null, readOnly = false, newCustomer = false, isLoading = false }: Props) {
+interface Customer {
+  id: string
+  customId: string
+  name: string
+  email: string
+  country: string
+  registeredName: string
+  rfc: string
+  address: string
+  economicActivity: string
+  status: string
+  sellerName: string
+  sellerComments: string
+  comissionTerm: string
+  percentageComissions: number
+  createdAt: Date
+  updatedAt: Date
+  devices: string[]
+  skuStart: string
+  skuEnd: string
+  sku3m: boolean
+  skuHBMF: boolean
+  skuHBMPRE: boolean
+  products: Product[]
+  contacts: Contact[]
+}
+
+interface Contact {
+  name: string
+  email: string
+  type: string
+}
+
+interface Product {
+  name: string
+  shortName: string
+}
+
+function CustomerForm ({ customer, productsList = null, readOnly = false, newCustomer = false, isLoading = false }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const [isSubmitLoading, setIsSubmitLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
 
-  const [tab, setTab] = useState(searchParams.get('tab') || 'general')
+  const [tab, setTab] = useState(searchParams.get('tab') ?? 'general')
 
   const handleChangeTab = (_: React.SyntheticEvent, value: string) => {
     setTab(value)
     setSearchParams({
-      tab: value,
+      tab: value
     })
   }
 
@@ -85,37 +123,15 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
     getValues,
     handleSubmit,
     register,
-    setValue,
-  } = useForm<any>({
-    defaultValues: {
-      customId: customer?.customId || '',
-      name: customer?.name || '',
-      email: customer?.email || '',
-      country: customer?.country || '',
-      economicActivity: customer?.economicActivity || '',
-      status: customer?.status || '',
-      rfc: customer?.rfc || '',
-      registeredName: customer?.registeredName || '',
-      address: customer?.address || '',
-      sellerName: customer?.sellerName || '',
-      comissionTerm: customer?.comissionTerm?.length >= 10 ? customer?.comissionTerm?.slice(0, 10) : '',
-      percentageComissions: customer?.percentageComissions || 0,
-      sellerComments: customer?.sellerComments || '',
-      products: customer?.products || [],
-      contacts: customer?.contacts || [{ type: 'com' }, { type: 'tec' }],
-      devices: customer?.devices || [],
-      skuStart: customer?.skuStart || '',
-      skuEnd: customer?.skuEnd || '',
-      sku3m: customer?.sku3m || false,
-      skuHBMF: customer?.skuHBMF || false,
-      skuHBMPRE: customer?.skuHBMPRE || false,
-    },
-    resolver: zodResolver(customerSchema),
+    setValue
+  } = useForm<Customer>({
+    defaultValues: { ...customer },
+    resolver: zodResolver(customerSchema)
   })
 
   const { append, fields, remove } = useFieldArray({
     name: 'contacts',
-    control: control,
+    control
   })
 
   const handleClickBack = () => {
@@ -142,7 +158,7 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
     fetch(url, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -167,7 +183,7 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -184,13 +200,12 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
       .finally(() => setIsSubmitLoading(false))
   }
 
-
   const toCustomers = () => {
     if (location.state) {
       const { perPage, page, q } = location.state
       navigate({
         pathname: '/admin/customers',
-        search: `?perPage=${perPage}&page=${page}&q=${q}`,
+        search: `?perPage=${perPage}&page=${page}&q=${q}`
       })
     } else {
       navigate('/admin/customers')
@@ -200,7 +215,7 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
   const toCustomer = () => {
     navigate({
       pathname: `/admin/customers/${customer?.id}`,
-      search: `?tab=${tab}`,
+      search: `?tab=${tab}`
     }, {
       state: location.state
     })
@@ -209,7 +224,7 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
   const toEditCustomer = () => {
     navigate({
       pathname: `/admin/customers/${customer?.id}/edit`,
-      search: `?tab=${tab}`,
+      search: `?tab=${tab}`
     })
   }
 
@@ -241,7 +256,7 @@ function CustomerForm({ customer, productsList = null, readOnly = false, newCust
             sx={
               customer?.name
                 ? {
-                  flexGrow: 1,
+                  flexGrow: 1
                 }
                 : {
                   flexGrow: 1,

@@ -5,22 +5,22 @@ import { Controller } from 'react-hook-form'
 const devices: any = [
   { name: 'Android', value: 'android' },
   { name: 'iOS', value: 'ios' },
-  { name: 'Windows', value: 'windows' },
+  { name: 'Windows', value: 'windows' }
 ]
 
 const skuStart = [
   { name: 'HBM3M' },
-  { name: 'HBM3A' },
   { name: 'HBM1A' },
+  { name: 'HBM3A' }
 ]
 
 const skuEnd = [
   { name: 'HBM3M' },
-  { name: 'HBM3A' },
   { name: 'HBM1A' },
+  { name: 'HBM3A' }
 ]
 
-function CustomerProducts({ productsList, products, readOnly, isLoading, control, register, errors, getValues, setValue }) {
+function CustomerProducts ({ productsList, products, readOnly, isLoading, control, register, errors, getValues, setValue }) {
   const handleCheckDevice = (checkedDevice) => {
     const { devices } = getValues()
     const newDevices = devices?.find(device => device === checkedDevice.value)
@@ -170,7 +170,7 @@ function CustomerProducts({ productsList, products, readOnly, isLoading, control
               </FormControl>
             </Stack>
 
-            <FormControl variant='standard' sx={{ mt: 1 }} >
+            <FormControl variant='standard' sx={{ mt: 1 }}>
               <FormLabel>Otros</FormLabel>
               <FormControlLabel
                 control={
