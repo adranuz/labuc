@@ -182,6 +182,8 @@ class CustomerRepository {
                 comissionTerm: true,
                 percentageComissions: true,
                 devices: true,
+                skuStart: true,
+                skuEnd: true,
                 products: {
                     select: {
                         name: true,
