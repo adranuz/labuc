@@ -518,7 +518,12 @@ export default class BlockingRepository implements IBlockingRepository {
       activationReport: data,
       activationReportTotals,
       lastBlockingDeviceImport,
-      skuReportTotals,
+      skuReportTotals: {
+        _sum: {
+          skuStartCounter: skuReportTotals?._sum?.skuStartCounter ?? 0,
+          skuEndCounter: skuReportTotals?._sum?.skuEndCounter ?? 0
+        }
+      },
     }
   }
 
@@ -618,7 +623,8 @@ export default class BlockingRepository implements IBlockingRepository {
     data.push({
       customerName: 'Totales',
       ...activationReportTotals?._sum,
-      ...skuReportTotals?._sum
+      skuStartCounter: skuReportTotals?._sum?.skuStartCounter ?? 0,
+      skuEndCounter: skuReportTotals?._sum?.skuEndCounter ?? 0
     })
 
     const XLSX = require('xlsx')
