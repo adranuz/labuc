@@ -213,8 +213,8 @@ function CustomersTable () {
                 <TableCell>Nombre</TableCell>
                 <TableCell align='center'>Productos</TableCell>
                 <TableCell align='center'>Dispositivos</TableCell>
-                <TableCell align='center'>SKU Start</TableCell>
-                <TableCell align='center'>SKU End</TableCell>
+                <TableCell>SKU Start</TableCell>
+                <TableCell>SKU End</TableCell>
                 {/* <TableCell>Estatus</TableCell> */}
                 <TableCell align='right'>Acciones</TableCell>
               </TableRow>
