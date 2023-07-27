@@ -121,8 +121,8 @@ function ActivationReportTable ({ data, deviceType, isLoading }) {
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.nonBillable}</TableCell>
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableWeekly}</TableCell>
             <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableBiweekly}</TableCell>
-            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuStartCounter}</TableCell>
-            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuEndCounter}</TableCell>
+            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuStartCounter ?? '0'}</TableCell>
+            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuEndCounter ?? '0'}</TableCell>
             <TableCell align='right' variant='head' />
           </TableRow>
         </TableFooter>
