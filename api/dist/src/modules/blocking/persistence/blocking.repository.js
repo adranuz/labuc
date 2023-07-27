@@ -348,7 +348,7 @@ class BlockingRepository {
         };
     }
     async getActivationReport(deviceType) {
-        var _a, _b;
+        var _a, _b, _c, _d, _e, _f;
         let type = null;
         if (deviceType === 'android') {
             type = 'Android Device';
@@ -449,11 +449,16 @@ class BlockingRepository {
             activationReport: data,
             activationReportTotals,
             lastBlockingDeviceImport,
-            skuReportTotals,
+            skuReportTotals: {
+                _sum: {
+                    skuStartCounter: (_d = (_c = skuReportTotals === null || skuReportTotals === void 0 ? void 0 : skuReportTotals._sum) === null || _c === void 0 ? void 0 : _c.skuStartCounter) !== null && _d !== void 0 ? _d : 0,
+                    skuEndCounter: (_f = (_e = skuReportTotals === null || skuReportTotals === void 0 ? void 0 : skuReportTotals._sum) === null || _e === void 0 ? void 0 : _e.skuEndCounter) !== null && _f !== void 0 ? _f : 0
+                }
+            },
         };
     }
     async getActivationReportFile(deviceType) {
-        var _a, _b;
+        var _a, _b, _c, _d, _e, _f;
         let type = null;
         if (deviceType === 'android') {
             type = 'Android Device';
@@ -535,7 +540,8 @@ class BlockingRepository {
         data.push({
             customerName: 'Totales',
             ...activationReportTotals === null || activationReportTotals === void 0 ? void 0 : activationReportTotals._sum,
-            ...skuReportTotals === null || skuReportTotals === void 0 ? void 0 : skuReportTotals._sum
+            skuStartCounter: (_d = (_c = skuReportTotals === null || skuReportTotals === void 0 ? void 0 : skuReportTotals._sum) === null || _c === void 0 ? void 0 : _c.skuStartCounter) !== null && _d !== void 0 ? _d : 0,
+            skuEndCounter: (_f = (_e = skuReportTotals === null || skuReportTotals === void 0 ? void 0 : skuReportTotals._sum) === null || _e === void 0 ? void 0 : _e.skuEndCounter) !== null && _f !== void 0 ? _f : 0
         });
         const XLSX = require('xlsx');
         const heading = [['Cliente', 'Facturables', 'No Facturables', 'APS', 'APQ', 'SKU Start', 'SKU End']];
