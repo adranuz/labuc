@@ -135,8 +135,8 @@ const navigationData: navigation[] = [
         icon: 'app_blocking',
         children: [
           {
-            id: 'imports',
-            title: 'Importaciones',
+            id: 'nuovo-reports',
+            title: 'Reportes Nuovo',
             type: 'item',
             url: '/tool/blocking/imports',
             matchRoutes: [

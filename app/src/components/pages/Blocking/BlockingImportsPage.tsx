@@ -3,7 +3,7 @@ import Page from '../Page'
 
 function BlockingImportsPage () {
   return (
-    <Page title='Importaciones'>
+    <Page title='Reportes Nuovo'>
       <BlockingImportsModule />
     </Page>
   )

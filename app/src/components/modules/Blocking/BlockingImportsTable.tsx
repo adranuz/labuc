@@ -111,7 +111,7 @@ function BlockingImportsTable () {
             color='primary'
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            Importaciones
+            Reportes Nuovo
           </Typography>
 
           <Box sx={{
