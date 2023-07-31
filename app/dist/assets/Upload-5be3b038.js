@@ -1,1 +1,0 @@
-import{r,i as a}from"./createSvgIcon-5b37f33e.js";import{j as t}from"./index-e6b00dba.js";var e={},o=a;Object.defineProperty(e,"__esModule",{value:!0});var u=e.default=void 0,v=o(r()),d=t,i=(0,v.default)((0,d.jsx)("path",{d:"M5 20h14v-2H5v2zm0-10h4v6h6v-6h4l-7-7-7 7z"}),"Upload");u=e.default=i;export{u as d};
