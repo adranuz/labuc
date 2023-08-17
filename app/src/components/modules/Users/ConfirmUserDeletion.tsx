@@ -4,10 +4,10 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import { LoadingButton } from '@mui/lab'
 import DeleteIcon from '@mui/icons-material/Delete'
 
-import { useCommonStore } from '../../../store/common'
-import apiUrl from '../../../config/api'
+import { useCommonStore } from '@/store/common'
+import { API_URL } from '@/utils/constants'
 
-export default function ConfirmUserDeletion({ id, name, onFinished }) {
+export default function ConfirmUserDeletion ({ id, name, onFinished }) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -27,12 +27,12 @@ export default function ConfirmUserDeletion({ id, name, onFinished }) {
   const deleteUser = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/users/${id}`)
+    const url = new URL(`${API_URL}/users/${id}`)
 
     fetch(url, {
       method: 'DELETE'
     })
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(_ => {
         showSnackbar('El usuario se eliminó corretamente', 'success')
         onFinished()

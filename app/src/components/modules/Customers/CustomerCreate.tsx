@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import CustomerForm from './CustomerForm'
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 function CustomerCreate () {
   const [isLoading, setIsLoading] = useState(false)
@@ -15,10 +15,10 @@ function CustomerCreate () {
   const getProducts = () => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/products`)
+    const url = new URL(`${API_URL}/products`)
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setProductsList(data)
       })
@@ -32,7 +32,7 @@ function CustomerCreate () {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <CircularProgress />

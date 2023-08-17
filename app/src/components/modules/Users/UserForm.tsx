@@ -10,8 +10,8 @@ import { LoadingButton } from '@mui/lab'
 import SaveAltIcon from '@mui/icons-material/SaveAlt'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
-import { useCommonStore } from '../../../store/common'
-import apiUrl from '../../../config/api'
+import { useCommonStore } from '@/store/common'
+import { API_URL } from '@/utils/constants'
 
 const updateUserSchema = object({
   name: string({ required_error: 'Se requiere el nombre' })
@@ -21,7 +21,7 @@ const updateUserSchema = object({
     .email('La dirección de correo electrónico es inválida'),
   roles: array(object({
     name: string({ required_error: 'Se requiere el nombre del rol' })
-  })).nonempty({ message: 'Se requiere al menos un rol' }),
+  })).nonempty({ message: 'Se requiere al menos un rol' })
 })
 
 const createUserSchema = object({
@@ -35,7 +35,7 @@ const createUserSchema = object({
   })).nonempty({ message: 'Se requiere al menos un rol' }),
   password: string({ required_error: 'Se requiere la contraseña' })
     .nonempty({ message: 'Se requiere la contraseña' })
-    .min(8, 'La contraseña debe tener más de 8 caracteres'),
+    .min(8, 'La contraseña debe tener más de 8 caracteres')
 })
 
 interface Props {
@@ -43,7 +43,7 @@ interface Props {
   roles?: any
 }
 
-function UserEdit({ user, roles }: Props) {
+function UserEdit ({ user, roles }: Props) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -54,14 +54,14 @@ function UserEdit({ user, roles }: Props) {
     getValues,
     handleSubmit,
     register,
-    setValue,
+    setValue
   } = useForm<any>({
     defaultValues: {
       name: user?.name,
       email: user?.email,
       roles: user?.roles || []
     },
-    resolver: zodResolver(user ? updateUserSchema : createUserSchema),
+    resolver: zodResolver(user ? updateUserSchema : createUserSchema)
   })
 
   const handleCheck = (checkedRole) => {
@@ -83,12 +83,12 @@ function UserEdit({ user, roles }: Props) {
   const updateUser = (id, data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/users/${id}`)
+    const url = new URL(`${API_URL}/users/${id}`)
 
     fetch(url, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -108,12 +108,12 @@ function UserEdit({ user, roles }: Props) {
   const createUser = (data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/users`)
+    const url = new URL(`${API_URL}/users`)
 
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -158,7 +158,7 @@ function UserEdit({ user, roles }: Props) {
           variant='h5'
           noWrap
           sx={{
-            flexGrow: 1,
+            flexGrow: 1
           }}
         >
           Usuario
@@ -218,7 +218,7 @@ function UserEdit({ user, roles }: Props) {
                 error={!!errors.email?.message}
                 helperText={!!errors.email?.message && String(errors.email.message)}
                 {...register('email')}
-                disabled={user ? true : false}
+                disabled={!!user}
               />
             </Grid>
           </Grid>

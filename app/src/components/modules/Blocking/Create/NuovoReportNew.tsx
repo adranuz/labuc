@@ -2,21 +2,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import dayjs, { Dayjs } from 'dayjs'
+
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { MuiFileInput } from 'mui-file-input'
-import { Container, Card, CardContent, Switch, FormControlLabel, Grid, FormLabel, FormControl, Alert, Box, IconButton, Toolbar, Typography, Backdrop, CircularProgress } from '@mui/material'
+import { Container, Card, CardContent, Switch, FormControlLabel, Grid, FormLabel, FormControl, Alert, Backdrop, CircularProgress } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import UploadIcon from '@mui/icons-material/Upload'
 
-import { useCommonStore } from '../../../store/common'
-import apiUrl from '../../../config/api'
+import { useCommonStore } from '@/store/common'
+import { API_URL } from '@/utils/constants'
+import { Toolbar } from '@/components/commons/Toolbar'
 
-function BlockingImportNew() {
+export function NuovoReportNew () {
   const navigate = useNavigate()
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
 
   const [files, setFiles] = useState<File | File[]>([])
   const [truncate, setTruncate] = useState(true)
+  const [reportedAt, setReportedAt] = useState<Dayjs | null>(dayjs())
   const [error, setError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -30,19 +34,27 @@ function BlockingImportNew() {
     setTruncate(event.target.checked)
   }
 
+  const handleChangeReportedAt = (value: Dayjs | null) => {
+    setError(false)
+    setReportedAt(value)
+  }
+
   const handleSubmit = () => {
     if (files?.length > 0) uploadFiles(files)
   }
 
   const uploadFiles = (files) => {
+    if (reportedAt === null) return
+
     setIsLoading(true)
     setError(false)
 
-    const url = new URL(`${apiUrl}/blocking/import`)
+    const url = new URL(`${API_URL}/blocking/reports`)
 
     const data = new FormData()
 
     data.append('truncate', String(truncate))
+    data.append('reportedAt', reportedAt.format('YYYY-MM-DD'))
 
     for (const file of files) {
       data.append('files', file, file.name)
@@ -52,13 +64,13 @@ function BlockingImportNew() {
       method: 'POST',
       body: data
     })
-      .then((res) => {
+      .then(async (res) => {
         if (!res.ok) {
           setError(true)
           return
         }
 
-        return res.json()
+        return await res.json()
       })
       .then(data => {
         toImports(data.id)
@@ -68,56 +80,31 @@ function BlockingImportNew() {
       .finally(() => setIsLoading(false))
   }
 
-  const handleClickBack = () => {
-    toImports()
-  }
-
-  const toImports = (id?: string) => {
+  const toImports = (id: string) => {
     navigate({
-      pathname: '/tool/blocking/imports',
-      search: `?selected=${id}`,
+      pathname: '/tool/blocking/reports',
+      search: `?selected=${id}`
     })
   }
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-      <Toolbar disableGutters>
-        <IconButton
-          size='large'
-          color='inherit'
-          sx={{ mr: 2 }}
-          onClick={handleClickBack}
+      <Toolbar
+        title='Importar Reporte'
+        pathRouteForBackButton='/tool/blocking/reports'
+        disableGutters
+      >
+        <LoadingButton
+          loading={isLoading}
+          variant='contained'
+          loadingPosition='start'
+          size='small'
+          disableElevation
+          startIcon={<UploadIcon />}
+          onClick={handleSubmit}
         >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          component='h2'
-          variant='h5'
-          noWrap
-          sx={{
-            flexGrow: 1,
-          }}
-        >
-          Nueva importación
-        </Typography>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2
-          }}
-        >
-          <LoadingButton
-            loading={isLoading}
-            variant='contained'
-            loadingPosition='start'
-            size='small'
-            disableElevation
-            startIcon={<UploadIcon />}
-            onClick={handleSubmit}
-          >
-            Importar
-          </LoadingButton>
-        </Box>
+          Importar
+        </LoadingButton>
       </Toolbar>
 
       <Card variant='outlined'>
@@ -128,11 +115,29 @@ function BlockingImportNew() {
             </Alert>
           )}
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12} md={4}>
+              <DatePicker
+                value={reportedAt}
+                label='Fecha del reporte'
+                slotProps={{
+                  textField: {
+                    margin: 'normal',
+                    required: true,
+                    fullWidth: true,
+                    size: 'small'
+                  }
+                }}
+                disableFuture
+                onChange={handleChangeReportedAt}
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
               <MuiFileInput
                 label='Archivos (.csv)'
                 size='small'
                 margin='normal'
+                required
+                fullWidth
                 multiple
                 value={files}
                 onChange={handleChangeFiles}
@@ -141,7 +146,7 @@ function BlockingImportNew() {
               />
             </Grid>
           </Grid>
-          <FormControl variant='standard' sx={{ m: 1.5 }}>
+          <FormControl variant='standard' sx={{ m: 1.5 }} required>
             <FormLabel>Restablecer tablas</FormLabel>
             <FormControlLabel
               control={
@@ -172,5 +177,3 @@ function BlockingImportNew() {
     </Container>
   )
 }
-
-export default BlockingImportNew

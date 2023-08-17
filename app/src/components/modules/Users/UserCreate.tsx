@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import UserForm from './UserForm'
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 function UserCreate () {
   const [isLoading, setIsLoading] = useState(false)
@@ -16,16 +16,16 @@ function UserCreate () {
   const getRoles = () => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/roles`)
+    const url = new URL(`${API_URL}/roles`)
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setRoles(data)
       })
       .finally(() => setIsLoading(false))
   }
-  
+
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
       {
@@ -34,7 +34,7 @@ function UserCreate () {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <CircularProgress />

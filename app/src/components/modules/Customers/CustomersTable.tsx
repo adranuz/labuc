@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Box, LinearProgress, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Toolbar, Typography, Button, Tooltip } from '@mui/material'
+import { Box, LinearProgress, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography, Button, Tooltip } from '@mui/material'
 import { styled, alpha, useTheme } from '@mui/material/styles'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
@@ -11,8 +11,9 @@ import AppleIcon from '@mui/icons-material/Apple'
 import LaptopWindowsIcon from '@mui/icons-material/LaptopWindows'
 import InfoIcon from '@mui/icons-material/Info'
 
+import { Toolbar } from '@/components/commons/Toolbar'
 import ConfirmCustomerDeletion from './ConfirmCustomerDeletion'
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -63,9 +64,9 @@ function CustomersTable () {
   const [isLoading, setIsLoading] = useState(false)
   const [customersList, setCustomersList] = useState<any>({})
   const [filters, setFilters] = useState({
-    perPage: parseInt(searchParams.get('perPage') || '10'),
-    page: parseInt(searchParams.get('page') || '0'),
-    q: searchParams.get('q') || ''
+    perPage: parseInt(searchParams.get('perPage') ?? '10'),
+    page: parseInt(searchParams.get('page') ?? '0'),
+    q: searchParams.get('q') ?? ''
   })
 
   useEffect(() => {
@@ -75,7 +76,7 @@ function CustomersTable () {
   const getCustomers = ({ perPage, page, q }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/customers`)
+    const url = new URL(`${API_URL}/customers`)
 
     const params = {
       perPage: String(perPage),
@@ -157,46 +158,29 @@ function CustomersTable () {
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
-        <Toolbar>
-          <Typography
-            component='h2'
-            variant='h5'
-            noWrap
+        <Toolbar title='Clientes'>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder='Buscar…'
+              type='search'
+              inputProps={{ 'aria-label': 'search' }}
+              onChange={onSearchChange}
+              defaultValue={searchParams.get('q')}
+            />
+          </Search>
+
+          <Button
+            size='small'
             color='primary'
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+            startIcon={<AddIcon />}
+            onClick={() => handleClickCreate()}
+            disabled
           >
-            Clientes
-          </Typography>
-
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2
-          }}
-          >
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder='Buscar…'
-                type='search'
-                inputProps={{ 'aria-label': 'search' }}
-                onChange={onSearchChange}
-                defaultValue={searchParams.get('q')}
-              />
-            </Search>
-
-            <Button
-              size='small'
-              color='primary'
-              startIcon={<AddIcon />}
-              onClick={() => handleClickCreate()}
-              disabled
-            >
-              Agregar
-            </Button>
-          </Box>
+            Agregar
+          </Button>
         </Toolbar>
 
         {isLoading && (
@@ -309,9 +293,9 @@ function CustomersTable () {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component='div'
-          count={customersList?.total || 0}
+          count={customersList?.total ?? 0}
           rowsPerPage={filters.perPage}
-          page={customersList?.page || 0}
+          page={customersList?.page ?? 0}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage='Filas por página:'

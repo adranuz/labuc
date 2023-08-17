@@ -94,113 +94,46 @@ model Customer {
   @@index([id, email])
 }
 
-model BlockingDeviceImport {
-  id             String    @id @default(uuid())
-  totalFiles     Int
-  totalFilesSize Int
-  truncate       Boolean
-  createdAt      DateTime  @default(now())
-  startedAt      DateTime?
-  finishedAt     DateTime?
+model NuovoReport {
+  id           String                    @id @default(uuid())
+  reportedAt   DateTime                  @unique
+  logProcess   NuovoReportLogProcess[]
+  logFile      NuovoReportLogFile[]
+  consolidated NuovoReportConsolidated[]
+  devices      BlockingDevice[]
 }
 
-model BlockingDevice {
-  customerId              String?
-  deviceId                Int       @unique
-  imei                    String?
-  serial                  String?
-  locked                  String?
-  lockType                String?
-  status                  String?
-  isActivated             String?
-  previousStatus          String?
-  previousStatusChangedOn DateTime?
-  make                    String?
-  model                   String?
-  type                    String?
-  deleted                 String?
-  activatedDeviceDeleted  String?
-  registeredOn            DateTime?
-  enrolledOn              DateTime?
-  unregisteredOn          DateTime?
-  deletedOn               DateTime?
-  activationDate          DateTime?
-  billable                String?
-  lastConnectedAt         DateTime?
-  nextLockDate            DateTime?
-  appVersion              String?
-  customerEmail           String?
-
-  @@index([billable, status, enrolledOn])
+model NuovoReportInfo {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model BlockingDeviceComplete {
-  customerId              String?
-  deviceId                Int       @unique
-  imei                    String?
-  serial                  String?
-  locked                  String?
-  lockType                String?
-  status                  String?
-  isActivated             String?
-  previousStatus          String?
-  previousStatusChangedOn DateTime?
-  make                    String?
-  model                   String?
-  type                    String?
-  deleted                 String?
-  activatedDeviceDeleted  String?
-  registeredOn            DateTime?
-  enrolledOn              DateTime?
-  unregisteredOn          DateTime?
-  deletedOn               DateTime?
-  activationDate          DateTime?
-  billable                String?
-  lastConnectedAt         DateTime?
-  nextLockDate            DateTime?
-  appVersion              String?
-  customerEmail           String
-  enrolledOnOnlyDate      DateTime? @db.Date
-  billableCalculated      Boolean?
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
+model NuovoReportLogProcess {
+  id            String      @id @default(uuid())
+  name          String
+  type          String
+  createdAt     DateTime    @default(now())
+  finishedAt    DateTime?
+  nuovoReport   NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
+  nuovoReportId String
 }
 
-model BlockingDeviceCompleteSku {
-  customerId              String?
-  deviceId                Int       @unique
-  imei                    String?
-  serial                  String?
-  locked                  String?
-  lockType                String?
-  status                  String?
-  isActivated             String?
-  previousStatus          String?
-  previousStatusChangedOn DateTime?
-  make                    String?
-  model                   String?
-  type                    String?
-  deleted                 String?
-  activatedDeviceDeleted  String?
-  registeredOn            DateTime?
-  enrolledOn              DateTime?
-  unregisteredOn          DateTime?
-  deletedOn               DateTime?
-  activationDate          DateTime?
-  billable                String?
-  lastConnectedAt         DateTime?
-  nextLockDate            DateTime?
-  appVersion              String?
-  customerEmail           String
-  enrolledOnOnlyDate      DateTime? @db.Date
-  billableCalculated      Boolean?
-  customerName            String
-  skuStartCounter         Int?
-  skuEndCounter           Int?
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
+model NuovoReportLogFile {
+  id            String      @id @default(uuid())
+  originalName  String
+  mimeType      String
+  size          Int
+  createdAt     DateTime    @default(now())
+  nuovoReport   NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
+  nuovoReportId String
 }
 
-model ActivationReport {
-  id                  String @id @default(uuid())
+model NuovoReportConsolidated {
+  id                  String      @id @default(uuid())
   customerName        String
   customerEmail       String
   billable            Int
@@ -210,8 +143,122 @@ model ActivationReport {
   billableBiweekly    Int
   nonBillableBiweekly Int
   deviceType          String
+  skuStartCounter     Int
+  skuEndCounter       Int
+  nuovoReport         NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
+  nuovoReportId       String
 
   @@index([customerName, deviceType])
+}
+
+model BlockingDevice {
+  customerId               String?
+  deviceId                 Int         @unique
+  imei                     String?
+  serial                   String?
+  locked                   String?
+  expectedLockStatus       String?
+  lockType                 String?
+  status                   String?
+  isActivated              String?
+  previousStatus           String?
+  previousStatusChangedOn  DateTime?
+  make                     String?
+  model                    String?
+  type                     String?
+  deleted                  String?
+  activatedDeviceDeleted   String?
+  registeredOn             DateTime?
+  enrolledOn               DateTime?
+  unregisteredOn           DateTime?
+  deletedOn                DateTime?
+  activationDate           DateTime?
+  billable                 String?
+  lastConnectedAt          DateTime?
+  nextLockDate             DateTime?
+  appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
+  customerEmail            String?
+  nuovoReport              NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
+  nuovoReportId            String
+
+  @@index([billable, status, enrolledOn])
+}
+
+model BlockingDeviceComplete {
+  customerId               String?
+  deviceId                 Int       @unique
+  imei                     String?
+  serial                   String?
+  locked                   String?
+  expectedLockStatus       String?
+  lockType                 String?
+  status                   String?
+  isActivated              String?
+  previousStatus           String?
+  previousStatusChangedOn  DateTime?
+  make                     String?
+  model                    String?
+  type                     String?
+  deleted                  String?
+  activatedDeviceDeleted   String?
+  registeredOn             DateTime?
+  enrolledOn               DateTime?
+  unregisteredOn           DateTime?
+  deletedOn                DateTime?
+  activationDate           DateTime?
+  billable                 String?
+  lastConnectedAt          DateTime?
+  nextLockDate             DateTime?
+  appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
+  customerEmail            String
+  nuovoReportId            String
+  enrolledOnOnlyDate       DateTime? @db.Date
+  billableCalculated       Boolean?
+
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
+}
+
+model BlockingDeviceCompleteSku {
+  customerId               String?
+  deviceId                 Int       @unique
+  imei                     String?
+  serial                   String?
+  locked                   String?
+  expectedLockStatus       String?
+  lockType                 String?
+  status                   String?
+  isActivated              String?
+  previousStatus           String?
+  previousStatusChangedOn  DateTime?
+  make                     String?
+  model                    String?
+  type                     String?
+  deleted                  String?
+  activatedDeviceDeleted   String?
+  registeredOn             DateTime?
+  enrolledOn               DateTime?
+  unregisteredOn           DateTime?
+  deletedOn                DateTime?
+  activationDate           DateTime?
+  billable                 String?
+  lastConnectedAt          DateTime?
+  nextLockDate             DateTime?
+  appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
+  customerEmail            String
+  nuovoReportId            String
+  enrolledOnOnlyDate       DateTime? @db.Date
+  billableCalculated       Boolean?
+  customerName             String
+  skuStartCounter          Int?
+  skuEndCounter            Int?
+
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
 }
 
 model BlockingDeviceReport {

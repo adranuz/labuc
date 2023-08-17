@@ -15,9 +15,10 @@ const CustomersPage = lazy(async () => await import('../components/pages/Custome
 const CustomerCreatePage = lazy(async () => await import('../components/pages/Customers/CustomerCreatePage'))
 const CustomerDetailsPage = lazy(async () => await import('../components/pages/Customers/CustomerDetailsPage'))
 const CustomerEditPage = lazy(async () => await import('../components/pages/Customers/CustomerEditPage'))
-const BlockingImportsPage = lazy(async () => await import('../components/pages/Blocking/BlockingImportsPage'))
-const BlockingImportNewPage = lazy(async () => await import('../components/pages/Blocking/BlockingImportNewPage'))
-const ActivationReportPage = lazy(async () => await import('../components/pages/Blocking/ActivationReportPage'))
+const NuovoReportsPage = lazy(async () => await import('../components/pages/Blocking/NuovoReportsPage'))
+const NuovoReportNewPage = lazy(async () => await import('../components/pages/Blocking/NuovoReportNewPage'))
+const NuovoReportConsolidatedPage = lazy(async () => await import('../components/pages/Blocking/NuovoReportConsolidatedPage'))
+const NuovoReportPage = lazy(async () => await import('../components/pages/Blocking/NuovoReportPage'))
 
 const AuthRoutes = (): RouteObject => {
   return {
@@ -92,21 +93,25 @@ const AuthRoutes = (): RouteObject => {
         path: 'tool/blocking',
         children: [
           {
-            path: 'imports',
-            element: <BlockingImportsPage />
-          },
-          {
-            path: 'imports/new',
-            element: <BlockingImportNewPage />
-          },
-          {
-            path: 'report',
+            path: 'reports',
             children: [
               {
-                path: 'activation',
-                element: <ActivationReportPage />
+                path: '',
+                element: <NuovoReportsPage />
+              },
+              {
+                path: 'new',
+                element: <NuovoReportNewPage />
+              },
+              {
+                path: ':id',
+                element: <NuovoReportPage />
               }
             ]
+          },
+          {
+            path: 'consolidated',
+            element: <NuovoReportConsolidatedPage />
           }
         ]
       }

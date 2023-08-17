@@ -7,12 +7,17 @@ export default class CustomerMiddleware {
   validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
 
     try {
-      schema.parse({
+      const { params, query, body, files } = schema.parse({
         params: req.params,
         query: req.query,
         body: req.body,
         files: req.files,
       });
+
+      req.params = params
+      req.query = query
+      req.body = body
+      req.files = files
 
       next();
     } catch (err: any) {

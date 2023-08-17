@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import UserForm from './UserForm'
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 function UserEdit () {
   const params = useParams()
@@ -22,15 +22,15 @@ function UserEdit () {
   const getUser = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/users/${id}`)
+    const url = new URL(`${API_URL}/users/${id}`)
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         const rolesWithNameOnly = data.roles.map(({ name }) => {
           return { name }
         })
-        setUser({...data, ...{ roles: rolesWithNameOnly }})
+        setUser({ ...data, ...{ roles: rolesWithNameOnly } })
       })
       .finally(() => setIsLoading(false))
   }
@@ -38,16 +38,16 @@ function UserEdit () {
   const getRoles = () => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/roles`)
+    const url = new URL(`${API_URL}/roles`)
 
     fetch(url)
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         setRoles(data)
       })
       .finally(() => setIsLoading(false))
   }
-  
+
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
       {
@@ -56,7 +56,7 @@ function UserEdit () {
             sx={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <CircularProgress />

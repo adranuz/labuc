@@ -4,15 +4,15 @@ import { Stack, Table, TableBody, TableCell, TableContainer, TableFooter, TableH
 import { LoadingButton } from '@mui/lab'
 import DownloadIcon from '@mui/icons-material/Download'
 
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
-function ActivationReportTable ({ data, deviceType, isLoading }) {
+function NuovoReportConsolidatedTable ({ data, deviceType }) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
 
   const downloadCustomerReport = (deviceType: string, name: string, index: number) => {
     setSelectedRowIndex(index)
 
-    const url = new URL(`${apiUrl}/blocking/report/customer/download`)
+    const url = new URL(`${API_URL}/blocking/report/customer/download`)
 
     const params = {
       deviceType,
@@ -49,7 +49,7 @@ function ActivationReportTable ({ data, deviceType, isLoading }) {
   }
 
   return (
-    <TableContainer sx={{ maxHeight: 551 }}>
+    <TableContainer sx={{ maxHeight: 638 }}>
       <Table stickyHeader size='small'>
         <TableHead>
           <TableRow>
@@ -64,27 +64,15 @@ function ActivationReportTable ({ data, deviceType, isLoading }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.activationReport?.map((row, index) => (
-            <TableRow key={row?.customerName}>
+          {data?.customers?.map((row, index) => (
+            <TableRow key={row?.customerName} hover>
               <TableCell component='th' scope='row'>{row?.customerName}</TableCell>
-              <TableCell align='right'>{row?._sum?.billable}</TableCell>
-              <TableCell align='right'>{row?._sum?.nonBillable}</TableCell>
-              <TableCell align='right'>{row?._sum?.billableWeekly}</TableCell>
-              <TableCell align='right'>{row?._sum?.billableBiweekly}</TableCell>
-              <TableCell align='right'>
-                {
-                  row?._sum?.skuStartCounter >= 0
-                    ? row?._sum?.skuStartCounter
-                    : 0
-                }
-              </TableCell>
-              <TableCell align='right'>
-                {
-                  row?._sum?.skuEndCounter >= 0
-                    ? row?._sum?.skuEndCounter
-                    : 0
-                }
-              </TableCell>
+              <TableCell align='right'>{row?.billable}</TableCell>
+              <TableCell align='right'>{row?.nonBillable}</TableCell>
+              <TableCell align='right'>{row?.billableWeekly}</TableCell>
+              <TableCell align='right'>{row?.billableBiweekly}</TableCell>
+              <TableCell align='right'>{row?.skuStartCounter}</TableCell>
+              <TableCell align='right'>{row?.skuEndCounter}</TableCell>
               <TableCell>
                 <Stack direction='row' spacing={1} justifyContent='flex-end'>
                   <LoadingButton
@@ -93,7 +81,7 @@ function ActivationReportTable ({ data, deviceType, isLoading }) {
                     loadingPosition='start'
                     startIcon={<DownloadIcon />}
                     onClick={() => handleClickDownloadCustomerReport(row?.customerName, index)}
-                    disabled={selectedRowIndex !== null || isLoading}
+                    disabled={selectedRowIndex !== null}
                     loading={selectedRowIndex === index}
                   >
                     Exportar (.csv)
@@ -117,12 +105,12 @@ function ActivationReportTable ({ data, deviceType, isLoading }) {
 
           <TableRow>
             <TableCell variant='head'>Totales</TableCell>
-            <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billable}</TableCell>
-            <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.nonBillable}</TableCell>
-            <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableWeekly}</TableCell>
-            <TableCell align='right' variant='head'>{data?.activationReportTotals?._sum?.billableBiweekly}</TableCell>
-            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuStartCounter}</TableCell>
-            <TableCell align='right' variant='head'>{data?.skuReportTotals?._sum?.skuEndCounter}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.billable}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.nonBillable}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.billableBiweekly}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.billableWeekly}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.skuStartCounter}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.skuEndCounter}</TableCell>
             <TableCell align='right' variant='head' />
           </TableRow>
         </TableFooter>
@@ -131,4 +119,4 @@ function ActivationReportTable ({ data, deviceType, isLoading }) {
   )
 }
 
-export default ActivationReportTable
+export default NuovoReportConsolidatedTable

@@ -9,15 +9,15 @@ import { LoadingButton } from '@mui/lab'
 import SaveAltIcon from '@mui/icons-material/SaveAlt'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 
-import { useCommonStore } from '../../../store/common'
-import apiUrl from '../../../config/api'
+import { useCommonStore } from '@/store/common'
+import { API_URL } from '@/utils/constants'
 
 const roleSchema = object({
   name: string({ required_error: 'Se requiere el nombre' })
     .nonempty({ message: 'Se requiere el nombre' }),
   permissions: array(object({
     action: string({ required_error: 'Se requiere el nombre del rol' })
-  })).nonempty({ message: 'Se requiere al menos un permiso' }),
+  })).nonempty({ message: 'Se requiere al menos un permiso' })
 })
 
 interface Props {
@@ -25,7 +25,7 @@ interface Props {
   permissions?: any
 }
 
-function RoleEdit({ role, permissions }: Props) {
+function RoleEdit ({ role, permissions }: Props) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -36,13 +36,13 @@ function RoleEdit({ role, permissions }: Props) {
     getValues,
     handleSubmit,
     register,
-    setValue,
+    setValue
   } = useForm<any>({
     defaultValues: {
       name: role?.name,
       permissions: role?.permissions || []
     },
-    resolver: zodResolver(roleSchema),
+    resolver: zodResolver(roleSchema)
   })
 
   const handleCheck = (checkedPermission) => {
@@ -64,12 +64,12 @@ function RoleEdit({ role, permissions }: Props) {
   const updateRole = (id, data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/roles/${id}`)
+    const url = new URL(`${API_URL}/roles/${id}`)
 
     fetch(url, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -89,12 +89,12 @@ function RoleEdit({ role, permissions }: Props) {
   const createRole = (data) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/roles`)
+    const url = new URL(`${API_URL}/roles`)
 
     fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
     })
@@ -139,7 +139,7 @@ function RoleEdit({ role, permissions }: Props) {
           variant='h5'
           noWrap
           sx={{
-            flexGrow: 1,
+            flexGrow: 1
           }}
         >
           Role

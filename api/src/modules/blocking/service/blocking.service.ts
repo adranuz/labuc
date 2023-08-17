@@ -1,31 +1,39 @@
 import Option from '../../common/types/Option.type';
-import { ImportBlockingDTO, ImportBlockingResponseDTO, PaginationFilterDTO, PublicImportsDTO } from '../dto/blocking.dto';
+import { CreateBlockingReportDTO, ListBlockingReportDTO, CreateBlockingReportResponseDTO, ListBlockingReportResponseDTO } from '../dto/blocking.dto';
 import IBlockingRepository from './IBlockingRepository';
 
 export default class BlockingService {
-  constructor(private blockingRepository: IBlockingRepository) {}
+  constructor(private blockingRepository: IBlockingRepository) { }
 
-  importBlocking(data: ImportBlockingDTO): Promise<ImportBlockingResponseDTO> {
-    return this.blockingRepository.importBlocking(data);
+  createBlockingReport (data: CreateBlockingReportDTO): Promise<CreateBlockingReportResponseDTO> {
+    return this.blockingRepository.createBlockingReport(data);
   }
 
-  createActivationReport(): Promise<any> {
-    return this.blockingRepository.createActivationReport();
+  listBlockingReport (data: ListBlockingReportDTO): Promise<Option<ListBlockingReportResponseDTO>> {
+    return this.blockingRepository.listBlockingReport(data);
   }
 
-  getActivationReport(deviceType: string | undefined): Promise<any> {
-    return this.blockingRepository.getActivationReport(deviceType);
+  getNuovoReport (id: string): Promise<any> {
+    return this.blockingRepository.getNuovoReport(id);
   }
 
-  getActivationReportFile(deviceType: string | undefined): Promise<any> {
-    return this.blockingRepository.getActivationReportFile(deviceType);
+  getNuovoReportLog (id: string, type: string): Promise<any> {
+    return this.blockingRepository.getNuovoReportLog(id, type);
   }
 
-  getCustomerReportFile(deviceType: string | undefined, name: string): Promise<any> {
+  createNuovoReportConsolidated (id: string): Promise<any> {
+    return this.blockingRepository.createNuovoReportConsolidated(id);
+  }
+
+  getNuovoReportConsolidated (id: string, deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getNuovoReportConsolidated(id, deviceType);
+  }
+
+  getNuovoReportConsolidatedFile (id: string, deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getNuovoReportConsolidatedFile(id, deviceType);
+  }
+
+  getCustomerReportFile (deviceType: string | undefined, name: string): Promise<any> {
     return this.blockingRepository.getCustomerReportFile(deviceType, name);
-  }
-
-  listImports(data: PaginationFilterDTO): Promise<Option<PublicImportsDTO>> {
-    return this.blockingRepository.listImports(data);
   }
 }

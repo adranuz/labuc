@@ -2,6 +2,9 @@
 import { Suspense } from 'react'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import 'dayjs/locale/es'
 
 import Routes from './routes'
 
@@ -14,22 +17,24 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#73308a',
+      main: '#73308a'
     },
     secondary: {
-      main: '#ff6b00',
-    },
+      main: '#ff6b00'
+    }
   }
 })
 
 function App () {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Suspense fallback={<div />}>
-        <Routes />
-      </Suspense>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='es'>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Suspense fallback={<div />}>
+          <Routes />
+        </Suspense>
+      </ThemeProvider>
+    </LocalizationProvider>
   )
 }
 

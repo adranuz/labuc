@@ -4,10 +4,10 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogAc
 import { LoadingButton } from '@mui/lab'
 import DeleteIcon from '@mui/icons-material/Delete'
 
-import { useCommonStore } from '../../../store/common'
-import apiUrl from '../../../config/api'
+import { useCommonStore } from '@/store/common'
+import { API_URL } from '@/utils/constants'
 
-export default function ConfirmCustomerDeletion({id, name, onFinished, disabled = false}) {
+export default function ConfirmCustomerDeletion ({ id, name, onFinished, disabled = false }) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
@@ -33,12 +33,12 @@ export default function ConfirmCustomerDeletion({id, name, onFinished, disabled 
   const deleteCustomer = ({ id }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/customers/${id}`)
+    const url = new URL(`${API_URL}/customers/${id}`)
 
     fetch(url, {
-        method: 'DELETE'
-      })
-      .then(res => res.json())
+      method: 'DELETE'
+    })
+      .then(async res => await res.json())
       .then(_ => {
         showSnackbar('El cliente se eliminó corretamente', 'success')
         onFinished()
@@ -80,7 +80,7 @@ export default function ConfirmCustomerDeletion({id, name, onFinished, disabled 
             </Alert>
             <Box m={2}>
               <Typography variant='caption'>Nombre del cliente</Typography>
-              <Typography mt={1} color='black'>{ name }</Typography>
+              <Typography mt={1} color='black'>{name}</Typography>
             </Box>
           </DialogContentText>
           <DialogActions>

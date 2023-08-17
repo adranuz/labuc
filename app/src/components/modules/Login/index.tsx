@@ -8,18 +8,18 @@ import { useNavigate } from 'react-router-dom'
 import { Box, Card, CardContent, IconButton, InputAdornment, TextField, Typography } from '@mui/material'
 import { VisibilityOff, Visibility } from '@mui/icons-material'
 
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 const loginSchema = object({
   email: string({ required_error: 'Se requiere la dirección de correo electrónico' })
     .min(1, { message: 'Se requiere la dirección de correo electrónico' })
     .email('La dirección de correo electrónico es inválida'),
-  password: string({ required_error: 'Se requiere la contraseña' }).min(1, { message: 'Se requiere la contraseña' }),
+  password: string({ required_error: 'Se requiere la contraseña' }).min(1, { message: 'Se requiere la contraseña' })
 })
 
 export type LoginInput = TypeOf<typeof loginSchema>
 
-function Login() {
+function Login () {
   const navigate = useNavigate()
 
   const [showPassword, setShowPassword] = useState(false)
@@ -37,14 +37,14 @@ function Login() {
 
   const onSubmit: SubmitHandler<LoginInput> = ({ email, password }) => {
     setIsLoading(true)
-    fetch(`${apiUrl}/login`, {
+    fetch(`${API_URL}/login`, {
       method: 'POST',
       body: JSON.stringify({ email, password }),
       headers: {
         'Content-Type': 'application/json'
       }
     })
-      .then(res => res.json())
+      .then(async res => await res.json())
       .then(data => {
         if (data?.token) {
           localStorage.setItem('token', data.token)
@@ -94,12 +94,12 @@ function Login() {
                   {...field}
                   InputProps={{
                     endAdornment: (
-                      <InputAdornment position="end">
+                      <InputAdornment position='end'>
                         <IconButton
-                          aria-label="Alternar la visibilidad de la contraseña"
+                          aria-label='Alternar la visibilidad de la contraseña'
                           onClick={handleClickShowPassword}
                           onMouseDown={handleMouseDownPassword}
-                          edge="end"
+                          edge='end'
                         >
                           {showPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>

@@ -1,9 +1,9 @@
-import Alert from "@mui/material/Alert"
-import SnackbarMui from "@mui/material/Snackbar"
+import Alert from '@mui/material/Alert'
+import SnackbarMui from '@mui/material/Snackbar'
 
-import { useCommonStore } from '../../store/common'
+import { useCommonStore } from '@/store/common'
 
-function Snackbar() {
+function Snackbar () {
   const snackbarOpen = useCommonStore((state) => state.snackbarOpen)
   const snackbarMessage = useCommonStore((state) => state.snackbarMessage)
   const snackbarSeverity = useCommonStore((state) => state.snackbarSeverity)
@@ -16,7 +16,7 @@ function Snackbar() {
       onClose={hideSnackbar}
       anchorOrigin={{
         vertical: 'bottom',
-        horizontal: 'right',
+        horizontal: 'right'
       }}
     >
       <Alert

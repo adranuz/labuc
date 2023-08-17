@@ -31,7 +31,6 @@
     "@types/pg-copy-streams": "1.2.2",
     "awilix": "8.0.1",
     "bcryptjs": "2.4.3",
-    "body-parser": "1.20.2",
     "cors": "2.8.5",
     "express": "4.18.2",
     "jsonwebtoken": "9.0.0",

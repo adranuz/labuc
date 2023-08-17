@@ -18,8 +18,8 @@ import CustomerGeneral from './CustomerGeneral'
 import CustomerContacts from './CustomerContacts'
 import CustomerProducts from './CustomerProducts'
 
-import { useCommonStore } from '../../../store/common'
-import apiUrl from '../../../config/api'
+import { useCommonStore } from '@/store/common'
+import { API_URL } from '@/utils/constants'
 
 const ISO_DATE_REGEX = /^\d{4}-[01]\d-[0-3]\d$|^$/
 
@@ -153,7 +153,7 @@ function CustomerForm ({ customer, productsList = null, readOnly = false, newCus
   const updateCustomer = (id, data) => {
     setIsSubmitLoading(true)
 
-    const url = new URL(`${apiUrl}/customers/${id}`)
+    const url = new URL(`${API_URL}/customers/${id}`)
 
     fetch(url, {
       method: 'PUT',
@@ -178,7 +178,7 @@ function CustomerForm ({ customer, productsList = null, readOnly = false, newCus
   const createCustomer = (data) => {
     setIsSubmitLoading(true)
 
-    const url = new URL(`${apiUrl}/customers`)
+    const url = new URL(`${API_URL}/customers`)
 
     fetch(url, {
       method: 'POST',

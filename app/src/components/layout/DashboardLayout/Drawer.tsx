@@ -128,29 +128,31 @@ const navigationData: navigation[] = [
         type: 'collapse',
         open: null,
         matchRoutes: [
-          { path: '/tool/blocking/imports' },
-          { path: '/tool/blocking/imports/new' },
-          { path: '/tool/blocking/report/activation' }
+          { path: '/tool/blocking/reports' },
+          { path: '/tool/blocking/reports/new' },
+          { path: '/tool/blocking/reports/:id' },
+          { path: '/tool/blocking/consolidated' }
         ],
         icon: 'app_blocking',
         children: [
           {
-            id: 'nuovo-reports',
-            title: 'Reportes Nuovo',
+            id: 'blocking-reports',
+            title: 'Reportes HB',
             type: 'item',
-            url: '/tool/blocking/imports',
+            url: '/tool/blocking/reports',
             matchRoutes: [
-              { path: '/tool/blocking/imports' }
+              { path: '/tool/blocking/reports' },
+              { path: '/tool/blocking/reports/:id' }
             ],
-            icon: 'upload_file'
+            icon: 'description'
           },
           {
-            id: 'activation-report',
+            id: 'blocking-consolidated',
             title: 'Consolidado',
             type: 'item',
-            url: '/tool/blocking/report/activation',
+            url: '/tool/blocking/consolidated',
             matchRoutes: [
-              { path: '/tool/blocking/report/activation' }
+              { path: '/tool/blocking/consolidated' }
             ],
             icon: 'assessment'
           }
@@ -170,6 +172,11 @@ function DrawerContent () {
     if (!routes) return false
 
     const routeMatched = matchRoutes(routes, location)
+
+    if (routeMatched != null) {
+      console.log('routeMatched ', routeMatched)
+      console.log('location', location)
+    }
 
     return (routeMatched != null)
   }

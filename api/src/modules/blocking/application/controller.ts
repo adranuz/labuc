@@ -1,23 +1,22 @@
 import { Request, Response } from 'express'
 import { Multer } from 'multer'
 import BlockingService from '../service/blocking.service'
-import { ImportBlockingInput, GetActivationReportInput, GetCustomerReportInput, PaginationInput } from './blocking.schema'
+import { CreateBlockingReportInput, GetNuovoReportConsolidatedInput, GetCustomerReportInput, PaginationInput, CreateConsolidatedInput, GetNuovoReportInput, GetNuovoReportLogInput } from './blocking.schema'
 
 type File = Express.Multer.File
 
-
 export default class BlockingController {
-  constructor(private blockingService: BlockingService) {}
+  constructor(private blockingService: BlockingService) { }
 
-  importBlocking = async (
-    req: Request<{}, {}, ImportBlockingInput['body']>,
+  createBlockingReport = async (
+    req: Request<{}, {}, CreateBlockingReportInput['body']>,
     res: Response
   ): Promise<unknown> => {
     const files = req.files as Express.Multer.File[]
-    const { truncate } = req.body
- 
+    const { truncate, reportedAt } = req.body
+
     try {
-      const importedBlocking = await this.blockingService.importBlocking({ files, truncate })
+      const importedBlocking = await this.blockingService.createBlockingReport({ files, truncate, reportedAt })
 
       res.status(201).json(importedBlocking)
     } catch (err) {
@@ -33,14 +32,15 @@ export default class BlockingController {
     }
   }
 
-  createActivationReport = async (
-    req: Request,
+  createNuovoReportConsolidated = async (
+    req: Request<CreateConsolidatedInput, {}, {}>,
     res: Response
   ): Promise<unknown> => {
     try {
-      const activationReportCreated = await this.blockingService.createActivationReport()
+      const { id } = req.params
+      const nuovoReportConsolidatedCreated = await this.blockingService.createNuovoReportConsolidated(id)
 
-      res.status(200).json(activationReportCreated)
+      res.status(200).json(nuovoReportConsolidatedCreated)
     } catch (err) {
       console.log('Unable to create activation report:', err)
 
@@ -54,16 +54,17 @@ export default class BlockingController {
     }
   }
 
-  getActivationReport = async (
-    req: Request<{}, {}, {}, GetActivationReportInput>,
+  getNuovoReportConsolidated = async (
+    req: Request<GetNuovoReportConsolidatedInput['params'], {}, {}, GetNuovoReportConsolidatedInput['query']>,
     res: Response
   ): Promise<unknown> => {
     try {
+      const { id } = req.params
       const { deviceType } = req.query
 
-      const activationReport = await this.blockingService.getActivationReport(deviceType)
+      const nuovoReportConsolidated = await this.blockingService.getNuovoReportConsolidated(id, deviceType)
 
-      res.status(200).json(activationReport)
+      res.status(200).json(nuovoReportConsolidated)
     } catch (err) {
       console.log('Unable to get activation report:', err)
 
@@ -77,14 +78,15 @@ export default class BlockingController {
     }
   }
 
-  getActivationReportFile = async (
-    req: Request<{}, {}, {}, GetActivationReportInput>,
+  getNuovoReportConsolidatedFile = async (
+    req: Request<GetNuovoReportConsolidatedInput['params'], {}, {}, GetNuovoReportConsolidatedInput['query']>,
     res: Response
   ): Promise<unknown> => {
     try {
+      const { id } = req.params
       const { deviceType } = req.query
 
-      const reportBuffer = await this.blockingService.getActivationReportFile(deviceType)
+      const reportBuffer = await this.blockingService.getNuovoReportConsolidatedFile(id, deviceType)
       const currentDate = new Date().toISOString().split('T')[0]
       res.attachment(`Consolidado ${deviceType} - ${currentDate}.xlsx`)
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
@@ -122,9 +124,9 @@ export default class BlockingController {
           console.log(err)
         }
         fs.unlink(filePath, () => {
-            console.log(`File ${filePath} was deleted`)
+          console.log(`File ${filePath} was deleted`)
         })
-      
+
         // fs.unlinkSync(yourFilePath) // If you don't need callback
       })
     } catch (err) {
@@ -140,22 +142,68 @@ export default class BlockingController {
     }
   }
 
-  listImports = async (
+  listBlockingReport = async (
     req: Request<{}, {}, {}, PaginationInput>,
     res: Response
   ): Promise<unknown> => {
     try {
-      const imports = await this.blockingService.listImports(req.query)
+      const imports = await this.blockingService.listBlockingReport(req.query)
 
       res.status(200).json(imports)
     } catch (err) {
-      console.log('Unable to get imports:', err)
+      console.log('Unable to get list blocking report:', err)
 
       return res.status(500).json({
         error: {
           code: 500,
           message: 'Server Internal Error',
-          details: 'Unable to get imports',
+          details: 'Unable to get list blocking report',
+        },
+      })
+    }
+  }
+
+  getNuovoReport = async (
+    req: Request<GetNuovoReportInput, {}, {}>,
+    res: Response
+  ): Promise<unknown> => {
+    try {
+      const { id } = req.params
+      const imports = await this.blockingService.getNuovoReport(id)
+
+      res.status(200).json(imports)
+    } catch (err) {
+      console.log('Unable to getNuovoReport:', err)
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Internal Error',
+          details: 'Unable to getNuovoReport',
+        },
+      })
+    }
+  }
+
+  getNuovoReportLog = async (
+    req: Request<GetNuovoReportLogInput['params'], {}, {}, GetNuovoReportLogInput['query']>,
+    res: Response
+  ): Promise<unknown> => {
+    try {
+      const { id } = req.params
+      const { type } = req.query
+
+      const imports = await this.blockingService.getNuovoReportLog(id, type)
+
+      res.status(200).json(imports)
+    } catch (err) {
+      console.log('Unable to get getNuovoReportLog:', err)
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Internal Error',
+          details: 'Unable to getNuovoReportLog',
         },
       })
     }

@@ -1,14 +1,33 @@
 import { Client } from 'pg'
 
 import prismaClient from '../../common/persistence/prisma-client'
+import { NuovoReport } from '@prisma/client'
 
 import { pipeline } from 'node:stream/promises'
 import { exec } from 'node:child_process'
 import util from "node:util"
 
 import Option from '../../common/types/Option.type'
-import { ImportBlockingDTO, ImportBlockingResponseDTO, PaginationFilterDTO , PublicImportsDTO} from '../dto/blocking.dto'
+import { CreateBlockingReportDTO, CreateBlockingReportResponseDTO, ListBlockingReportDTO, ListBlockingReportResponseDTO } from '../dto/blocking.dto'
 import IBlockingRepository from '../service/IBlockingRepository'
+
+const skus = [
+  {
+    name: 'HBM3M',
+    intervalStart: '3 month 1 day',
+    intervalEnd: '3 month'
+  },
+  {
+    name: 'HBM1A',
+    intervalStart: '1 year 1 day',
+    intervalEnd: '1 year'
+  },
+  {
+    name: 'HBM3A',
+    intervalStart: '3 year 1 day',
+    intervalEnd: '3 year'
+  }
+]
 
 export default class BlockingRepository implements IBlockingRepository {
   toDate = (datetime: string) => {
@@ -21,73 +40,123 @@ export default class BlockingRepository implements IBlockingRepository {
 
   getTimeElapsedFromDate = (datetime: Date) => {
     const timeTaken = new Date().getTime() - datetime.getTime()
-    const timeTakenInSeconds = timeTaken/1000
+    const timeTakenInSeconds = timeTaken / 1000
     return timeTakenInSeconds
   }
 
-  async importBlocking({ files, truncate }: ImportBlockingDTO): Promise<ImportBlockingResponseDTO> {
-    const totalFiles = files.length
-    const totalFilesSize = files.map(file => file.size).reduce((accumulator, current) => accumulator + current, 0)
-
-    const importCreated = await prismaClient.blockingDeviceImport.create({
-      data: {
-        totalFiles,
-        totalFilesSize,
-        truncate: truncate  === 'true',
-      }
-    })
-
+  async createBlockingReport ({ files, truncate, reportedAt }: CreateBlockingReportDTO): Promise<CreateBlockingReportResponseDTO> {
     const pgClient = new Client({
       connectionString: process.env.DATABASE_URL,
     })
     await pgClient.connect()
 
-    const { from: copyFrom } = require('pg-copy-streams')
-    const fs = require('node:fs')
-    const execPromise = util.promisify(exec)
+    ///////////
+
+    let nuovoReport = null
+
+    nuovoReport = await prismaClient.nuovoReport.findUnique({
+      where: {
+        reportedAt: new Date(reportedAt)
+      },
+    }) ?? await prismaClient.nuovoReport.create({
+      data: {
+        reportedAt: new Date(reportedAt),
+      },
+      include: {
+        logProcess: true,
+      }
+    })
 
     if (truncate === 'true') {
       await pgClient.query(`TRUNCATE "BlockingDevice"`)
       await pgClient.query(`TRUNCATE "BlockingDeviceComplete"`)
       await pgClient.query(`TRUNCATE "BlockingDeviceCompleteSku"`)
-      await pgClient.query(`TRUNCATE "ActivationReport"`)
+      await prismaClient.nuovoReportLogProcess.deleteMany({
+        where: {
+          nuovoReportId: nuovoReport.id
+        }
+      })
+      await prismaClient.nuovoReportLogFile.deleteMany({
+        where: {
+          nuovoReportId: nuovoReport.id
+        }
+      })
+      await prismaClient.nuovoReportConsolidated.deleteMany({
+        where: {
+          nuovoReportId: nuovoReport.id
+        }
+      })
+      await prismaClient.nuovoReportLogProcess.create({
+        data: {
+          name: 'Truncate',
+          type: 'truncate',
+          createdAt: new Date(),
+          finishedAt: new Date(),
+          nuovoReportId: nuovoReport.id
+        }
+      })
     }
+
+    const importStatus = await prismaClient.nuovoReportLogProcess.create({
+      data: {
+        name: 'Import files',
+        type: 'import',
+        nuovoReportId: nuovoReport.id
+      }
+    })
+
+    ///////////
+
+    const { from: copyFrom } = require('pg-copy-streams')
+    const fs = require('node:fs')
+    const execPromise = util.promisify(exec)
 
     const startTime = new Date()
 
     console.log(`[!] Start time: ${startTime}`)
 
     for (const [index, file] of files.entries()) {
+      await prismaClient.nuovoReportLogFile.create({
+        data: {
+          originalName: file.originalname,
+          mimeType: file.mimetype,
+          size: file.size,
+          nuovoReportId: nuovoReport.id
+        }
+      })
+
       let customerEmail = ''
 
       try {
-        const {stdout, stderr} = await execPromise(`head -2 ${file.path} | tail -1 | cut -d',' -f1 | xargs echo -n`)
+        const { stdout, stderr } = await execPromise(`head -2 ${file.path} | tail -1 | cut -d',' -f1 | xargs echo -n`)
         customerEmail = stdout
       } catch (error) {
         console.log(error)
       }
 
       try {
-        const {stdout, stderr} = await execPromise(`tail -n +5 ${file.path} | head -n -1 > ${file.path}_prepared`)
+        const { stdout, stderr } = await execPromise(`tail -n +5 ${file.path} | head -n -1 > ${file.path}_prepared`)
       } catch (error) {
         console.log(error)
       }
 
       const sourceStream = fs.createReadStream(`${file.path}_prepared`)
 
-        try {
-          console.log(`[!] Customer ${index + 1}: ` + customerEmail)
+      try {
+        console.log(`[!] Customer ${index + 1}: ` + customerEmail)
 
-          await pgClient.query(`SET datestyle = dmy`)
-          await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`)
+        await pgClient.query(`SET datestyle = dmy`)
+        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" SET DEFAULT '${customerEmail}'`)
+        await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "nuovoReportId" SET DEFAULT '${nuovoReport.id}'`)
 
-          const sqlCopy = `
+        const sqlCopy = `
             COPY "BlockingDevice" (
               "customerId",
               "deviceId",
               "imei",
               "serial",
               "locked",
+              "expectedLockStatus",
               "lockType",
               "status",
               "isActivated",
@@ -106,77 +175,30 @@ export default class BlockingRepository implements IBlockingRepository {
               "billable",
               "lastConnectedAt",
               "nextLockDate",
-              "appVersion"
+              "appVersion",
+              "gettingStartedClicked",
+              "additionalSetupCompleted"
             )
             FROM STDIN WITH (FORMAT CSV, NULL 'NA')
           `
 
-          const ingestStream = pgClient.query(copyFrom(sqlCopy))
+        const ingestStream = pgClient.query(copyFrom(sqlCopy))
 
-          await pipeline(sourceStream, ingestStream)
+        await pipeline(sourceStream, ingestStream)
 
-          console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
-        } finally {
-          try {
-            fs.unlinkSync(file.path)
-            fs.unlinkSync(`${file.path}_prepared`)
-          } catch(error) {
-            console.error(error)
-          }
+        console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
+      } finally {
+        try {
+          fs.unlinkSync(file.path)
+          fs.unlinkSync(`${file.path}_prepared`)
+        } catch (error) {
+          console.error(error)
         }
+      }
     }
 
-    console.log(`[!] Coping to BlockingDeviceComplete...`)
-
-    const query = `
-      INSERT INTO "BlockingDeviceComplete"(
-          "customerId",
-          "deviceId",
-          "imei",
-          "serial",
-          "locked",
-          "lockType",
-          "status",
-          "isActivated",
-          "previousStatus",
-          "previousStatusChangedOn",
-          "make",
-          "model",
-          "type",
-          "deleted",
-          "activatedDeviceDeleted",
-          "registeredOn",
-          "enrolledOn",
-          "unregisteredOn",
-          "deletedOn",
-          "activationDate",
-          "billable",
-          "lastConnectedAt",
-          "nextLockDate",
-          "appVersion",
-          "customerEmail",
-          "enrolledOnOnlyDate",
-          "billableCalculated"
-        )
-      SELECT *,
-        DATE("enrolledOn") as "enrolledOnOnlyDate",
-        CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
-            ELSE false
-        END AS "billableCalculated"
-      FROM "BlockingDevice"
-    `
-
-    await pgClient.query(query)
-
-    console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
-
-    console.log(`[!] Fixing null in BlockingDeviceComplete...`)
-
-    const queryToFixNull = `UPDATE public."BlockingDeviceComplete" SET "imei" = NULL WHERE "imei" = E'null\n'`
-
-    await pgClient.query(queryToFixNull)
-
     await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "customerEmail" DROP DEFAULT`)
+    await pgClient.query(`ALTER TABLE "BlockingDevice" ALTER COLUMN "nuovoReportId" DROP DEFAULT`)
     await pgClient.end()
 
     const elapsedTime = this.getTimeElapsedFromDate(startTime)
@@ -186,15 +208,34 @@ export default class BlockingRepository implements IBlockingRepository {
 
     console.log(`[!] Execution time: ${minutes} min ${seconds} sec`)
 
-    const importUpdated = await prismaClient.blockingDeviceImport.update({
-      where: { id: importCreated.id },
+    await prismaClient.nuovoReportLogProcess.update({
+      where: { id: importStatus.id },
       data: {
-        startedAt: startTime,
         finishedAt: new Date(),
       }
     })
 
-    const { id } = importUpdated
+    ///////////
+
+    let lastNuovoReportImported = null
+
+    lastNuovoReportImported = await prismaClient.nuovoReportInfo.upsert({
+      where: {
+        name: 'lastNuovoReportImported'
+      },
+      update: {
+        value: nuovoReport.id
+      },
+      create: {
+        name: 'lastNuovoReportImported',
+        key: 'nuovoReportId',
+        value: nuovoReport.id
+      }
+    })
+
+    ///////////
+
+    const { id } = nuovoReport
 
     return { id }
   }
@@ -212,7 +253,7 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
   }
- 
+
   getNonBillableCustomersQuery = (email: string, deviceType: string, fromDate: Date, toDate: Date) => {
     return prismaClient.blockingDeviceComplete.count({
       where: {
@@ -227,113 +268,21 @@ export default class BlockingRepository implements IBlockingRepository {
     })
   }
 
-  async createActivationReport(): Promise<any> {
-    const deviceTypes = [
-      'Android Device',
-      'iOS Device',
-      'Windows Device',
-    ]
+  getCountOfSkuStartAndSkuEndQuery = (name: string, email: string, skuStart: string, skuEnd: string) => {
+    // console.log(`[+] SKU Start : ` + skuStart)
+    // console.log(`[+] SKU End   : ` + skuEnd)
 
-    const skus = [
-      {
-        name: 'HBM3M',
-        intervalStart: '3 month 1 day',
-        intervalEnd: '3 month'
-      },
-      {
-        name: 'HBM1A',
-        intervalStart: '1 year 1 day',
-        intervalEnd: '1 year'
-      },
-      {
-        name: 'HBM3A',
-        intervalStart: '3 year 1 day',
-        intervalEnd: '3 year'
-      }
-    ]
+    const intervalStart = (skus.find(sku => sku.name === skuStart))?.intervalStart
+    const intervalEnd = (skus.find(sku => sku.name === skuEnd))?.intervalEnd
 
-    const pgClient = new Client({
-      connectionString: process.env.DATABASE_URL,
-    })
-    await pgClient.connect()
-    
-    const currentDate = new Date()
-    const lastWeekDate = new Date(currentDate.getTime() - (60*60*24*7*1000))
-    const lastFortnightDate = new Date(currentDate.getTime() - (60*60*24*15*1000))
-
-    const activationReportData = []
-
-    const customers = await prismaClient.customer.findMany()
-    const totalCustomers = customers.length
-    
-    for (const [index, { name, email, skuStart, skuEnd }] of customers.entries()) {
-      console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
-
-      for (const deviceType of deviceTypes) {
-        console.log(`[!] Device type : ` + deviceType)
-
-        const billableQuery = prismaClient.blockingDeviceComplete.count({
-          where: {
-            customerEmail: email,
-            type: deviceType,
-            billableCalculated: true
-          }
-        })
-        const nonBillableQuery = prismaClient.blockingDeviceComplete.count({
-          where: {
-            customerEmail: email,
-            type: deviceType,
-            billableCalculated: false
-        }
-        })
-        const billableWeeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastWeekDate, currentDate)
-        const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastWeekDate, currentDate)
-        const billableBiweeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastFortnightDate, currentDate)
-        const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastFortnightDate, currentDate)
-  
-        const [
-          billable,
-          nonBillable,
-          billableWeekly,
-          nonBillableWeekly,
-          billableBiweekly,
-          nonBillableBiweekly,
-        ] = await prismaClient.$transaction([
-          billableQuery,
-          nonBillableQuery,
-          billableWeeklyQuery,
-          nonBillableWeeklyQuery,
-          billableBiweeklyQuery,
-          nonBillableBiweeklyQuery,
-        ])
-  
-        activationReportData.push({
-          customerName: name,
-          customerEmail: email,
-          billable,
-          nonBillable,
-          billableWeekly,
-          nonBillableWeekly,
-          billableBiweekly,
-          nonBillableBiweekly,
-          deviceType,
-        })
-      }
-
-      console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
-      console.log(`[+] SKU Start : ` + skuStart)
-      console.log(`[+] SKU End   : ` + skuEnd)
-
-      const intervalStart = (skus.find(sku => sku.name === skuStart))?.intervalStart
-      const intervalEnd = (skus.find(sku => sku.name === skuEnd))?.intervalEnd
-
-      const query = `
+    const query = `
         INSERT INTO "BlockingDeviceCompleteSku"(
             "customerId",
             "deviceId",
             "imei",
             "serial",
             "locked",
+            "expectedLockStatus",
             "lockType",
             "status",
             "isActivated",
@@ -353,7 +302,10 @@ export default class BlockingRepository implements IBlockingRepository {
             "lastConnectedAt",
             "nextLockDate",
             "appVersion",
+            "gettingStartedClicked",
+            "additionalSetupCompleted",
             "customerEmail",
+            "nuovoReportId",
             "enrolledOnOnlyDate",
             "billableCalculated",
             "customerName",
@@ -387,22 +339,235 @@ export default class BlockingRepository implements IBlockingRepository {
         WHERE "customerEmail" = '${email}'
       `
 
-      await pgClient.query(query)
-    }
-    
-    await pgClient.end()
-    
-    const activationReport = await prismaClient.activationReport.createMany({
-      data: activationReportData,
+    return query
+  }
+
+  async createNuovoReportConsolidated (id: string): Promise<any> {
+    const deviceTypes = [
+      'Android Device',
+      'iOS Device',
+      'Windows Device',
+    ]
+
+    const pgClient = new Client({
+      connectionString: process.env.DATABASE_URL,
+    })
+    await pgClient.connect()
+
+    /* START STEP 1 */
+
+    console.log(`[!] STEP 1: Calculate billable`)
+
+    const calculateBillableStatus = await prismaClient.nuovoReportLogProcess.create({
+      data: {
+        name: 'Calculate billable',
+        type: 'calculate-billable',
+        nuovoReportId: id
+      }
     })
 
+    const query = `
+      INSERT INTO "BlockingDeviceComplete"(
+          "customerId",
+          "deviceId",
+          "imei",
+          "serial",
+          "locked",
+          "expectedLockStatus",
+          "lockType",
+          "status",
+          "isActivated",
+          "previousStatus",
+          "previousStatusChangedOn",
+          "make",
+          "model",
+          "type",
+          "deleted",
+          "activatedDeviceDeleted",
+          "registeredOn",
+          "enrolledOn",
+          "unregisteredOn",
+          "deletedOn",
+          "activationDate",
+          "billable",
+          "lastConnectedAt",
+          "nextLockDate",
+          "appVersion",
+          "gettingStartedClicked",
+          "additionalSetupCompleted",
+          "customerEmail",
+          "nuovoReportId",
+          "enrolledOnOnlyDate",
+          "billableCalculated"
+        )
+      SELECT *,
+        DATE("enrolledOn") as "enrolledOnOnlyDate",
+        CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
+            ELSE false
+        END AS "billableCalculated"
+      FROM "BlockingDevice"
+    `
+
+    await pgClient.query(query)
+
+    await prismaClient.nuovoReportLogProcess.update({
+      where: { id: calculateBillableStatus.id },
+      data: {
+        finishedAt: new Date(),
+      }
+    })
+
+    /* END STEP 1 */
+
+    /* START STEP 2 */
+
+    console.log(`[!] STEP 2: Fix null in imei column`)
+
+    const fixImeiStatus = await prismaClient.nuovoReportLogProcess.create({
+      data: {
+        name: 'Fix null in imei column',
+        type: 'fix-imei',
+        nuovoReportId: id
+      }
+    })
+
+    const queryToFixNull = `UPDATE public."BlockingDeviceComplete" SET "imei" = NULL WHERE "imei" = E'null\n'`
+
+    await pgClient.query(queryToFixNull)
+
+    await prismaClient.nuovoReportLogProcess.update({
+      where: { id: fixImeiStatus.id },
+      data: {
+        finishedAt: new Date(),
+      }
+    })
+
+    /* END STEP 2 */
+
+    /* START STEP 3 */
+
+    console.log(`[!] STEP 3: Calculate consolidated`)
+
+    const calculateConsolidatedStatus = await prismaClient.nuovoReportLogProcess.create({
+      data: {
+        name: 'Calculate consolidated',
+        type: 'calculate-consolidated',
+        nuovoReportId: id
+      }
+    })
+
+    const nuovoReport = await prismaClient.nuovoReport.findUnique({
+      where: { id }
+    })
+
+    const baseDate = nuovoReport?.reportedAt ? new Date(nuovoReport.reportedAt) : new Date()
+    const lastWeekDate = new Date(baseDate.getTime() - (60 * 60 * 24 * 7 * 1000))
+    const lastFortnightDate = new Date(baseDate.getTime() - (60 * 60 * 24 * 15 * 1000))
+    console.log({ baseDate })
+    console.log({ lastWeekDate })
+    console.log({ lastFortnightDate })
+
+    const nuovoReportConsolidatedData = []
+
+    const customers = await prismaClient.customer.findMany()
+    const totalCustomers = customers.length
+
+    for (const [index, { name, email, skuStart, skuEnd }] of customers.entries()) {
+      console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
+
+      if (skuStart && skuEnd) {
+        await pgClient.query(this.getCountOfSkuStartAndSkuEndQuery(name, email, skuStart, skuEnd))
+      }
+
+      for (const deviceType of deviceTypes) {
+        // console.log(`[!] Device type : ` + deviceType)
+
+        const billableQuery = prismaClient.blockingDeviceComplete.count({
+          where: {
+            customerEmail: email,
+            type: deviceType,
+            billableCalculated: true
+          }
+        })
+        const nonBillableQuery = prismaClient.blockingDeviceComplete.count({
+          where: {
+            customerEmail: email,
+            type: deviceType,
+            billableCalculated: false
+          }
+        })
+        const billableWeeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastWeekDate, baseDate)
+        const nonBillableWeeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastWeekDate, baseDate)
+        const billableBiweeklyQuery = this.getBillableCustomersQuery(email, deviceType, lastFortnightDate, baseDate)
+        const nonBillableBiweeklyQuery = this.getNonBillableCustomersQuery(email, deviceType, lastFortnightDate, baseDate)
+
+        const skusCounterQuery = prismaClient.blockingDeviceCompleteSku.aggregate({
+          where: {
+            customerEmail: email,
+            type: deviceType
+          },
+          _sum: {
+            skuStartCounter: true,
+            skuEndCounter: true
+          },
+        })
+
+        const [
+          billable,
+          nonBillable,
+          billableWeekly,
+          nonBillableWeekly,
+          billableBiweekly,
+          nonBillableBiweekly,
+          skusCounter
+        ] = await prismaClient.$transaction([
+          billableQuery,
+          nonBillableQuery,
+          billableWeeklyQuery,
+          nonBillableWeeklyQuery,
+          billableBiweeklyQuery,
+          nonBillableBiweeklyQuery,
+          skusCounterQuery
+        ])
+
+        nuovoReportConsolidatedData.push({
+          customerName: name,
+          customerEmail: email,
+          billable,
+          nonBillable,
+          billableWeekly,
+          nonBillableWeekly,
+          billableBiweekly,
+          nonBillableBiweekly,
+          deviceType,
+          skuStartCounter: skusCounter._sum.skuStartCounter ?? 0,
+          skuEndCounter: skusCounter._sum.skuEndCounter ?? 0,
+          nuovoReportId: id
+        })
+      }
+    }
+
+    await pgClient.end()
+
+    await prismaClient.nuovoReportConsolidated.createMany({
+      data: nuovoReportConsolidatedData,
+    })
+
+    await prismaClient.nuovoReportLogProcess.update({
+      where: { id: calculateConsolidatedStatus.id },
+      data: {
+        finishedAt: new Date(),
+      }
+    })
+
+    /* END STEP 3 */
 
     return {
       status: 'success'
     }
   }
 
-  async getActivationReport(deviceType: string | undefined): Promise<any> {
+  async getNuovoReportConsolidated (id: string, deviceType: string | undefined): Promise<any> {
     let type = null
 
     if (deviceType === 'android') {
@@ -413,121 +578,66 @@ export default class BlockingRepository implements IBlockingRepository {
       type = 'Windows Device'
     }
 
-    const activationReportQuery = prismaClient.activationReport.groupBy({
+    const nuovoReportConsolidatedQuery = prismaClient.nuovoReportConsolidated.groupBy({
       where: type ? {
+        nuovoReportId: id,
         deviceType: type
-      } : {},
+      } : { nuovoReportId: id },
       by: ['customerName'],
       _sum: {
         billable: true,
         nonBillable: true,
         billableWeekly: true,
         billableBiweekly: true,
+        skuStartCounter: true,
+        skuEndCounter: true,
       },
       orderBy: {
         customerName: 'asc'
       }
     })
 
-    const activationReportTotalsQuery = prismaClient.activationReport.aggregate({
+    const nuovoReportConsolidatedTotalsQuery = prismaClient.nuovoReportConsolidated.aggregate({
       where: type ? {
+        nuovoReportId: id,
         deviceType: type
-      } : {},
+      } : { nuovoReportId: id },
       _sum: {
         billable: true,
         nonBillable: true,
         billableWeekly: true,
         billableBiweekly: true,
-      }
-    })
-
-    const lastBlockingDeviceImportQuery = prismaClient.blockingDeviceImport.findFirst({
-      orderBy: {
-        createdAt: 'desc'
-      },
-      select: {
-        createdAt: true
-      }
-    })
-
-    const skuReportQuery = prismaClient.blockingDeviceCompleteSku.groupBy({
-      where: type ? {
-        type
-      } : {},
-      by: ['customerName'],
-      _sum: {
         skuStartCounter: true,
-        skuEndCounter: true
-      },
-    })
-
-    const skuReportTotalsQuery = prismaClient.blockingDeviceCompleteSku.aggregate({
-      where: type ? {
-        type
-      } : {},
-      _sum: {
-        skuStartCounter: true,
-        skuEndCounter: true
-      },
+        skuEndCounter: true,
+      }
     })
 
     const [
-      activationReport,
-      activationReportTotals,
-      lastBlockingDeviceImport,
-      skuReport,
-      skuReportTotals
+      nuovoReportConsolidated,
+      nuovoReportConsolidatedTotals
     ] = await prismaClient.$transaction([
-      activationReportQuery,
-      activationReportTotalsQuery,
-      lastBlockingDeviceImportQuery,
-      skuReportQuery,
-      skuReportTotalsQuery
+      nuovoReportConsolidatedQuery,
+      nuovoReportConsolidatedTotalsQuery
     ])
 
-    let data = []
-
-    if (skuReport?.length > 0) {
-      for (const {_sum, customerName} of activationReport) {
-        const foundItem = skuReport.find(item => item.customerName === customerName)
-          data.push(
-            foundItem
-              ? {
-                  customerName,
-                  _sum: {
-                    ..._sum,
-                    skuStartCounter: foundItem?._sum?.skuStartCounter ? foundItem._sum.skuStartCounter : 0,
-                    skuEndCounter: foundItem?._sum?.skuEndCounter ? foundItem._sum.skuEndCounter : 0,
-                  },
-                }
-              : {
-                  customerName,
-                  _sum: {
-                    ..._sum,
-                    skuStartCounter: 0,
-                    skuEndCounter: 0
-                  }
-                }
-          )
+    const customers = nuovoReportConsolidated?.map(({ _sum, customerName }) => {
+      return {
+        customerName,
+        ..._sum
       }
-    } else {
-      data = activationReport
+    })
+
+    const totals = {
+      ...nuovoReportConsolidatedTotals._sum,
     }
 
     return {
-      activationReport: data,
-      activationReportTotals,
-      lastBlockingDeviceImport,
-      skuReportTotals: {
-        _sum: {
-          skuStartCounter: skuReportTotals?._sum?.skuStartCounter ?? 0,
-          skuEndCounter: skuReportTotals?._sum?.skuEndCounter ?? 0
-        }
-      },
+      customers,
+      totals
     }
   }
 
-  async getActivationReportFile(deviceType: string | undefined): Promise<any> {
+  async getNuovoReportConsolidatedFile (id: string, deviceType: string | undefined): Promise<any> {
     let type = null
 
     if (deviceType === 'android') {
@@ -538,93 +648,60 @@ export default class BlockingRepository implements IBlockingRepository {
       type = 'Windows Device'
     }
 
-    const activationReportQuery = prismaClient.activationReport.groupBy({
+    const nuovoReportConsolidatedQuery = prismaClient.nuovoReportConsolidated.groupBy({
       where: type ? {
+        nuovoReportId: id,
         deviceType: type
-      } : {},
+      } : { nuovoReportId: id },
       by: ['customerName'],
       _sum: {
         billable: true,
         nonBillable: true,
         billableWeekly: true,
         billableBiweekly: true,
+        skuStartCounter: true,
+        skuEndCounter: true,
       },
       orderBy: {
         customerName: 'asc'
       }
     })
 
-    const activationReportTotalsQuery = prismaClient.activationReport.aggregate({
+    const nuovoReportConsolidatedTotalsQuery = prismaClient.nuovoReportConsolidated.aggregate({
       where: type ? {
+        nuovoReportId: id,
         deviceType: type
-      } : {},
+      } : { nuovoReportId: id },
       _sum: {
         billable: true,
         nonBillable: true,
         billableWeekly: true,
         billableBiweekly: true,
+        skuStartCounter: true,
+        skuEndCounter: true,
       }
     })
 
-    const skuReportQuery = prismaClient.blockingDeviceCompleteSku.groupBy({
-      where: type ? {
-        type
-      } : {},
-      by: ['customerName'],
-      _sum: {
-        skuStartCounter: true,
-        skuEndCounter: true
-      },
-    })
-
-    const skuReportTotalsQuery = prismaClient.blockingDeviceCompleteSku.aggregate({
-      where: type ? {
-        type
-      } : {},
-      _sum: {
-        skuStartCounter: true,
-        skuEndCounter: true
-      },
-    })
-
     const [
-      activationReport,
-      activationReportTotals,
-      skuReport,
-      skuReportTotals
+      nuovoReportConsolidated,
+      nuovoReportConsolidatedTotals
     ] = await prismaClient.$transaction([
-      activationReportQuery,
-      activationReportTotalsQuery,
-      skuReportQuery,
-      skuReportTotalsQuery
+      nuovoReportConsolidatedQuery,
+      nuovoReportConsolidatedTotalsQuery
     ])
 
     const data = []
 
-    for (const {_sum, customerName} of activationReport) {
-      const foundItem = skuReport.find(item => item.customerName === customerName)
-        data.push(
-          foundItem
-            ? {
-                customerName,
-                ..._sum,
-                skuStartCounter: foundItem?._sum?.skuStartCounter ? foundItem._sum.skuStartCounter : 0,
-                skuEndCounter: foundItem?._sum?.skuEndCounter ? foundItem._sum.skuEndCounter : 0,
-              }
-            : {
-                customerName,
-                ..._sum,
-                skuStartCounter: 0,
-                skuEndCounter: 0
-              }
-        )
+    for (const { _sum, customerName } of nuovoReportConsolidated) {
+      data.push({
+        customerName,
+        ..._sum
+      })
     }
 
     data.push({
       customerName: 'Totales',
-      ...activationReportTotals?._sum,
-      skuStartCounter: skuReportTotals?._sum?.skuStartCounter ?? 0,
-      skuEndCounter: skuReportTotals?._sum?.skuEndCounter ?? 0
+      ...nuovoReportConsolidatedTotals?._sum
     })
 
     const XLSX = require('xlsx')
@@ -637,13 +714,13 @@ export default class BlockingRepository implements IBlockingRepository {
     XLSX.utils.sheet_add_aoa(workSheet, heading)
     XLSX.utils.sheet_add_json(workSheet, data, { origin: 'A2', skipHeader: true })
     XLSX.utils.book_append_sheet(workBook, workSheet, 'Hoja1')
-    
+
     const buffer = XLSX.write(workBook, { type: 'buffer', bookType: 'xlsx' })
 
     return buffer
   }
 
-  async getCustomerReportFile(deviceType: string | undefined, name: string): Promise<any> {
+  async getCustomerReportFile (deviceType: string | undefined, name: string): Promise<any> {
     let type = null
 
     if (deviceType === 'android') {
@@ -772,26 +849,158 @@ export default class BlockingRepository implements IBlockingRepository {
     return filePath
   }
 
-  async listImports({perPage = 10, page = 0, q: searchText = ''}: PaginationFilterDTO ): Promise<Option<PublicImportsDTO>> {
-    const importsQuery = prismaClient.blockingDeviceImport.findMany({
-      skip: Number(perPage) * Number(page),
-      take: Number(perPage),
-  
-      orderBy: {
-        createdAt: 'desc'
+  async listBlockingReport ({ perPage = 10, page = 0, q = '', pagination = true, fields = ['id', 'reportedAt', 'logProcess', 'logFile'], consolidated = true }: ListBlockingReportDTO): Promise<Option<ListBlockingReportResponseDTO>> {
+    const reportsQuery = prismaClient.nuovoReport.findMany({
+      skip: pagination ? perPage * page : undefined,
+      take: pagination ? perPage : undefined,
+
+      where: consolidated
+        ? {}
+        : {
+          NOT: [
+            {
+              consolidated: {
+                none: {
+                  id: undefined
+                }
+              }
+            }
+          ]
+        },
+
+      select: {
+        id: true,
+        reportedAt: true,
+        logProcess: {
+          select: {
+            createdAt: true,
+            finishedAt: true
+          }
+        },
+        logFile: {
+          select: {
+            size: true
+          }
+        },
+        _count: {
+          select: {
+            consolidated: true
+          }
+        },
       },
+
+      orderBy: {
+        reportedAt: 'desc'
+      }
     })
 
-    const [imports, importsCount] = await prismaClient.$transaction([
-      importsQuery,
-      prismaClient.blockingDeviceImport.count(),
-    ])
+    if (pagination) {
+      const countQuery = prismaClient.nuovoReport.count()
 
-    return {
-      total: importsCount,
-      page: Number(page),
-      perPage: Number(perPage),
-      data: imports
+      const latestReportQuery = prismaClient.nuovoReportInfo.findUnique({
+        where: {
+          name: 'lastNuovoReportImported'
+        }
+      })
+
+      const [
+        reports,
+        total,
+        latestReport
+      ] = await prismaClient.$transaction([
+        reportsQuery,
+        countQuery,
+        latestReportQuery
+      ])
+
+      const data = reports.map((report: any) => {
+        const newReport = Object.keys(report).reduce((object: any, key: string) => {
+          if (fields.includes(key)) {
+            object[key] = report[key];
+          }
+          return object;
+        }, {})
+
+        return {
+          ...newReport,
+          isConsolidated: report._count.consolidated > 0,
+          isLatest: report.id === latestReport?.value
+        }
+      })
+
+      return { total, page, perPage, data }
+    }
+
+    const [reports] = await prismaClient.$transaction([reportsQuery])
+
+    const data = reports.map((report: any) => {
+      return Object.keys(report).reduce((object: any, key: string) => {
+        if (fields.includes(key)) {
+          object[key] = report[key];
+        }
+        return object;
+      }, {})
+    })
+
+    return { data }
+  }
+
+  async getNuovoReport (id: string): Promise<any> {
+    const nuovoReport = await prismaClient.nuovoReport.findUnique({
+      where: { id },
+
+      include: {
+        logProcess: {
+          select: {
+            createdAt: true,
+            finishedAt: true,
+          }
+        },
+        logFile: {
+          select: {
+            size: true
+          }
+        },
+        _count: {
+          select: {
+            consolidated: true
+          }
+        },
+      }
+    })
+
+    if (nuovoReport) {
+      const { _count, ...newCuovoReport } = nuovoReport
+      const data = {
+        ...newCuovoReport,
+        isConsolidated: _count.consolidated > 0
+      }
+
+      return data
+    }
+  }
+
+  async getNuovoReportLog (id: string, type: string): Promise<any> {
+    if (type === 'process') {
+      return await prismaClient.nuovoReportLogProcess.findMany({
+        where: { nuovoReportId: id },
+        select: {
+          name: true,
+          createdAt: true,
+          finishedAt: true,
+        }
+      })
+    }
+
+    if (type === 'file') {
+      return await prismaClient.nuovoReportLogFile.findMany({
+        where: { nuovoReportId: id },
+        select: {
+          originalName: true,
+          mimeType: true,
+          size: true
+        }
+      })
     }
   }
 }

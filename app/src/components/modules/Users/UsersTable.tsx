@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import { Box, LinearProgress, Chip, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Toolbar, Typography, Button } from '@mui/material'
+import { Box, LinearProgress, Chip, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Button } from '@mui/material'
 import { styled, alpha, useTheme } from '@mui/material/styles'
 import EditIcon from '@mui/icons-material/Edit'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 
+import { Toolbar } from '@/components/commons/Toolbar'
 import ConfirmUserDeletion from './ConfirmUserDeletion'
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -59,9 +60,9 @@ function UsersTable () {
   const [isLoading, setIsLoading] = useState(false)
   const [usersList, setUsersList] = useState<any>({})
   const [filters, setFilters] = useState({
-    perPage: parseInt(searchParams.get('perPage') || '10'),
-    page: parseInt(searchParams.get('page') || '0'),
-    q: searchParams.get('q') || ''
+    perPage: parseInt(searchParams.get('perPage') ?? '10'),
+    page: parseInt(searchParams.get('page') ?? '0'),
+    q: searchParams.get('q') ?? ''
   })
 
   useEffect(() => {
@@ -71,7 +72,7 @@ function UsersTable () {
   const getUsers = ({ perPage, page, q }) => {
     setIsLoading(true)
 
-    const url = new URL(`${apiUrl}/users`)
+    const url = new URL(`${API_URL}/users`)
 
     const params = {
       perPage: String(perPage),
@@ -135,45 +136,28 @@ function UsersTable () {
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
-        <Toolbar>
-          <Typography
-            component='h2'
-            variant='h5'
-            noWrap
+        <Toolbar title='Clientes'>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder='Buscar…'
+              type='search'
+              inputProps={{ 'aria-label': 'search' }}
+              onChange={onSearchChange}
+              defaultValue={searchParams.get('q')}
+            />
+          </Search>
+
+          <Button
+            size='small'
             color='primary'
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+            startIcon={<AddIcon />}
+            onClick={() => handleClickCreate()}
           >
-            Usuarios
-          </Typography>
-
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2
-          }}
-          >
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder='Buscar…'
-                type='search'
-                inputProps={{ 'aria-label': 'search' }}
-                onChange={onSearchChange}
-                defaultValue={searchParams.get('q')}
-              />
-            </Search>
-
-            <Button
-              size='small'
-              color='primary'
-              startIcon={<AddIcon />}
-              onClick={() => handleClickCreate()}
-            >
-              Agregar
-            </Button>
-          </Box>
+            Agregar
+          </Button>
         </Toolbar>
 
         {isLoading && (
@@ -234,9 +218,9 @@ function UsersTable () {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 100]}
           component='div'
-          count={usersList?.total || 0}
+          count={usersList?.total ?? 0}
           rowsPerPage={filters.perPage}
-          page={usersList?.page || 0}
+          page={usersList?.page ?? 0}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           labelRowsPerPage='Filas por página:'

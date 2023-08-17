@@ -1,17 +1,17 @@
-import { AppBar, Toolbar, Typography } from "@mui/material"
+import { AppBar, Toolbar, Typography } from '@mui/material'
 // import MenuIcon from '@mui/icons-material/Menu'
 
 import ProfileDropdown from './ProfileDropdown'
 
-const drawerWidth: number = 240
+const drawerWidth = 240
 
 function AppBarContent () {
   return (
     <AppBar
-      position="absolute"
+      position='absolute'
       sx={{
         width: `calc(100% - ${drawerWidth}px)`,
-        ml: `${drawerWidth}px`,
+        ml: `${drawerWidth}px`
       }}
     >
       <Toolbar>
@@ -25,9 +25,9 @@ function AppBarContent () {
           <MenuIcon />
         </IconButton> */}
         <Typography
-          component="h1"
-          variant="h6"
-          color="inherit"
+          component='h1'
+          variant='h6'
+          color='inherit'
           noWrap
           sx={{ flexGrow: 1 }}
         >

@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { Box, CircularProgress, Container } from '@mui/material'
 
 import CustomerForm from './CustomerForm'
-import apiUrl from '../../../config/api'
+import { API_URL } from '@/utils/constants'
 
 interface Customer {
   id: string
@@ -61,7 +61,7 @@ function CustomerEdit () {
   const getCustomer = ({ id }) => {
     setIsLoadingCustomer(true)
 
-    const url = new URL(`${apiUrl}/customers/${id}`)
+    const url = new URL(`${API_URL}/customers/${id}`)
 
     fetch(url)
       .then(async res => await res.json())
@@ -74,7 +74,7 @@ function CustomerEdit () {
   const getProducts = () => {
     setIsLoadingProducts(true)
 
-    const url = new URL(`${apiUrl}/products`)
+    const url = new URL(`${API_URL}/products`)
 
     fetch(url)
       .then(async res => await res.json())
