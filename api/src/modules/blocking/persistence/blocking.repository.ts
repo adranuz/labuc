@@ -156,7 +156,6 @@ export default class BlockingRepository implements IBlockingRepository {
               "imei",
               "serial",
               "locked",
-              "expectedLockStatus",
               "lockType",
               "status",
               "isActivated",
@@ -175,9 +174,7 @@ export default class BlockingRepository implements IBlockingRepository {
               "billable",
               "lastConnectedAt",
               "nextLockDate",
-              "appVersion",
-              "gettingStartedClicked",
-              "additionalSetupCompleted"
+              "appVersion"
             )
             FROM STDIN WITH (FORMAT CSV, NULL 'NA')
           `
@@ -282,7 +279,6 @@ export default class BlockingRepository implements IBlockingRepository {
             "imei",
             "serial",
             "locked",
-            "expectedLockStatus",
             "lockType",
             "status",
             "isActivated",
@@ -302,8 +298,6 @@ export default class BlockingRepository implements IBlockingRepository {
             "lastConnectedAt",
             "nextLockDate",
             "appVersion",
-            "gettingStartedClicked",
-            "additionalSetupCompleted",
             "customerEmail",
             "nuovoReportId",
             "enrolledOnOnlyDate",
@@ -373,7 +367,6 @@ export default class BlockingRepository implements IBlockingRepository {
           "imei",
           "serial",
           "locked",
-          "expectedLockStatus",
           "lockType",
           "status",
           "isActivated",
@@ -393,8 +386,6 @@ export default class BlockingRepository implements IBlockingRepository {
           "lastConnectedAt",
           "nextLockDate",
           "appVersion",
-          "gettingStartedClicked",
-          "additionalSetupCompleted",
           "customerEmail",
           "nuovoReportId",
           "enrolledOnOnlyDate",
@@ -849,12 +840,12 @@ export default class BlockingRepository implements IBlockingRepository {
     return filePath
   }
 
-  async listBlockingReport ({ perPage = 10, page = 0, q = '', pagination = true, fields = ['id', 'reportedAt', 'logProcess', 'logFile'], consolidated = true }: ListBlockingReportDTO): Promise<Option<ListBlockingReportResponseDTO>> {
+  async listBlockingReport ({ perPage = 10, page = 0, q = '', pagination = true, fields = ['id', 'reportedAt', 'logProcess', 'logFile'], includeConsolidated = true }: ListBlockingReportDTO): Promise<Option<ListBlockingReportResponseDTO>> {
     const reportsQuery = prismaClient.nuovoReport.findMany({
       skip: pagination ? perPage * page : undefined,
       take: pagination ? perPage : undefined,
 
-      where: consolidated
+      where: includeConsolidated
         ? {}
         : {
           NOT: [
@@ -924,7 +915,7 @@ export default class BlockingRepository implements IBlockingRepository {
         return {
           ...newReport,
           isConsolidated: report._count.consolidated > 0,
-          isLatest: report.id === latestReport?.value
+          isLatestImported: report.id === latestReport?.value
         }
       })
 

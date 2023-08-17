@@ -27,7 +27,7 @@ export interface CreateBlockingReportResponseDTO {
 
 export interface ListBlockingReportDTO extends PaginationFilterDTO {
   fields?: string[]
-  consolidated?: boolean
+  includeConsolidated?: boolean
 }
 
 
@@ -38,6 +38,6 @@ export interface ListBlockingReportDTO extends PaginationFilterDTO {
 export interface ListBlockingReportResponseDTO extends PaginationFilterResponseDTO {
   data: Partial<NuovoReport>[] & {
     isConsolidated?: boolean
-    isLatest?: boolean
+    isLatestImported?: boolean
   }
 }

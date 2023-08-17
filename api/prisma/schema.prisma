@@ -157,7 +157,6 @@ model BlockingDevice {
   imei                     String?
   serial                   String?
   locked                   String?
-  expectedLockStatus       String?
   lockType                 String?
   status                   String?
   isActivated              String?
@@ -177,8 +176,6 @@ model BlockingDevice {
   lastConnectedAt          DateTime?
   nextLockDate             DateTime?
   appVersion               String?
-  gettingStartedClicked    String?
-  additionalSetupCompleted String?
   customerEmail            String?
   nuovoReport              NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
   nuovoReportId            String
@@ -192,7 +189,6 @@ model BlockingDeviceComplete {
   imei                     String?
   serial                   String?
   locked                   String?
-  expectedLockStatus       String?
   lockType                 String?
   status                   String?
   isActivated              String?
@@ -212,8 +208,6 @@ model BlockingDeviceComplete {
   lastConnectedAt          DateTime?
   nextLockDate             DateTime?
   appVersion               String?
-  gettingStartedClicked    String?
-  additionalSetupCompleted String?
   customerEmail            String
   nuovoReportId            String
   enrolledOnOnlyDate       DateTime? @db.Date
@@ -228,7 +222,6 @@ model BlockingDeviceCompleteSku {
   imei                     String?
   serial                   String?
   locked                   String?
-  expectedLockStatus       String?
   lockType                 String?
   status                   String?
   isActivated              String?
@@ -248,8 +241,6 @@ model BlockingDeviceCompleteSku {
   lastConnectedAt          DateTime?
   nextLockDate             DateTime?
   appVersion               String?
-  gettingStartedClicked    String?
-  additionalSetupCompleted String?
   customerEmail            String
   nuovoReportId            String
   enrolledOnOnlyDate       DateTime? @db.Date

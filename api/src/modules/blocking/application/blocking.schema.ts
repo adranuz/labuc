@@ -29,7 +29,7 @@ export const listBlockingReportSchema = object({
   query: pagination.merge(
     object({
       fields: optional(z.enum(['id', 'reportedAt']).array()),
-      consolidated: optional(z.enum(['true', 'false']).transform((value) => value === 'true'))
+      includeConsolidated: optional(z.enum(['true', 'false']).transform((value) => value === 'true'))
     })
   )
 })
