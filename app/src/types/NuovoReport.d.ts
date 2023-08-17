@@ -11,7 +11,7 @@ export interface NuovoReport {
   logProcess: LogProcess[]
   logFile: LogFile[]
   isConsolidated: boolean
-  isLatest: boolean
+  isLatestImported: boolean
 }
 
 export interface LogFile {

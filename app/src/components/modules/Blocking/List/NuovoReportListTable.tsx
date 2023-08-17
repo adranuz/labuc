@@ -95,7 +95,7 @@ export function NuovoReportListTable ({ nuovoReports, filters, setFilters, getNu
             </TableRow>
           </TableHead>
           <TableBody>
-            {nuovoReports?.data.map(({ id, reportedAt, logProcess, logFile, isConsolidated, isLatest }) => (
+            {nuovoReports?.data.map(({ id, reportedAt, logProcess, logFile, isConsolidated, isLatestImported }) => (
               <TableRow
                 key={id}
                 selected={id === searchParams.get('selected')}
@@ -116,8 +116,8 @@ export function NuovoReportListTable ({ nuovoReports, filters, setFilters, getNu
                       loadingPosition='start'
                       startIcon={<BuildIcon />}
                       onClick={(event) => handleClickBuildReport(event, id)}
-                      loading={isLoading && isLatest}
-                      disabled={isConsolidated || !isLatest}
+                      loading={isLoading && isLatestImported}
+                      disabled={isConsolidated || !isLatestImported}
                     >
                       Generar Consolidado
                     </LoadingButton>

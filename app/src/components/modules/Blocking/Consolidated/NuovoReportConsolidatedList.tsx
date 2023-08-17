@@ -59,7 +59,7 @@ export function NuovoReportConsolidatedList () {
 
     const params = [
       ['pagination', 'false'],
-      ['consolidated', 'false'],
+      ['includeConsolidated', 'false'],
       ['fields[]', 'id'],
       ['fields[]', 'reportedAt']
     ]
