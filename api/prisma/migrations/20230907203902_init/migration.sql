@@ -74,6 +74,7 @@ CREATE TABLE "Customer" (
     "sku3m" BOOLEAN NOT NULL DEFAULT false,
     "skuHBMF" BOOLEAN NOT NULL DEFAULT false,
     "skuHBMPRE" BOOLEAN NOT NULL DEFAULT false,
+    "dbName" TEXT,
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -148,6 +149,7 @@ CREATE TABLE "BlockingDevice" (
     "imei" TEXT,
     "serial" TEXT,
     "locked" TEXT,
+    "expectedLockStatus" TEXT,
     "lockType" TEXT,
     "status" TEXT,
     "isActivated" TEXT,
@@ -167,6 +169,8 @@ CREATE TABLE "BlockingDevice" (
     "lastConnectedAt" TIMESTAMP(3),
     "nextLockDate" TIMESTAMP(3),
     "appVersion" TEXT,
+    "gettingStartedClicked" TEXT,
+    "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT,
     "nuovoReportId" TEXT NOT NULL
 );
@@ -178,6 +182,7 @@ CREATE TABLE "BlockingDeviceComplete" (
     "imei" TEXT,
     "serial" TEXT,
     "locked" TEXT,
+    "expectedLockStatus" TEXT,
     "lockType" TEXT,
     "status" TEXT,
     "isActivated" TEXT,
@@ -197,6 +202,8 @@ CREATE TABLE "BlockingDeviceComplete" (
     "lastConnectedAt" TIMESTAMP(3),
     "nextLockDate" TIMESTAMP(3),
     "appVersion" TEXT,
+    "gettingStartedClicked" TEXT,
+    "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT NOT NULL,
     "nuovoReportId" TEXT NOT NULL,
     "enrolledOnOnlyDate" DATE,
@@ -210,6 +217,7 @@ CREATE TABLE "BlockingDeviceCompleteSku" (
     "imei" TEXT,
     "serial" TEXT,
     "locked" TEXT,
+    "expectedLockStatus" TEXT,
     "lockType" TEXT,
     "status" TEXT,
     "isActivated" TEXT,
@@ -229,6 +237,46 @@ CREATE TABLE "BlockingDeviceCompleteSku" (
     "lastConnectedAt" TIMESTAMP(3),
     "nextLockDate" TIMESTAMP(3),
     "appVersion" TEXT,
+    "gettingStartedClicked" TEXT,
+    "additionalSetupCompleted" TEXT,
+    "customerEmail" TEXT NOT NULL,
+    "nuovoReportId" TEXT NOT NULL,
+    "enrolledOnOnlyDate" DATE,
+    "billableCalculated" BOOLEAN,
+    "customerName" TEXT NOT NULL,
+    "skuStartCounter" INTEGER,
+    "skuEndCounter" INTEGER
+);
+
+-- CreateTable
+CREATE TABLE "BlockingDeviceCompleteSkuBackup" (
+    "customerId" TEXT,
+    "deviceId" INTEGER NOT NULL,
+    "imei" TEXT,
+    "serial" TEXT,
+    "locked" TEXT,
+    "expectedLockStatus" TEXT,
+    "lockType" TEXT,
+    "status" TEXT,
+    "isActivated" TEXT,
+    "previousStatus" TEXT,
+    "previousStatusChangedOn" TIMESTAMP(3),
+    "make" TEXT,
+    "model" TEXT,
+    "type" TEXT,
+    "deleted" TEXT,
+    "activatedDeviceDeleted" TEXT,
+    "registeredOn" TIMESTAMP(3),
+    "enrolledOn" TIMESTAMP(3),
+    "unregisteredOn" TIMESTAMP(3),
+    "deletedOn" TIMESTAMP(3),
+    "activationDate" TIMESTAMP(3),
+    "billable" TEXT,
+    "lastConnectedAt" TIMESTAMP(3),
+    "nextLockDate" TIMESTAMP(3),
+    "appVersion" TEXT,
+    "gettingStartedClicked" TEXT,
+    "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT NOT NULL,
     "nuovoReportId" TEXT NOT NULL,
     "enrolledOnOnlyDate" DATE,
@@ -244,8 +292,10 @@ CREATE TABLE "BlockingDeviceReport" (
     "imei" TEXT,
     "serial" TEXT,
     "locked" TEXT,
+    "expectedLockStatus" TEXT,
     "lockType" TEXT,
     "status" TEXT,
+    "isActivated" TEXT,
     "previousStatus" TEXT,
     "previousStatusChangedOn" TIMESTAMP(3),
     "make" TEXT,
@@ -259,10 +309,28 @@ CREATE TABLE "BlockingDeviceReport" (
     "deletedOn" TIMESTAMP(3),
     "activationDate" TIMESTAMP(3),
     "billable" TEXT,
+    "lastConnectedAt" TIMESTAMP(3),
+    "nextLockDate" TIMESTAMP(3),
+    "appVersion" TEXT,
+    "gettingStartedClicked" TEXT,
+    "additionalSetupCompleted" TEXT,
     "billableText" TEXT,
     "sku3mCounter" INTEGER,
     "skuStartCounter" INTEGER,
     "skuEndCounter" INTEGER
+);
+
+-- CreateTable
+CREATE TABLE "PacCreditReport" (
+    "id" INTEGER NOT NULL,
+    "client" TEXT,
+    "general_count" INTEGER,
+    "status_count" JSONB,
+    "success_score" INTEGER,
+    "error_score" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PacCreditReport_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -326,7 +394,7 @@ CREATE UNIQUE INDEX "NuovoReport_reportedAt_key" ON "NuovoReport"("reportedAt");
 CREATE UNIQUE INDEX "NuovoReportInfo_name_key" ON "NuovoReportInfo"("name");
 
 -- CreateIndex
-CREATE INDEX "NuovoReportConsolidated_customerName_deviceType_idx" ON "NuovoReportConsolidated"("customerName", "deviceType");
+CREATE INDEX "NuovoReportConsolidated_customerName_deviceType_nuovoReport_idx" ON "NuovoReportConsolidated"("customerName", "deviceType", "nuovoReportId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "BlockingDevice_deviceId_key" ON "BlockingDevice"("deviceId");
@@ -344,7 +412,13 @@ CREATE INDEX "BlockingDeviceComplete_type_customerEmail_enrolledOnOnlyDat_idx" O
 CREATE UNIQUE INDEX "BlockingDeviceCompleteSku_deviceId_key" ON "BlockingDeviceCompleteSku"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDeviceCompleteSku_type_customerEmail_enrolledOnOnly_idx" ON "BlockingDeviceCompleteSku"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated");
+CREATE INDEX "BlockingDeviceCompleteSku_type_customerEmail_enrolledOnOnly_idx" ON "BlockingDeviceCompleteSku"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated", "nuovoReportId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BlockingDeviceCompleteSkuBackup_deviceId_key" ON "BlockingDeviceCompleteSkuBackup"("deviceId");
+
+-- CreateIndex
+CREATE INDEX "BlockingDeviceCompleteSkuBackup_type_customerEmail_enrolled_idx" ON "BlockingDeviceCompleteSkuBackup"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated", "nuovoReportId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "BlockingDeviceReport_deviceId_key" ON "BlockingDeviceReport"("deviceId");

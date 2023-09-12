@@ -2,9 +2,11 @@ import { Box, CircularProgress } from '@mui/material'
 
 interface Props {
   show: boolean
+  disablePadding?: boolean
+  sizeLoader?: number
 }
 
-export function LoadingContent ({ show }: Props) {
+export function LoadingContent ({ show, disablePadding = false, sizeLoader = 42 }: Props) {
   if (!show) return <></>
 
   return (
@@ -12,11 +14,12 @@ export function LoadingContent ({ show }: Props) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
-      padding={2}
+      padding={disablePadding ? 0 : 2}
     >
-      <CircularProgress />
+      <CircularProgress size={sizeLoader} />
     </Box>
   )
 }

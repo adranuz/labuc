@@ -19,7 +19,7 @@ export default (cradle: ICradle) => {
 
   router.get('/blocking/reports/:id/consolidated/download', cradle.blockingMiddleware.validate(getNuovoReportConsolidatedSchema), cradle.blockingController.getNuovoReportConsolidatedFile);
 
-  router.get('/blocking/report/customer/download', cradle.blockingMiddleware.validate(getCustomerReportSchema), cradle.blockingController.getCustomerReportFile);
+  router.get('/blocking/reports/:id/customers/:name/download', cradle.blockingMiddleware.validate(getCustomerReportSchema), cradle.blockingController.getCustomerReportFile);
 
   return router;
 };

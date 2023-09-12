@@ -71,7 +71,6 @@ export function NuovoReportConsolidatedList () {
       .then(data => {
         setReportList(data)
         const reportedAt = searchParams.get('reportedAt')
-        console.log(reportedAt)
         const foundReport = data?.data?.find(
           item => reportedAt === null
             ? item?.reportedAt !== null
@@ -166,6 +165,9 @@ export function NuovoReportConsolidatedList () {
               }}
               shouldDisableDate={getDisabledDates}
               onChange={handleChangeSelectedReport}
+              sx={{
+                maxWidth: 190
+              }}
             />
             <FormControl
               margin='none'
@@ -205,7 +207,11 @@ export function NuovoReportConsolidatedList () {
             />
           )}
 
-          <NuovoReportConsolidatedTable data={data} deviceType={device} />
+          <NuovoReportConsolidatedTable
+            id={selectedReport.id}
+            data={data}
+            deviceType={device}
+          />
         </Paper>
       </Box>
     </Container>

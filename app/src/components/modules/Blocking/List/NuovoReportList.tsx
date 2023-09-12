@@ -1,63 +1,44 @@
-import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 
 import { Box, LinearProgress, Paper, Button } from '@mui/material'
 import UploadIcon from '@mui/icons-material/Upload'
 
 import { NuovoReportListTable } from './NuovoReportListTable'
 import { Toolbar } from '@/components/commons/Toolbar'
-import { API_URL } from '@/utils/constants'
-import { type NuovoReports } from '@/types/NuovoReport'
-import { type Filters } from '@/types/Filters'
-import { useCommonStore } from '@/store/common'
+import { useBlockingStore } from '@/store/blocking'
 
 export function NuovoReportList () {
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const showSnackbar = useCommonStore((state) => state.showSnackbar)
-
-  const [isLoading, setIsLoading] = useState(false)
-  const [nuovoReports, setNuovoReports] = useState<NuovoReports | undefined>(undefined)
-
-  const [filters, setFilters] = useState<Filters>({
-    perPage: parseInt(searchParams.get('perPage') ?? '10'),
-    page: parseInt(searchParams.get('page') ?? '0'),
-    q: searchParams.get('q') ?? ''
-  })
+  const [
+    filters,
+    setFilters,
+    getNuovoReportList,
+    isLoading,
+    nuovoReportList
+  ] = useBlockingStore((state) => [
+    state.getNuovoReportListFilters,
+    state.setNuovoReportListFilters,
+    state.getNuovoReportList,
+    state.getNuovoReportListLoading,
+    state.nuovoReportList
+  ])
 
   useEffect(() => {
-    getNuovoReports(filters)
+    const perPage = searchParams.get('perPage')
+    const page = searchParams.get('page')
+    const q = searchParams.get('q')
+
+    setFilters({
+      perPage: perPage !== null ? parseInt(perPage) : filters.perPage,
+      page: page !== null ? parseInt(page) : filters.page,
+      q: q ?? filters.q
+    })
+
+    getNuovoReportList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const getNuovoReports = ({ perPage, page, q }: Filters) => {
-    setIsLoading(true)
-
-    const url = new URL(`${API_URL}/blocking/reports`)
-
-    const params = {
-      perPage: String(perPage),
-      page: String(page),
-      q
-    }
-
-    url.search = new URLSearchParams(params).toString()
-
-    fetch(url)
-      .then(async res => await res.json())
-      .then(data => {
-        setNuovoReports(data)
-      })
-      .catch(_ => {
-        showSnackbar('Error al obtener la información del consolidado', 'error')
-      })
-      .finally(() => setIsLoading(false))
-  }
-
-  const handleClickCreate = () => {
-    navigate('/tool/blocking/reports/new')
-  }
 
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
@@ -67,7 +48,8 @@ export function NuovoReportList () {
             size='small'
             color='primary'
             startIcon={<UploadIcon />}
-            onClick={() => handleClickCreate()}
+            component={Link}
+            to='/tool/blocking/reports/new'
           >
             Importar reporte
           </Button>
@@ -79,12 +61,7 @@ export function NuovoReportList () {
           />
         )}
 
-        <NuovoReportListTable
-          nuovoReports={nuovoReports}
-          filters={filters}
-          setFilters={setFilters}
-          getNuovoReports={getNuovoReports}
-        />
+        <NuovoReportListTable nuovoReportList={nuovoReportList} />
       </Paper>
     </Box>
   )

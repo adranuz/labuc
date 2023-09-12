@@ -90,6 +90,7 @@ model Customer {
   sku3m                Boolean   @default(false)
   skuHBMF              Boolean   @default(false)
   skuHBMPRE            Boolean   @default(false)
+  dbName               String?
 
   @@index([id, email])
 }
@@ -116,6 +117,7 @@ model NuovoReportLogProcess {
   id            String      @id @default(uuid())
   name          String
   type          String
+  // status        String // in-progress | finished | error
   createdAt     DateTime    @default(now())
   finishedAt    DateTime?
   nuovoReport   NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
@@ -148,7 +150,7 @@ model NuovoReportConsolidated {
   nuovoReport         NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
   nuovoReportId       String
 
-  @@index([customerName, deviceType])
+  @@index([customerName, deviceType, nuovoReportId])
 }
 
 model BlockingDevice {
@@ -157,6 +159,7 @@ model BlockingDevice {
   imei                     String?
   serial                   String?
   locked                   String?
+  expectedLockStatus       String?
   lockType                 String?
   status                   String?
   isActivated              String?
@@ -176,6 +179,8 @@ model BlockingDevice {
   lastConnectedAt          DateTime?
   nextLockDate             DateTime?
   appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
   customerEmail            String?
   nuovoReport              NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
   nuovoReportId            String
@@ -189,6 +194,7 @@ model BlockingDeviceComplete {
   imei                     String?
   serial                   String?
   locked                   String?
+  expectedLockStatus       String?
   lockType                 String?
   status                   String?
   isActivated              String?
@@ -208,6 +214,8 @@ model BlockingDeviceComplete {
   lastConnectedAt          DateTime?
   nextLockDate             DateTime?
   appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
   customerEmail            String
   nuovoReportId            String
   enrolledOnOnlyDate       DateTime? @db.Date
@@ -222,6 +230,7 @@ model BlockingDeviceCompleteSku {
   imei                     String?
   serial                   String?
   locked                   String?
+  expectedLockStatus       String?
   lockType                 String?
   status                   String?
   isActivated              String?
@@ -241,6 +250,8 @@ model BlockingDeviceCompleteSku {
   lastConnectedAt          DateTime?
   nextLockDate             DateTime?
   appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
   customerEmail            String
   nuovoReportId            String
   enrolledOnOnlyDate       DateTime? @db.Date
@@ -249,33 +260,89 @@ model BlockingDeviceCompleteSku {
   skuStartCounter          Int?
   skuEndCounter            Int?
 
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, nuovoReportId])
+}
+
+model BlockingDeviceCompleteSkuBackup {
+  customerId               String?
+  deviceId                 Int       @unique
+  imei                     String?
+  serial                   String?
+  locked                   String?
+  expectedLockStatus       String?
+  lockType                 String?
+  status                   String?
+  isActivated              String?
+  previousStatus           String?
+  previousStatusChangedOn  DateTime?
+  make                     String?
+  model                    String?
+  type                     String?
+  deleted                  String?
+  activatedDeviceDeleted   String?
+  registeredOn             DateTime?
+  enrolledOn               DateTime?
+  unregisteredOn           DateTime?
+  deletedOn                DateTime?
+  activationDate           DateTime?
+  billable                 String?
+  lastConnectedAt          DateTime?
+  nextLockDate             DateTime?
+  appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
+  customerEmail            String
+  nuovoReportId            String
+  enrolledOnOnlyDate       DateTime? @db.Date
+  billableCalculated       Boolean?
+  customerName             String
+  skuStartCounter          Int?
+  skuEndCounter            Int?
+
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, nuovoReportId])
 }
 
 model BlockingDeviceReport {
-  deviceId                Int       @unique
-  imei                    String?
-  serial                  String?
-  locked                  String?
-  lockType                String?
-  status                  String?
-  previousStatus          String?
-  previousStatusChangedOn DateTime?
-  make                    String?
-  model                   String?
-  type                    String?
-  deleted                 String?
-  activatedDeviceDeleted  String?
-  registeredOn            DateTime?
-  enrolledOn              DateTime?
-  unregisteredOn          DateTime?
-  deletedOn               DateTime?
-  activationDate          DateTime?
-  billable                String?
-  billableText            String?
-  sku3mCounter            Int?
-  skuStartCounter         Int?
-  skuEndCounter           Int?
+  deviceId                 Int       @unique
+  imei                     String?
+  serial                   String?
+  locked                   String?
+  expectedLockStatus       String?
+  lockType                 String?
+  status                   String?
+  isActivated              String?
+  previousStatus           String?
+  previousStatusChangedOn  DateTime?
+  make                     String?
+  model                    String?
+  type                     String?
+  deleted                  String?
+  activatedDeviceDeleted   String?
+  registeredOn             DateTime?
+  enrolledOn               DateTime?
+  unregisteredOn           DateTime?
+  deletedOn                DateTime?
+  activationDate           DateTime?
+  billable                 String?
+  lastConnectedAt          DateTime?
+  nextLockDate             DateTime?
+  appVersion               String?
+  gettingStartedClicked    String?
+  additionalSetupCompleted String?
+  billableText             String?
+  sku3mCounter             Int?
+  skuStartCounter          Int?
+  skuEndCounter            Int?
 
   @@index([deviceId])
+}
+
+model PacCreditReport {
+  id            Int      @id
+  client        String?
+  general_count Int?
+  status_count  Json?
+  success_score Int?
+  error_score   Int?
+  created_at    DateTime @default(now())
 }

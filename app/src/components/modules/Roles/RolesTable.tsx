@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 
 import { Box, LinearProgress, InputBase, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Button } from '@mui/material'
 import { styled, alpha, useTheme } from '@mui/material/styles'
@@ -54,7 +54,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }))
 
 function RolesTable () {
-  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -125,14 +124,6 @@ function RolesTable () {
     })
   }
 
-  const handleClickEdit = (id: string) => {
-    navigate(`/admin/roles/${id}/edit`)
-  }
-
-  const handleClickCreate = () => {
-    navigate('/admin/roles/create')
-  }
-
   return (
     <Box sx={{ width: '100%', position: 'relative' }}>
       <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>
@@ -154,7 +145,8 @@ function RolesTable () {
             size='small'
             color='primary'
             startIcon={<AddIcon />}
-            onClick={() => handleClickCreate()}
+            component={Link}
+            to='/admin/roles/create'
           >
             Agregar
           </Button>
@@ -177,22 +169,23 @@ function RolesTable () {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rolesList?.data?.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell sx={{ textTransform: 'capitalize' }}>{row.name}</TableCell>
-                  <TableCell align='right'>{row.permissions?.length}</TableCell>
-                  <TableCell align='right'>{row._count.users}</TableCell>
+              {rolesList?.data?.map(({ id, name, permissions, _count }) => (
+                <TableRow key={id}>
+                  <TableCell sx={{ textTransform: 'capitalize' }}>{name}</TableCell>
+                  <TableCell align='right'>{permissions?.length}</TableCell>
+                  <TableCell align='right'>{_count.users}</TableCell>
                   <TableCell>
                     <Stack direction='row' spacing={1} justifyContent='flex-end'>
                       <Button
                         size='small'
                         color='info'
                         startIcon={<EditIcon />}
-                        onClick={() => handleClickEdit(row.id)}
+                        component={Link}
+                        to={`/admin/roles/${id}/edit`}
                       >
                         Editar
                       </Button>
-                      <ConfirmRoleDeletion id={row.id} name={row.name} onFinished={() => getRoles(filters)} />
+                      <ConfirmRoleDeletion id={id} name={name} onFinished={() => getRoles(filters)} />
                     </Stack>
                   </TableCell>
                 </TableRow>

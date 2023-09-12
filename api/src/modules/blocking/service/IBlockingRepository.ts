@@ -10,5 +10,5 @@ export default interface IBlockingRepository {
   createNuovoReportConsolidated (id: string): Promise<any>;
   getNuovoReportConsolidated (id: string, deviceType: string | undefined): Promise<any>;
   getNuovoReportConsolidatedFile (id: string, deviceType: string | undefined): Promise<any>;
-  getCustomerReportFile (deviceType: string | undefined, name: string): Promise<any>;
+  getCustomerReportFile (id: string, name: string, deviceType: string | undefined): Promise<any>;
 }

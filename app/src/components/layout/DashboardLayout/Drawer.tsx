@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useLocation, matchRoutes } from 'react-router-dom'
+import { useLocation, matchRoutes, Link } from 'react-router-dom'
 
 import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
@@ -8,7 +8,7 @@ import Drawer from '@mui/material/Drawer'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import Icon from '@mui/material/Icon'
-import Link from '@mui/material/Link'
+import LinkMui from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -144,7 +144,7 @@ const navigationData: navigation[] = [
               { path: '/tool/blocking/reports' },
               { path: '/tool/blocking/reports/:id' }
             ],
-            icon: 'description'
+            icon: 'upload_file'
           },
           {
             id: 'blocking-consolidated',
@@ -154,7 +154,56 @@ const navigationData: navigation[] = [
             matchRoutes: [
               { path: '/tool/blocking/consolidated' }
             ],
-            icon: 'assessment'
+            icon: 'summarize'
+          }
+        ]
+      },
+
+      {
+        id: 'pac',
+        title: 'PAC',
+        type: 'collapse',
+        open: null,
+        matchRoutes: [
+          { path: '/tool/pac/credits' },
+          { path: '/tool/pac/credits/report' },
+          // { path: '/tool/pac/validation' },
+          { path: '/tool/pac/score' },
+          { path: '/tool/pac/score/report' }
+        ],
+        icon: 'web',
+        children: [
+          {
+            id: 'pac-credits',
+            title: 'Créditos',
+            type: 'item',
+            url: '/tool/pac/credits',
+            matchRoutes: [
+              { path: '/tool/pac/credits' },
+              { path: '/tool/pac/credits/report' }
+            ],
+            icon: 'payments'
+          },
+          // {
+          //   id: 'pac-validation',
+          //   title: 'Validación ID',
+          //   type: 'item',
+          //   url: '/tool/pac/validation',
+          //   matchRoutes: [
+          //     { path: '/tool/pac/validation' }
+          //   ],
+          //   icon: 'person_search'
+          // },
+          {
+            id: 'pac-score',
+            title: 'Score',
+            type: 'item',
+            url: '/tool/pac/score',
+            matchRoutes: [
+              { path: '/tool/pac/score' },
+              { path: '/tool/pac/score/report' }
+            ],
+            icon: 'credit_score'
           }
         ]
       }
@@ -163,7 +212,6 @@ const navigationData: navigation[] = [
 ]
 
 function DrawerContent () {
-  const navigate = useNavigate()
   const location = useLocation()
 
   const [navigation, setNavigation] = useState(navigationData)
@@ -221,14 +269,14 @@ function DrawerContent () {
           justifyContent: 'center'
         }}
       >
-        <Link href='/'>
+        <LinkMui href='/'>
           <Box
             component='img'
             sx={{ height: 32 }}
             alt='Logo'
             src={logo}
           />
-        </Link>
+        </LinkMui>
       </Toolbar>
       <Divider />
       <List component='nav'>
@@ -243,8 +291,10 @@ function DrawerContent () {
                   itemTwo.type === 'item' && (
                     <ListItemButton
                       key={itemTwo.id}
-                      onClick={() => { itemTwo?.url && navigate(itemTwo.url) }}
+                      component={Link}
+                      to={itemTwo.url ?? ''}
                       selected={isRouteMatch(itemTwo?.matchRoutes)}
+
                     >
                       <ListItemIcon>
                         <Icon>{itemTwo.icon}</Icon>
@@ -278,7 +328,8 @@ function DrawerContent () {
                               itemThree.type === 'item' && (
                                 <ListItemButton
                                   key={itemThree.id}
-                                  onClick={() => { navigate(itemThree.url) }}
+                                  component={Link}
+                                  to={itemThree.url}
                                   selected={isRouteMatch(itemThree?.matchRoutes)}
                                   sx={{ pl: 4 }}
                                 >

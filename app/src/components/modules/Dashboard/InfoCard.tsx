@@ -1,17 +1,30 @@
-import { CardContent, Card, Divider, Typography, CardActions, Button } from '@mui/material'
+import { CardContent, Card, Divider, Typography, CardActions, Button, CardHeader, Box } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 
-function CustomerCard ({title, value, buttonLabel, onClick}) {
-
+export function InfoCard ({ title, value, buttonLabel, onClick }) {
   return (
-    <Card variant='outlined' >
+    <Card variant='outlined'>
+      <CardHeader
+        title={
+          <Typography variant='subtitle1' sx={{ fontWeight: 'bold' }}>
+            {title}
+          </Typography>
+        }
+        sx={{ paddingBottom: 0 }}
+      />
       <CardContent>
-        <Typography variant='h6' component='h2' color='primary' gutterBottom>
-          { title }
-        </Typography>
-        <Typography variant='h4' component='p'>
-          { value }
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Typography variant='h4' component='p' color='primary'>
+            {value}
+          </Typography>
+        </Box>
       </CardContent>
       <Divider />
       <CardActions>
@@ -20,11 +33,9 @@ function CustomerCard ({title, value, buttonLabel, onClick}) {
           endIcon={<ArrowForwardIcon />}
           onClick={onClick}
         >
-          { buttonLabel }
+          {buttonLabel}
         </Button>
       </CardActions>
     </Card>
   )
 }
-
-export default CustomerCard

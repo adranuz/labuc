@@ -6,17 +6,16 @@ import DownloadIcon from '@mui/icons-material/Download'
 
 import { API_URL } from '@/utils/constants'
 
-function NuovoReportConsolidatedTable ({ data, deviceType }) {
+function NuovoReportConsolidatedTable ({ id, data, deviceType }) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
 
-  const downloadCustomerReport = (deviceType: string, name: string, index: number) => {
+  const downloadCustomerReport = (id: string, deviceType: string, name: string, index: number) => {
     setSelectedRowIndex(index)
 
-    const url = new URL(`${API_URL}/blocking/report/customer/download`)
+    const url = new URL(`${API_URL}/blocking/reports/${id}/customers/${name}/download`)
 
     const params = {
-      deviceType,
-      name
+      deviceType
     }
 
     url.search = new URLSearchParams(params).toString()
@@ -45,7 +44,7 @@ function NuovoReportConsolidatedTable ({ data, deviceType }) {
   }
 
   const handleClickDownloadCustomerReport = (name: string, index: number) => {
-    downloadCustomerReport(deviceType, name, index)
+    downloadCustomerReport(id, deviceType, name, index)
   }
 
   return (
@@ -81,7 +80,7 @@ function NuovoReportConsolidatedTable ({ data, deviceType }) {
                     loadingPosition='start'
                     startIcon={<DownloadIcon />}
                     onClick={() => handleClickDownloadCustomerReport(row?.customerName, index)}
-                    disabled={selectedRowIndex !== null}
+                    disabled={selectedRowIndex !== null || !(data?.extra?.allowDownloadCustomerReport)}
                     loading={selectedRowIndex === index}
                   >
                     Exportar (.csv)
@@ -107,8 +106,8 @@ function NuovoReportConsolidatedTable ({ data, deviceType }) {
             <TableCell variant='head'>Totales</TableCell>
             <TableCell align='right' variant='head'>{data?.totals?.billable}</TableCell>
             <TableCell align='right' variant='head'>{data?.totals?.nonBillable}</TableCell>
-            <TableCell align='right' variant='head'>{data?.totals?.billableBiweekly}</TableCell>
             <TableCell align='right' variant='head'>{data?.totals?.billableWeekly}</TableCell>
+            <TableCell align='right' variant='head'>{data?.totals?.billableBiweekly}</TableCell>
             <TableCell align='right' variant='head'>{data?.totals?.skuStartCounter}</TableCell>
             <TableCell align='right' variant='head'>{data?.totals?.skuEndCounter}</TableCell>
             <TableCell align='right' variant='head' />

@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import CustomerService from '../service/customer.service'
 import {
   //  CreateCustomerInput,
-  UpdateCustomerInput, DeleteCustomerInput, GetCustomerInput, PaginationInput } from './customer.schema'
+  UpdateCustomerInput, DeleteCustomerInput, GetCustomerInput, PaginationInput, ListCustomerInput
+} from './customer.schema'
 
 export default class CustomerController {
-  constructor(private customerService: CustomerService) {}
+  constructor(private customerService: CustomerService) { }
 
   // createCustomer = async (
   //   req: Request<{}, {}, CreateCustomerInput>,
@@ -49,7 +50,7 @@ export default class CustomerController {
       })
     }
   }
-  
+
   updateCustomer = async (
     req: Request<UpdateCustomerInput['params'], {}, UpdateCustomerInput['body']>,
     res: Response
@@ -88,7 +89,7 @@ export default class CustomerController {
   }
 
   listCustomers = async (
-    req: Request<{}, {}, {}, PaginationInput>,
+    req: Request<{}, {}, {}, ListCustomerInput>,
     res: Response
   ): Promise<unknown> => {
     try {

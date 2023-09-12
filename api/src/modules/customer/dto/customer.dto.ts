@@ -1,10 +1,18 @@
 import { Contact, Product } from '@prisma/client'
 import CustomerEntity from '../entities/customer.entity';
+import { Customer } from '@prisma/client'
 
 export interface PaginationFilterDTO {
   perPage?: number;
   page?: number;
   q?: string;
+  pagination?: boolean;
+}
+
+export interface PaginationFilterResponseDTO {
+  total?: number
+  page?: number
+  perPage?: number
 }
 
 // export interface CreateCustomerDTO {
@@ -36,16 +44,19 @@ export interface UpdateCustomerDTO {
   sku3m?: boolean
   skuHBMF?: boolean
   skuHBMPRE?: boolean
+  dbName?: string
+}
+
+export interface ListCustomersDTO extends PaginationFilterDTO {
+  fields?: string[]
+  hasProducts?: string[]
 }
 
 export type PublicCustomerDTO = CustomerEntity;
 
-export type PublicCustomersDTO = {
-  total: number
-  page: number
-  perPage: number
-  data: PublicCustomerDTO[]
-};
+export interface PublicCustomersDTO extends PaginationFilterResponseDTO {
+  data: Partial<Customer>[]
+}
 
 export type PublicProductsDTO = {
   total: number

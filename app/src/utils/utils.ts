@@ -20,14 +20,14 @@ export const localeDate = ({ date, withTime = true }) => {
     'es',
     withTime
       ? {
-          dateStyle: 'medium',
-          timeStyle: 'short',
-          hour12: true
-        }
+        dateStyle: 'medium',
+        timeStyle: 'short',
+        hour12: true
+      }
       : {
-          timeZone: 'UTC',
-          dateStyle: 'medium'
-        }
+        timeZone: 'UTC',
+        dateStyle: 'medium'
+      }
   )
 }
 
@@ -45,4 +45,16 @@ export const prettySeconds = (seconds: number) => {
 
   // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
   return `${h > 0 ? h + ' hr ' : ''}${m > 0 ? m + ' min ' : ''}${s} seg`
+}
+
+export const buildQueryParams = ({ customerId, status }) => {
+  const params = {}
+
+  Object.assign(
+    params,
+    customerId && { customerId },
+    status && { status }
+  )
+
+  return new URLSearchParams(params).toString()
 }

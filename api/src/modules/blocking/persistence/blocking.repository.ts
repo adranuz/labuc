@@ -44,7 +44,7 @@ export default class BlockingRepository implements IBlockingRepository {
     return timeTakenInSeconds
   }
 
-  async createBlockingReport ({ files, truncate, reportedAt }: CreateBlockingReportDTO): Promise<CreateBlockingReportResponseDTO> {
+  async createBlockingReport ({ files, reportedAt }: CreateBlockingReportDTO): Promise<CreateBlockingReportResponseDTO> {
     const pgClient = new Client({
       connectionString: process.env.DATABASE_URL,
     })
@@ -67,35 +67,33 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
-    if (truncate === 'true') {
-      await pgClient.query(`TRUNCATE "BlockingDevice"`)
-      await pgClient.query(`TRUNCATE "BlockingDeviceComplete"`)
-      await pgClient.query(`TRUNCATE "BlockingDeviceCompleteSku"`)
-      await prismaClient.nuovoReportLogProcess.deleteMany({
-        where: {
-          nuovoReportId: nuovoReport.id
-        }
-      })
-      await prismaClient.nuovoReportLogFile.deleteMany({
-        where: {
-          nuovoReportId: nuovoReport.id
-        }
-      })
-      await prismaClient.nuovoReportConsolidated.deleteMany({
-        where: {
-          nuovoReportId: nuovoReport.id
-        }
-      })
-      await prismaClient.nuovoReportLogProcess.create({
-        data: {
-          name: 'Truncate',
-          type: 'truncate',
-          createdAt: new Date(),
-          finishedAt: new Date(),
-          nuovoReportId: nuovoReport.id
-        }
-      })
-    }
+    /* START STEP 0 */
+
+    console.log(`[!] STEP 0: Clean tables`)
+
+    await pgClient.query(`TRUNCATE "BlockingDevice"`)
+
+    await prismaClient.nuovoReportLogProcess.deleteMany({
+      where: {
+        nuovoReportId: nuovoReport.id
+      }
+    })
+    await prismaClient.nuovoReportLogFile.deleteMany({
+      where: {
+        nuovoReportId: nuovoReport.id
+      }
+    })
+    await prismaClient.nuovoReportConsolidated.deleteMany({
+      where: {
+        nuovoReportId: nuovoReport.id
+      }
+    })
+
+    /* END STEP 0 */
+
+    /* START STEP 1 */
+
+    console.log(`[!] STEP 1: Import files`)
 
     const importStatus = await prismaClient.nuovoReportLogProcess.create({
       data: {
@@ -104,8 +102,6 @@ export default class BlockingRepository implements IBlockingRepository {
         nuovoReportId: nuovoReport.id
       }
     })
-
-    ///////////
 
     const { from: copyFrom } = require('pg-copy-streams')
     const fs = require('node:fs')
@@ -156,6 +152,7 @@ export default class BlockingRepository implements IBlockingRepository {
               "imei",
               "serial",
               "locked",
+              "expectedLockStatus",
               "lockType",
               "status",
               "isActivated",
@@ -174,7 +171,9 @@ export default class BlockingRepository implements IBlockingRepository {
               "billable",
               "lastConnectedAt",
               "nextLockDate",
-              "appVersion"
+              "appVersion",
+              "gettingStartedClicked",
+              "additionalSetupCompleted"
             )
             FROM STDIN WITH (FORMAT CSV, NULL 'NA')
           `
@@ -184,6 +183,10 @@ export default class BlockingRepository implements IBlockingRepository {
         await pipeline(sourceStream, ingestStream)
 
         console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
+      } catch (error) {
+        console.log('//////////')
+        console.log(error)
+        console.log('//////////')
       } finally {
         try {
           fs.unlinkSync(file.path)
@@ -211,6 +214,8 @@ export default class BlockingRepository implements IBlockingRepository {
         finishedAt: new Date(),
       }
     })
+
+    /* END STEP 1 */
 
     ///////////
 
@@ -265,10 +270,7 @@ export default class BlockingRepository implements IBlockingRepository {
     })
   }
 
-  getCountOfSkuStartAndSkuEndQuery = (name: string, email: string, skuStart: string, skuEnd: string) => {
-    // console.log(`[+] SKU Start : ` + skuStart)
-    // console.log(`[+] SKU End   : ` + skuEnd)
-
+  getCountOfSkuStartAndSkuEndQuery = (name: string, email: string, skuStart: string | null, skuEnd: string | null) => {
     const intervalStart = (skus.find(sku => sku.name === skuStart))?.intervalStart
     const intervalEnd = (skus.find(sku => sku.name === skuEnd))?.intervalEnd
 
@@ -279,6 +281,7 @@ export default class BlockingRepository implements IBlockingRepository {
             "imei",
             "serial",
             "locked",
+            "expectedLockStatus",
             "lockType",
             "status",
             "isActivated",
@@ -298,6 +301,8 @@ export default class BlockingRepository implements IBlockingRepository {
             "lastConnectedAt",
             "nextLockDate",
             "appVersion",
+            "gettingStartedClicked",
+            "additionalSetupCompleted",
             "customerEmail",
             "nuovoReportId",
             "enrolledOnOnlyDate",
@@ -343,10 +348,68 @@ export default class BlockingRepository implements IBlockingRepository {
       'Windows Device',
     ]
 
+    const nuovoReport = await prismaClient.nuovoReport.findUnique({
+      where: { id }
+    })
+
     const pgClient = new Client({
       connectionString: process.env.DATABASE_URL,
     })
     await pgClient.connect()
+
+    if (!nuovoReport) {
+      return
+    }
+
+    /* START STEP 0 */
+
+    console.log(`[!] STEP 0: Check for backup`)
+
+    const nuovoReportLatest = await prismaClient.nuovoReport.findFirst({
+      where: {
+        reportedAt: {
+          gte: new Date(nuovoReport.reportedAt)
+        },
+        id: {
+          not: id
+        }
+      },
+      orderBy: {
+        reportedAt: 'desc'
+      }
+    })
+
+    if (nuovoReportLatest) {
+      const blockingDeviceCompleteSkuBackup = await prismaClient.blockingDeviceCompleteSkuBackup.findFirst({
+        where: {
+          nuovoReportId: nuovoReportLatest.id
+        }
+      })
+
+      if (blockingDeviceCompleteSkuBackup === null) {
+        console.log(`[+] Backup table`)
+
+        const backupStatus = await prismaClient.nuovoReportLogProcess.create({
+          data: {
+            name: 'Backup of latest devices import',
+            type: 'backup',
+            nuovoReportId: id
+          }
+        })
+
+        await pgClient.query(`TRUNCATE "BlockingDeviceCompleteSkuBackup"`)
+        await pgClient.query(`INSERT INTO "BlockingDeviceCompleteSkuBackup" (SELECT * FROM "BlockingDeviceCompleteSku")`)
+
+        await prismaClient.nuovoReportLogProcess.update({
+          where: { id: backupStatus.id },
+          data: {
+            finishedAt: new Date(),
+          }
+        })
+      }
+    }
+
+    /* END STEP 0 */
 
     /* START STEP 1 */
 
@@ -360,6 +423,9 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
+    await pgClient.query(`TRUNCATE "BlockingDeviceComplete"`)
+    await pgClient.query(`TRUNCATE "BlockingDeviceCompleteSku"`)
+
     const query = `
       INSERT INTO "BlockingDeviceComplete"(
           "customerId",
@@ -367,6 +433,7 @@ export default class BlockingRepository implements IBlockingRepository {
           "imei",
           "serial",
           "locked",
+          "expectedLockStatus",
           "lockType",
           "status",
           "isActivated",
@@ -386,6 +453,8 @@ export default class BlockingRepository implements IBlockingRepository {
           "lastConnectedAt",
           "nextLockDate",
           "appVersion",
+          "gettingStartedClicked",
+          "additionalSetupCompleted",
           "customerEmail",
           "nuovoReportId",
           "enrolledOnOnlyDate",
@@ -447,28 +516,24 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     })
 
-    const nuovoReport = await prismaClient.nuovoReport.findUnique({
-      where: { id }
-    })
-
     const baseDate = nuovoReport?.reportedAt ? new Date(nuovoReport.reportedAt) : new Date()
     const lastWeekDate = new Date(baseDate.getTime() - (60 * 60 * 24 * 7 * 1000))
     const lastFortnightDate = new Date(baseDate.getTime() - (60 * 60 * 24 * 15 * 1000))
-    console.log({ baseDate })
-    console.log({ lastWeekDate })
-    console.log({ lastFortnightDate })
+    // console.log({ baseDate })
+    // console.log({ lastWeekDate })
+    // console.log({ lastFortnightDate })
 
     const nuovoReportConsolidatedData = []
 
-    const customers = await prismaClient.customer.findMany()
+    const customers = await prismaClient.customer.findMany({ orderBy: { name: 'asc' } })
     const totalCustomers = customers.length
 
     for (const [index, { name, email, skuStart, skuEnd }] of customers.entries()) {
       console.log(`[!] Customer ${index + 1}/${totalCustomers}: ` + email)
+      // console.log(`[+] SKU Start : ` + skuStart)
+      // console.log(`[+] SKU End   : ` + skuEnd)
 
-      if (skuStart && skuEnd) {
-        await pgClient.query(this.getCountOfSkuStartAndSkuEndQuery(name, email, skuStart, skuEnd))
-      }
+      await pgClient.query(this.getCountOfSkuStartAndSkuEndQuery(name, email, skuStart, skuEnd))
 
       for (const deviceType of deviceTypes) {
         // console.log(`[!] Device type : ` + deviceType)
@@ -622,9 +687,26 @@ export default class BlockingRepository implements IBlockingRepository {
       ...nuovoReportConsolidatedTotals._sum,
     }
 
+    const firstBlockingDeviceCompleteSku = await prismaClient.blockingDeviceCompleteSku.findFirst({
+      where: {
+        nuovoReportId: id
+      }
+    })
+
+    const firstBlockingDeviceCompleteSkuBackup = await prismaClient.blockingDeviceCompleteSkuBackup.findFirst({
+      where: {
+        nuovoReportId: id
+      }
+    })
+
+    const allowDownloadCustomerReport = (firstBlockingDeviceCompleteSku || firstBlockingDeviceCompleteSkuBackup) ? true : false
+
+    const extra = { allowDownloadCustomerReport }
+
     return {
       customers,
-      totals
+      totals,
+      extra
     }
   }
 
@@ -704,14 +786,24 @@ export default class BlockingRepository implements IBlockingRepository {
 
     XLSX.utils.sheet_add_aoa(workSheet, heading)
     XLSX.utils.sheet_add_json(workSheet, data, { origin: 'A2', skipHeader: true })
-    XLSX.utils.book_append_sheet(workBook, workSheet, 'Hoja1')
+    XLSX.utils.book_append_sheet(workBook, workSheet, 'Consolidado')
 
     const buffer = XLSX.write(workBook, { type: 'buffer', bookType: 'xlsx' })
 
-    return buffer
+    const nuovoReport = await prismaClient.nuovoReport.findUnique({
+      where: {
+        id
+      }
+    })
+
+    const reportDate = nuovoReport?.reportedAt?.toISOString()?.slice(0, 10)
+
+    const fileName = `Consolidado ${deviceType} - ${reportDate}.xlsx`
+
+    return { buffer, fileName }
   }
 
-  async getCustomerReportFile (deviceType: string | undefined, name: string): Promise<any> {
+  async getCustomerReportFile (id: string, name: string, deviceType: string | undefined): Promise<any> {
     let type = null
 
     if (deviceType === 'android') {
@@ -721,6 +813,26 @@ export default class BlockingRepository implements IBlockingRepository {
     } else if (deviceType === 'windows') {
       type = 'Windows Device'
     }
+
+    const firstBlockingDeviceCompleteSku = await prismaClient.blockingDeviceCompleteSku.findFirst({
+      where: {
+        nuovoReportId: id
+      }
+    })
+
+    const firstBlockingDeviceCompleteSkuBackup = await prismaClient.blockingDeviceCompleteSkuBackup.findFirst({
+      where: {
+        nuovoReportId: id
+      }
+    })
+
+    if (!firstBlockingDeviceCompleteSku && !firstBlockingDeviceCompleteSkuBackup) {
+      return
+    }
+
+    const sourceTable = firstBlockingDeviceCompleteSku
+      ? 'BlockingDeviceCompleteSku'
+      : 'BlockingDeviceCompleteSkuBackup'
 
     const { to: copyTo } = require('pg-copy-streams')
 
@@ -747,8 +859,10 @@ export default class BlockingRepository implements IBlockingRepository {
           "imei",
           "serial",
           "locked",
+          "expectedLockStatus",
           "lockType",
           "status",
+          "isActivated",
           "previousStatus",
           "previousStatusChangedOn",
           "make",
@@ -762,6 +876,11 @@ export default class BlockingRepository implements IBlockingRepository {
           "deletedOn",
           "activationDate",
           "billable",
+          "lastConnectedAt",
+          "nextLockDate",
+          "appVersion",
+          "gettingStartedClicked",
+          "additionalSetupCompleted",
           "billableText"
           ${customer?.sku3m ? `,"sku3mCounter"` : ''}
           ,"skuStartCounter",
@@ -771,8 +890,10 @@ export default class BlockingRepository implements IBlockingRepository {
         "imei",
         "serial",
         "locked",
+        "expectedLockStatus",
         "lockType",
         "status",
+        "isActivated",
         "previousStatus",
         "previousStatusChangedOn",
         "make",
@@ -786,13 +907,18 @@ export default class BlockingRepository implements IBlockingRepository {
         "deletedOn",
         "activationDate",
         "billable",
+        "lastConnectedAt",
+        "nextLockDate",
+        "appVersion",
+        "gettingStartedClicked",
+        "additionalSetupCompleted",
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
              ELSE 'Sin costo'
         END
         ${customer?.sku3m ? `,(SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
         ,"skuStartCounter",
         "skuEndCounter"
-      FROM "BlockingDeviceCompleteSku"
+      FROM "${sourceTable}"
       WHERE "customerEmail" = '${customer?.email}'
       ${type !== null ? `AND "type" = '${type}'` : ''}
     `
@@ -806,8 +932,10 @@ export default class BlockingRepository implements IBlockingRepository {
           "imei",
           "serial" AS "serial_no",
           "locked",
+          "expectedLockStatus" AS "expected_lock_status",
           "lockType" AS "lock_type",
           "status" AS "estado",
+          "isActivated" AS "is_activated",
           "previousStatus" AS "previous_status",
           "previousStatusChangedOn" AS "previous_status_changed_on",
           "make",
@@ -821,6 +949,11 @@ export default class BlockingRepository implements IBlockingRepository {
           "deletedOn" AS "deleted_on",
           "activationDate" AS "activation_date",
           "billable",
+          "lastConnectedAt" AS "last_connected_at",
+          "nextLockDate" AS "next_lock_date",
+          "appVersion" AS "app_version",
+          "gettingStartedClicked" AS "getting_started_clicked",
+          "additionalSetupCompleted" AS "additional_setup_completed",
           "billableText" AS "facturables"
           ${customer?.sku3m ? `,"sku3mCounter" AS "3m"` : ''}
           ,"skuStartCounter" AS "sku_start",
@@ -837,7 +970,17 @@ export default class BlockingRepository implements IBlockingRepository {
 
     await pgClient.end()
 
-    return filePath
+    const nuovoReport = await prismaClient.nuovoReport.findUnique({
+      where: {
+        id
+      }
+    })
+
+    const reportDate = nuovoReport?.reportedAt?.toISOString()?.slice(0, 10)
+
+    const fileName = `Reporte ${deviceType} - ${name} - ${reportDate}.csv`
+
+    return { filePath, fileName }
   }
 
   async listBlockingReport ({ perPage = 10, page = 0, q = '', pagination = true, fields = ['id', 'reportedAt', 'logProcess', 'logFile'], includeConsolidated = true }: ListBlockingReportDTO): Promise<Option<ListBlockingReportResponseDTO>> {
@@ -979,6 +1122,9 @@ export default class BlockingRepository implements IBlockingRepository {
           name: true,
           createdAt: true,
           finishedAt: true,
+        },
+        orderBy: {
+          createdAt: 'asc'
         }
       })
     }
@@ -990,6 +1136,9 @@ export default class BlockingRepository implements IBlockingRepository {
           originalName: true,
           mimeType: true,
           size: true
+        },
+        orderBy: {
+          createdAt: 'asc'
         }
       })
     }

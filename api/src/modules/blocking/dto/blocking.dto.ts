@@ -14,10 +14,8 @@ export interface PaginationFilterResponseDTO {
   data: any[]
 }
 
-
 export interface CreateBlockingReportDTO {
   files: Express.Multer.File[]
-  truncate: string
   reportedAt: string
 }
 
@@ -29,7 +27,6 @@ export interface ListBlockingReportDTO extends PaginationFilterDTO {
   fields?: string[]
   includeConsolidated?: boolean
 }
-
 
 // export interface ListBlockingReportResponseDTO extends PaginationFilterResponseDTO {
 //   data: Prisma.NuovoReportWhereInput[]

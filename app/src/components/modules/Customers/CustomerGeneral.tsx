@@ -38,6 +38,7 @@ interface Customer {
   sku3m: boolean
   skuHBMF: boolean
   skuHBMPRE: boolean
+  dbName: string
   products: Product[]
   contacts: Contact[]
 }

@@ -33,7 +33,7 @@ export default class BlockingService {
     return this.blockingRepository.getNuovoReportConsolidatedFile(id, deviceType);
   }
 
-  getCustomerReportFile (deviceType: string | undefined, name: string): Promise<any> {
-    return this.blockingRepository.getCustomerReportFile(deviceType, name);
+  getCustomerReportFile (id: string, name: string, deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getCustomerReportFile(id, name, deviceType);
   }
 }

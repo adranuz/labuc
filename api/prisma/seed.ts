@@ -79,7 +79,7 @@ const usersData: Prisma.UserCreateInput[] = [
   {
     name: 'Iván Moreno',
     email: 'ivan@equality.company',
-    password: hashSync('ivan'),
+    password: '$2a$10$.g0RQuzedcdF0ZQgMFSRi.OTrjjnsjSqNf42zdr5lv5M2cfFaJ/EO',
     roles: {
       connect: [
         { name: 'admin' },
@@ -87,112 +87,42 @@ const usersData: Prisma.UserCreateInput[] = [
     }
   },
   {
-    name: 'Liliana Rodríguez',
-    email: 'lili.rdz@equality.company',
-    password: hashSync('liliana'),
+    name: 'Lucy Núñez',
+    email: 'lucy@equality.company',
+    password: '$2a$08$oO3PUqgcqUnlkf1lsGMGAO079fYXqCNYBvkya/fD4nvjCk73MCx7q',
     roles: {
       connect: [
         { name: 'editor' },
-        { name: 'reader' },
+      ]
+    }
+  },
+  {
+    name: 'Estefanía Andrade',
+    email: 'estefania@equality.company',
+    password: '$2a$08$2BeG18IXA0KlLL9ZGzBsa.pcefCL69iViTTaAnrlo.8OK3mO.13F6',
+    roles: {
+      connect: [
+        { name: 'editor' },
+      ]
+    }
+  },
+  {
+    name: 'Luis Amaya',
+    email: 'luisamaya@equality.company',
+    password: '$2a$08$4KW.RtoX.CTa2HPRjsOo0.jV/DipRnkykkuepBavk5v5cD9OYs35a',
+    roles: {
+      connect: [
+        { name: 'editor' },
       ]
     }
   },
   {
     name: 'César León',
     email: 'cesar@equality.company',
-    password: hashSync('cesar'),
+    password: '$2a$08$NocbUewuLX4Yt3K3zppiMeigMjPonVKAjeEIc4fN5V8jyKr//lV6W',
     roles: {
       connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Jorge León',
-    email: 'jorge.leon@equality.company',
-    password: hashSync('jorge'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Iliana Sánchez',
-    email: 'iliana@equality.company',
-    password: hashSync('iliana'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Carlos Angeles ',
-    email: 'carlos.angeles@equality.company',
-    password: hashSync('carlos'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Felipe Mogro',
-    email: 'fmogro@equality.company',
-    password: hashSync('felipe'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Jesus Cansino',
-    email: 'jesus@equality.company',
-    password: hashSync('jesus'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'María Arteaga',
-    email: 'mc@equality.company',
-    password: hashSync('maria'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Monserrat Paredes',
-    email: 'monse@equality.company',
-    password: hashSync('monserrat'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
-      ]
-    }
-  },
-  {
-    name: 'Francisco Acevedo',
-    email: 'francisco@equality.company',
-    password: hashSync('francisco'),
-    roles: {
-      connect: [
-        { name: 'editor' },
-        { name: 'reader' },
+        { name: 'admin' },
       ]
     }
   },
@@ -225,7 +155,7 @@ const productsData: Prisma.ProductCreateInput[] = [
   },
 ]
 
-async function main() {
+async function main () {
   console.log(`[!] Start seeding ...`)
 
   console.log(`[+] Creating permissions`)
@@ -299,21 +229,22 @@ async function main() {
     const customerCreated = await prisma.customer.create({
       data: {
         customId: customer.cust_id,
-        name: customer.nombre || '',
-        email: customer.email || '',
-        country: customer.pais || '',
-        registeredName: customer.razon_social || '',
-        rfc: customer.rfc || '',
-        address: customer.d_fisc || '',
-        economicActivity: customer.giro || '',
-        status: customer.status || '',
-        sellerName: customer.vendedor || '',
-        sellerComments: customer.comentarios || '',
-        comissionTerm: customer.vigencia_comision || '',
-        percentageComissions: customer.porcentaje_comision || 0,
+        name: customer.nombre ?? '',
+        email: customer.email ?? '',
+        country: customer.pais ?? '',
+        registeredName: customer.razon_social ?? '',
+        rfc: customer.rfc ?? '',
+        address: customer.d_fisc ?? '',
+        economicActivity: customer.giro ?? '',
+        status: customer.status ?? '',
+        sellerName: customer.vendedor ?? '',
+        sellerComments: customer.comentarios ?? '',
+        comissionTerm: customer.vigencia_comision ?? '',
+        percentageComissions: customer.porcentaje_comision ?? 0,
         products: {
           connect: products
-        }
+        },
+        dbName: customer.db_name ? customer.db_name : '',
       }
     })
     console.log(`[-] created customer with id: ${customerCreated.id}`)
@@ -323,8 +254,8 @@ async function main() {
     if (customer?.nom_com && customer.nom_com.length > 0) {
       contacts.push(
         {
-          name: customer.nom_com || '',
-          email: customer?.email_com || '',
+          name: customer.nom_com ?? '',
+          email: customer?.email_com ?? '',
           type: 'com',
         }
       )
@@ -336,7 +267,7 @@ async function main() {
         let nameTec = ''
         if (customer?.nom_tec) {
           const namesTec = customer.nom_tec.split(',')
-          nameTec = namesTec[i] || customer.nom_tec
+          nameTec = namesTec[i] ?? customer.nom_tec
         }
         contacts.push(
           {

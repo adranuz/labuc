@@ -1,44 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { Paper } from '@mui/material'
 
 import { Toolbar } from '@/components/commons/Toolbar'
 import { NuovoReportLogFileTable } from './NuovoReportLogFileTable'
-import { API_URL } from '@/utils/constants'
-import { type LogFile } from '@/types/LogFile'
 import { LoadingContent } from '@/components/commons/LoadingContent'
+import { useBlockingStore } from '@/store/blocking'
 
 interface Props {
   id: string
 }
 
 export function NuovoReportLogFile ({ id }: Props) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [logFile, setLogFile] = useState<LogFile[]>([])
+  const [
+    getNuovoReportLogFile,
+    isLoading,
+    logFile
+  ] = useBlockingStore((state) => [
+    state.getNuovoReportLogFile,
+    state.getNuovoReportLogFileLoading,
+    state.nuovoReportLogFile
+  ])
 
   useEffect(() => {
-    getLogFile(id)
+    getNuovoReportLogFile(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const getLogFile = (id: string) => {
-    setIsLoading(true)
-
-    const url = new URL(`${API_URL}/blocking/reports/${id}/log`)
-
-    const params = {
-      type: 'file'
-    }
-
-    url.search = new URLSearchParams(params).toString()
-
-    fetch(url)
-      .then(async res => await res.json())
-      .then((data: LogFile[]) => {
-        setLogFile(data)
-      })
-      .finally(() => setIsLoading(false))
-  }
 
   return (
     <Paper variant='outlined' sx={{ width: '100%', mb: 2 }}>

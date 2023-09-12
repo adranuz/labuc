@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { Multer } from 'multer'
 import BlockingService from '../service/blocking.service'
-import { CreateBlockingReportInput, GetNuovoReportConsolidatedInput, GetCustomerReportInput, PaginationInput, CreateConsolidatedInput, GetNuovoReportInput, GetNuovoReportLogInput } from './blocking.schema'
+import { CreateBlockingReportInput, GetNuovoReportConsolidatedInput, GetCustomerReportInput, ListBlockingReportInput, CreateConsolidatedInput, GetNuovoReportInput, GetNuovoReportLogInput } from './blocking.schema'
 
 type File = Express.Multer.File
 
@@ -13,10 +13,10 @@ export default class BlockingController {
     res: Response
   ): Promise<unknown> => {
     const files = req.files as Express.Multer.File[]
-    const { truncate, reportedAt } = req.body
+    const { reportedAt } = req.body
 
     try {
-      const importedBlocking = await this.blockingService.createBlockingReport({ files, truncate, reportedAt })
+      const importedBlocking = await this.blockingService.createBlockingReport({ files, reportedAt })
 
       res.status(201).json(importedBlocking)
     } catch (err) {
@@ -86,11 +86,11 @@ export default class BlockingController {
       const { id } = req.params
       const { deviceType } = req.query
 
-      const reportBuffer = await this.blockingService.getNuovoReportConsolidatedFile(id, deviceType)
-      const currentDate = new Date().toISOString().split('T')[0]
-      res.attachment(`Consolidado ${deviceType} - ${currentDate}.xlsx`)
+      const { buffer, fileName } = await this.blockingService.getNuovoReportConsolidatedFile(id, deviceType)
+
+      res.attachment(fileName)
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
-      res.write(reportBuffer)
+      res.write(buffer)
       res.end()
     } catch (err) {
       console.log('Unable to get activation report file:', err)
@@ -106,18 +106,15 @@ export default class BlockingController {
   }
 
   getCustomerReportFile = async (
-    req: Request<{}, {}, {}, GetCustomerReportInput>,
+    req: Request<GetCustomerReportInput['params'], {}, {}, GetCustomerReportInput['query']>,
     res: Response
   ): Promise<unknown> => {
     try {
+      const { id, name } = req.params
+      const { deviceType } = req.query
+      const { filePath, fileName } = await this.blockingService.getCustomerReportFile(id, name, deviceType)
+
       const fs = require('node:fs')
-
-      const { deviceType, name } = req.query
-      const filePath = await this.blockingService.getCustomerReportFile(deviceType, name)
-
-      const currentDate = new Date().toISOString().split('T')[0]
-      const fileName = `Reporte ${deviceType} - ${name} - ${currentDate}.csv`
-
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
       res.download(filePath, fileName, (err) => {
         if (err) {
@@ -126,8 +123,6 @@ export default class BlockingController {
         fs.unlink(filePath, () => {
           console.log(`File ${filePath} was deleted`)
         })
-
-        // fs.unlinkSync(yourFilePath) // If you don't need callback
       })
     } catch (err) {
       console.log('Unable to get client report:', err)
@@ -143,7 +138,7 @@ export default class BlockingController {
   }
 
   listBlockingReport = async (
-    req: Request<{}, {}, {}, PaginationInput>,
+    req: Request<{}, {}, {}, ListBlockingReportInput>,
     res: Response
   ): Promise<unknown> => {
     try {

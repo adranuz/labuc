@@ -2,10 +2,10 @@ import prismaClient from '../../common/persistence/prisma-client'
 import { Prisma } from '@prisma/client'
 
 import Option from '../../common/types/Option.type'
-import { 
+import {
   // CreateCustomerDTO,
-  UpdateCustomerDTO, PublicCustomerDTO, PaginationFilterDTO, PublicCustomersDTO, PublicProductsDTO
- } from '../dto/customer.dto'
+  UpdateCustomerDTO, PublicCustomerDTO, PaginationFilterDTO, PublicCustomersDTO, PublicProductsDTO, ListCustomersDTO
+} from '../dto/customer.dto'
 import ICustomerRepository from '../service/ICustomerRepository'
 
 export default class CustomerRepository implements ICustomerRepository {
@@ -41,7 +41,7 @@ export default class CustomerRepository implements ICustomerRepository {
   //   }
   // }
 
-  async getCustomer(id: string): Promise<Option<PublicCustomerDTO>> {
+  async getCustomer (id: string): Promise<Option<PublicCustomerDTO>> {
     const foundCustomer = await prismaClient.customer.findUnique({
       where: { id },
       include: {
@@ -68,7 +68,7 @@ export default class CustomerRepository implements ICustomerRepository {
     return foundCustomer
   }
 
-  async updateCustomer(id: string, customer: UpdateCustomerDTO): Promise<Option<PublicCustomerDTO>> {
+  async updateCustomer (id: string, customer: UpdateCustomerDTO): Promise<Option<PublicCustomerDTO>> {
     const {
       customId,
       name,
@@ -89,7 +89,8 @@ export default class CustomerRepository implements ICustomerRepository {
       sku3m,
       skuHBMF,
       skuHBMPRE,
-     } = customer
+      dbName
+    } = customer
     const updatedCustomer = await prismaClient.customer.update({
       where: {
         id
@@ -117,6 +118,7 @@ export default class CustomerRepository implements ICustomerRepository {
         sku3m,
         skuHBMF,
         skuHBMPRE,
+        dbName
       },
       include: {
         products: {
@@ -138,7 +140,7 @@ export default class CustomerRepository implements ICustomerRepository {
     return updatedCustomer
   }
 
-  async deleteCustomer(id: string): Promise<PublicCustomerDTO> {
+  async deleteCustomer (id: string): Promise<PublicCustomerDTO> {
     const deletedCustomer = await prismaClient.customer.delete({
       where: {
         id
@@ -163,7 +165,7 @@ export default class CustomerRepository implements ICustomerRepository {
     return deletedCustomer
   }
 
-  async listCustomers({perPage = 10, page = 0, q: searchText = ''}: PaginationFilterDTO ): Promise<Option<PublicCustomersDTO>> {
+  async listCustomers ({ perPage = 10, page = 0, q: searchText = '', pagination = true, fields = [], hasProducts = [] }: ListCustomersDTO): Promise<Option<PublicCustomersDTO>> {
     const where: Prisma.CustomerWhereInput = {
       OR: [
         {
@@ -191,16 +193,50 @@ export default class CustomerRepository implements ICustomerRepository {
           }
         },
       ],
+      // products: hasProducts.length > 0
+      //   ? {
+      //     some: {
+      //       shortName: {
+      //         in: hasProducts
+      //       }
+      //     }
+      //   }
+      //   : undefined
+      AND:
+        hasProducts?.map(product => {
+          return {
+            products: {
+              some: {
+                shortName: product
+              }
+            }
+          }
+        }) ?? []
+      // {
+      //   products: {
+      //     some: {
+      //       shortName: hasProducts[0]
+      //     }
+      //   }
+      // },
+      // {
+      //   products: {
+      //     some: {
+      //       shortName: hasProducts[1]
+      //     }
+      //   }
+      // }
+
     }
-    
+
     const customersQuery = prismaClient.customer.findMany({
-      skip: Number(perPage) * Number(page),
-      take: Number(perPage),
+      skip: pagination ? perPage * page : undefined,
+      take: pagination ? perPage : undefined,
 
       where,
 
       orderBy: {
-        createdAt: 'asc'
+        name: 'asc'
       },
 
       select: {
@@ -237,20 +273,48 @@ export default class CustomerRepository implements ICustomerRepository {
       },
     })
 
-    const [customers, customersCount] = await prismaClient.$transaction([
-      customersQuery,
-      prismaClient.customer.count({ where }),
-    ])
+    if (pagination) {
+      const countQuery = prismaClient.customer.count({ where })
 
-    return {
-      total: customersCount,
-      page: Number(page),
-      perPage: Number(perPage),
-      data: customers
+      const [
+        customers,
+        total
+      ] = await prismaClient.$transaction([
+        customersQuery,
+        countQuery
+      ])
+
+      const data = fields.length > 0
+        ? customers.map((customer: any) => {
+          return Object.keys(customer).reduce((object: any, key: string) => {
+            if (fields.includes(key)) {
+              object[key] = customer[key];
+            }
+            return object;
+          }, {})
+        })
+        : customers
+
+      return { total, page, perPage, data }
     }
+
+    const [customers] = await prismaClient.$transaction([customersQuery])
+
+    const data = fields.length > 0
+      ? customers.map((customer: any) => {
+        return Object.keys(customer).reduce((object: any, key: string) => {
+          if (fields.includes(key)) {
+            object[key] = customer[key];
+          }
+          return object;
+        }, {})
+      })
+      : customers
+
+    return { data }
   }
 
-  async listProducts({perPage = 10, page = 0, q: searchText = ''}: PaginationFilterDTO ): Promise<Option<PublicProductsDTO>> {
+  async listProducts ({ perPage = 10, page = 0, q: searchText = '' }: PaginationFilterDTO): Promise<Option<PublicProductsDTO>> {
     const where: Prisma.ProductWhereInput = {
       OR: [
         {
@@ -267,7 +331,7 @@ export default class CustomerRepository implements ICustomerRepository {
         },
       ],
     }
-    
+
     const productsQuery = prismaClient.product.findMany({
       skip: Number(perPage) * Number(page),
       take: Number(perPage),

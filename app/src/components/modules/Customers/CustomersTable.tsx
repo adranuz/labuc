@@ -222,7 +222,7 @@ function CustomersTable () {
                         title={
                           row.products?.length === 0
                             ? <em>Sin productos</em>
-                            : row.products.map(device => (<div>{device.name}<br /></div>))
+                            : row.products?.map(device => (<div>{device.name}<br /></div>))
                         }
                         arrow
                       >
@@ -234,17 +234,17 @@ function CustomersTable () {
                     <Stack direction='row' spacing={0.5} justifyContent='center'>
                       <Tooltip title='Android'>
                         <AndroidIcon
-                          color={(row.devices.find(device => device === 'android')) ? 'primary' : 'disabled'}
+                          color={(row.devices?.find(device => device === 'android')) ? 'primary' : 'disabled'}
                         />
                       </Tooltip>
                       <Tooltip title='iOS'>
                         <AppleIcon
-                          color={(row.devices.find(device => device === 'ios')) ? 'primary' : 'disabled'}
+                          color={(row.devices?.find(device => device === 'ios')) ? 'primary' : 'disabled'}
                         />
                       </Tooltip>
                       <Tooltip title='Windows'>
                         <LaptopWindowsIcon
-                          color={(row.devices.find(device => device === 'windows')) ? 'primary' : 'disabled'}
+                          color={(row.devices?.find(device => device === 'windows')) ? 'primary' : 'disabled'}
                         />
                       </Tooltip>
                     </Stack>

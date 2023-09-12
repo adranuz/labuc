@@ -52,7 +52,8 @@ const customerSchema = object({
   skuEnd: string(),
   sku3m: z.boolean(),
   skuHBMF: z.boolean(),
-  skuHBMPRE: z.boolean()
+  skuHBMPRE: z.boolean(),
+  dbName: string()
 })
 
 interface Props {
@@ -86,6 +87,7 @@ interface Customer {
   sku3m: boolean
   skuHBMF: boolean
   skuHBMPRE: boolean
+  dbName: string
   products: Product[]
   contacts: Contact[]
 }

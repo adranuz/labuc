@@ -1,4 +1,4 @@
-import { CardContent, Checkbox, FormControl, FormControlLabel, FormLabel, FormHelperText, Grid, InputLabel, MenuItem, Select, CardHeader, Card, Stack, Typography } from '@mui/material'
+import { CardContent, Checkbox, FormControl, FormControlLabel, FormLabel, FormHelperText, Grid, InputLabel, MenuItem, Select, CardHeader, Card, Stack, Typography, TextField } from '@mui/material'
 
 import { Controller } from 'react-hook-form'
 
@@ -209,6 +209,27 @@ function CustomerProducts ({ productsList, products, readOnly, isLoading, contro
                 label='HBMPRE'
               />
             </FormControl>
+          </CardContent>
+        </Card>
+      </Grid>
+
+      <Grid item xs={12} md={6} lg={4}>
+        <Card variant='outlined' sx={{ height: '100%' }}>
+          <CardHeader
+            title={<Typography component='h1' variant='h6'>PAC</Typography>}
+            sx={{ pb: 0 }}
+          />
+          <CardContent>
+            <TextField
+              margin='normal'
+              fullWidth
+              size='small'
+              label='Nombre de la BD'
+              disabled={readOnly || isLoading}
+              error={!!errors.dbName?.message}
+              helperText={!!errors.dbName?.message && String(errors.dbName.message)}
+              {...register('dbName')}
+            />
           </CardContent>
         </Card>
       </Grid>

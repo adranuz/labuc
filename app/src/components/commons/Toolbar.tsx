@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import { Toolbar as ToolbarMui, IconButton, Typography, Box } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -12,12 +12,6 @@ interface Props {
 }
 
 export function Toolbar ({ title, colorTitle = 'inherit', pathRouteForBackButton, disableGutters = false, children }: Props) {
-  const navigate = useNavigate()
-
-  const handleClickBack = () => {
-    pathRouteForBackButton !== undefined && navigate(pathRouteForBackButton)
-  }
-
   return (
     <ToolbarMui disableGutters={disableGutters}>
       {
@@ -25,7 +19,8 @@ export function Toolbar ({ title, colorTitle = 'inherit', pathRouteForBackButton
           <IconButton
             size='large'
             color='inherit'
-            onClick={handleClickBack}
+            component={Link}
+            to={pathRouteForBackButton}
           >
             <ArrowBackIcon />
           </IconButton>
@@ -36,7 +31,7 @@ export function Toolbar ({ title, colorTitle = 'inherit', pathRouteForBackButton
         variant='h5'
         noWrap
         sx={
-          disableGutters
+          pathRouteForBackButton
             ? { flexGrow: 1, ml: 2 }
             : { flexGrow: 1 }
         }

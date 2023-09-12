@@ -8,12 +8,15 @@ const params = {
   }),
 }
 
+const pagination = object({
+  perPage: optional(coerce.number().positive()),
+  page: optional(coerce.number().nonnegative()),
+  q: optional(string()),
+  pagination: optional(z.enum(['true', 'false']).transform((value) => value === 'true')),
+})
+
 export const paginationFilterSchema = object({
-  query: object({
-    perPage: optional(coerce.number().positive()),
-    page: optional(coerce.number().nonnegative()),
-    q: optional(string()),
-  })
+  query: pagination,
 })
 
 // export const createCustomerSchema = object({
@@ -57,6 +60,13 @@ export const updateCustomerSchema = object({
       name: string({ required_error: 'Contact name is required' }),
       email: string({ required_error: 'Contact email is required' }),
     }).array(),
+    devices: string().array(),
+    skuStart: string(),
+    skuEnd: string(),
+    sku3m: z.boolean(),
+    skuHBMF: z.boolean(),
+    skuHBMPRE: z.boolean(),
+    dbName: string()
   }).partial()
 })
 
@@ -64,9 +74,19 @@ export const deleteCustomerSchema = object({
   ...params,
 })
 
+export const listCustomerSchema = object({
+  query: pagination.merge(
+    object({
+      fields: optional(z.enum(['id', 'name']).array()),
+      hasProducts: optional(z.enum(['credolab', 'lms', 'nuovo', 'protexion', 'pagos', 'entretenimiento']).array()),
+    })
+  )
+})
+
 export type PaginationInput = TypeOf<typeof paginationFilterSchema>['query']
 
 // export type CreateCustomerInput = TypeOf<typeof createCustomerSchema>['body']
 export type GetCustomerInput = TypeOf<typeof getCustomerSchema>['params']
 export type UpdateCustomerInput = TypeOf<typeof updateCustomerSchema>
-export type DeleteCustomerInput = TypeOf<typeof deleteCustomerSchema>['params'];
+export type DeleteCustomerInput = TypeOf<typeof deleteCustomerSchema>['params']
+export type ListCustomerInput = TypeOf<typeof listCustomerSchema>['query']

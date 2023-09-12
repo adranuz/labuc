@@ -1,7 +1,7 @@
 import { Container, Typography, Grid } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
-import InfoCard from './InfoCard'
+import { InfoCard } from './InfoCard'
 
 function Dashboard () {
   const navigate = useNavigate()
@@ -27,33 +27,36 @@ function Dashboard () {
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
       <Typography variant='h5' component='h2'>
-        Bienvenido { getAuthenticatedUserName() }
+        Bienvenido {getAuthenticatedUserName()}
       </Typography>
       <Typography variant='subtitle1' component='h2'>
-        { currentDate } 
+        {currentDate}
       </Typography>
-      
+
       <Grid container spacing={3} marginTop={1}>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <InfoCard
             title='Clientes activos'
             value='189'
-            buttonLabel='Ver clientes'
-            onClick={() => navigate('/admin/customers?q=Activo')} />
+            buttonLabel='Ver detalles'
+            onClick={() => navigate('/admin/customers?q=Activo')}
+          />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <InfoCard
             title='Clientes prospectos'
             value='3'
-            buttonLabel='Ver clientes'
-            onClick={() => navigate('/admin/customers?q=Prospecto')} />
+            buttonLabel='Ver detalles'
+            onClick={() => navigate('/admin/customers?q=Prospecto')}
+          />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <InfoCard
             title='Clientes suspendidos'
             value='1'
-            buttonLabel='Ver clientes'
-            onClick={() => navigate('/admin/customers?q=Suspendido')} />
+            buttonLabel='Ver detalles'
+            onClick={() => navigate('/admin/customers?q=Suspendido')}
+          />
         </Grid>
       </Grid>
     </Container>

@@ -19,7 +19,6 @@ export const paginationFilterSchema = object({
 
 export const createBlockingReportSchema = object({
   body: object({
-    truncate: string({ required_error: 'Truncate is required' }),
     reportedAt: string({ required_error: 'Reported at is required' }),
   }),
   files: z.any().array().min(1, { message: 'Se requiere al menos un archivo' }),
@@ -53,9 +52,12 @@ export const getNuovoReportConsolidatedSchema = object({
 })
 
 export const getCustomerReportSchema = object({
+  params: object({
+    id: string().uuid(),
+    name: string(),
+  }),
   query: object({
-    deviceType: optional(string({ required_error: 'Device type is required' })),
-    name: string({ required_error: 'Name is required' })
+    deviceType: optional(string({ required_error: 'Device type is required' }))
   })
 })
 
@@ -70,7 +72,6 @@ export type ListBlockingReportInput = TypeOf<typeof listBlockingReportSchema>['q
 export type GetNuovoReportInput = TypeOf<typeof getNuovoReportSchema>['params']
 export type GetNuovoReportLogInput = TypeOf<typeof getNuovoReportLogSchema>
 
-
-export type GetCustomerReportInput = TypeOf<typeof getCustomerReportSchema>['query']
+export type GetCustomerReportInput = TypeOf<typeof getCustomerReportSchema>
 export type GetNuovoReportConsolidatedInput = TypeOf<typeof getNuovoReportConsolidatedSchema>
 export type CreateConsolidatedInput = TypeOf<typeof createConsolidatedSchema>['params']

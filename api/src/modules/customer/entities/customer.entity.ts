@@ -17,4 +17,11 @@ export default interface CustomerEntity {
   percentageComissions: number
   products: Pick<Product, 'name' | 'shortName'>[]
   contacts: Pick<Contact, 'name' | 'email' | 'type'>[]
+  devices: string[]
+  skuStart: string | null
+  skuEnd: string | null
+  sku3m: boolean
+  skuHBMF: boolean
+  skuHBMPRE: boolean
+  dbName: string | null
 }

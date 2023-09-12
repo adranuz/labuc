@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, devtools } from 'zustand/middleware'
 
-export type AlertSeverity = 'success' | 'info' | 'warning' | 'error';
+export type AlertSeverity = 'success' | 'info' | 'warning' | 'error'
 
 interface State {
   snackbarOpen: boolean

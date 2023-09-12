@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
 
-export default class CustomerMiddleware {
-  constructor() {}
-  
+export default class BlockingMiddleware {
+  constructor() { }
+
   validate = (schema: AnyZodObject) => (req: Request, res: Response, next: NextFunction) => {
 
     try {
