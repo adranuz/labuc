@@ -256,7 +256,7 @@ export function PacScoreReport () {
             disabled={isLoading || isLoadingDownloadReport}
             loading={isLoadingDownloadReport}
           >
-            Descargar
+            Descargar (.csv)
           </LoadingButton>
         </Toolbar>
 

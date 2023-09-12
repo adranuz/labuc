@@ -264,7 +264,7 @@ export function PacCreditsReport () {
             disabled={isLoading || isLoadingDownloadReport}
             loading={isLoadingDownloadReport}
           >
-            Descargar
+            Descargar (.csv)
           </LoadingButton>
         </Toolbar>
 

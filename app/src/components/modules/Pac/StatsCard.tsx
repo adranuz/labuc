@@ -57,12 +57,6 @@ export function StatsCard ({ title, subtitle = '', value, isLoading, href }: Pro
           <>
             <Divider />
             <CardActions>
-              {/* <Box
-                sx={{
-                  display: 'flex',
-                  gap: 1
-                }}
-              > */}
               <Button
                 size='small'
                 endIcon={<ArrowForwardIcon />}
@@ -72,14 +66,6 @@ export function StatsCard ({ title, subtitle = '', value, isLoading, href }: Pro
               >
                 Ver detalles
               </Button>
-              {/* <Button
-                  size='small'
-                  endIcon={<DownloadIcon />}
-                  disabled={isLoading}
-                >
-                  Descargar
-                </Button> */}
-              {/* </Box> */}
             </CardActions>
           </>
         )
