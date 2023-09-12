@@ -42,7 +42,7 @@ export default class PacRepository implements IPacRepository {
     }
 
     try {
-      const report = await prismaClient.$queryRaw<PacCreditReport[]>`SELECT * FROM "PacCreditReport" WHERE client = ${dbName} LIMIT 1`
+      const report = await prismaClient.$queryRaw<PacCreditReport[]>`SELECT * FROM "PacCreditReport" WHERE client = ${dbName} ORDER BY created_at DESC LIMIT 1`
 
       if (report.length > 0) {
         const {
