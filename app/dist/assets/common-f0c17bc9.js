@@ -1,0 +1,1 @@
+import{c as r,d as n,p as o}from"./middleware-4d18dae0.js";const t=r()(n(o(a=>({snackbarOpen:!1,snackbarMessage:void 0,snackbarSeverity:void 0,showSnackbar:(e,s)=>{a({snackbarOpen:!0,snackbarMessage:e,snackbarSeverity:s},!1,"SHOW_SNACKBAR")},hideSnackbar:()=>{a({snackbarOpen:!1},!1,"HIDE_SNACKBAR")}}),{name:"common"})));export{t as u};

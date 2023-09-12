@@ -1,0 +1,1 @@
+import{j as t,s as o,O as s}from"./index-32292c13.js";import{l as e}from"./logo-e2569972.js";import{C as r}from"./Container-430f5354.js";function x(){return t.jsx(r,{maxWidth:"xs",children:t.jsxs(o,{sx:{display:"flex",flexDirection:"column",alignItems:"center"},children:[t.jsx(o,{component:"img",sx:{height:64,my:4},alt:"Logo",src:e}),t.jsx(s,{})]})})}export{x as default};
