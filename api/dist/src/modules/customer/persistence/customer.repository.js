@@ -60,7 +60,7 @@ class CustomerRepository {
         return foundCustomer;
     }
     async updateCustomer(id, customer) {
-        const { customId, name, email, country, registeredName, rfc, address, economicActivity, status, sellerComments, comissionTerm, percentageComissions, products, devices, skuStart, skuEnd, sku3m, skuHBMF, skuHBMPRE, } = customer;
+        const { customId, name, email, country, registeredName, rfc, address, economicActivity, status, sellerComments, comissionTerm, percentageComissions, products, devices, skuStart, skuEnd, sku3m, skuHBMF, skuHBMPRE, dbName } = customer;
         const updatedCustomer = await prisma_client_1.default.customer.update({
             where: {
                 id
@@ -88,6 +88,7 @@ class CustomerRepository {
                 sku3m,
                 skuHBMF,
                 skuHBMPRE,
+                dbName
             },
             include: {
                 products: {
@@ -130,7 +131,8 @@ class CustomerRepository {
         });
         return deletedCustomer;
     }
-    async listCustomers({ perPage = 10, page = 0, q: searchText = '' }) {
+    async listCustomers({ perPage = 10, page = 0, q: searchText = '', pagination = true, fields = [], hasProducts = [] }) {
+        var _a;
         const where = {
             OR: [
                 {
@@ -158,13 +160,45 @@ class CustomerRepository {
                     }
                 },
             ],
+            // products: hasProducts.length > 0
+            //   ? {
+            //     some: {
+            //       shortName: {
+            //         in: hasProducts
+            //       }
+            //     }
+            //   }
+            //   : undefined
+            AND: (_a = hasProducts === null || hasProducts === void 0 ? void 0 : hasProducts.map(product => {
+                return {
+                    products: {
+                        some: {
+                            shortName: product
+                        }
+                    }
+                };
+            })) !== null && _a !== void 0 ? _a : []
+            // {
+            //   products: {
+            //     some: {
+            //       shortName: hasProducts[0]
+            //     }
+            //   }
+            // },
+            // {
+            //   products: {
+            //     some: {
+            //       shortName: hasProducts[1]
+            //     }
+            //   }
+            // }
         };
         const customersQuery = prisma_client_1.default.customer.findMany({
-            skip: Number(perPage) * Number(page),
-            take: Number(perPage),
+            skip: pagination ? perPage * page : undefined,
+            take: pagination ? perPage : undefined,
             where,
             orderBy: {
-                createdAt: 'asc'
+                name: 'asc'
             },
             select: {
                 id: true,
@@ -199,16 +233,36 @@ class CustomerRepository {
                 },
             },
         });
-        const [customers, customersCount] = await prisma_client_1.default.$transaction([
-            customersQuery,
-            prisma_client_1.default.customer.count({ where }),
-        ]);
-        return {
-            total: customersCount,
-            page: Number(page),
-            perPage: Number(perPage),
-            data: customers
-        };
+        if (pagination) {
+            const countQuery = prisma_client_1.default.customer.count({ where });
+            const [customers, total] = await prisma_client_1.default.$transaction([
+                customersQuery,
+                countQuery
+            ]);
+            const data = fields.length > 0
+                ? customers.map((customer) => {
+                    return Object.keys(customer).reduce((object, key) => {
+                        if (fields.includes(key)) {
+                            object[key] = customer[key];
+                        }
+                        return object;
+                    }, {});
+                })
+                : customers;
+            return { total, page, perPage, data };
+        }
+        const [customers] = await prisma_client_1.default.$transaction([customersQuery]);
+        const data = fields.length > 0
+            ? customers.map((customer) => {
+                return Object.keys(customer).reduce((object, key) => {
+                    if (fields.includes(key)) {
+                        object[key] = customer[key];
+                    }
+                    return object;
+                }, {});
+            })
+            : customers;
+        return { data };
     }
     async listProducts({ perPage = 10, page = 0, q: searchText = '' }) {
         const where = {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCustomerSchema = exports.updateCustomerSchema = exports.getCustomerSchema = exports.paginationFilterSchema = void 0;
+exports.listCustomerSchema = exports.deleteCustomerSchema = exports.updateCustomerSchema = exports.getCustomerSchema = exports.paginationFilterSchema = void 0;
 const zod_1 = require("zod");
 const ISO_DATE_REGEX = /^\d{4}-[01]\d-[0-3]\d$|^$/;
 const params = {
@@ -8,12 +8,14 @@ const params = {
         id: (0, zod_1.string)().uuid(),
     }),
 };
+const pagination = (0, zod_1.object)({
+    perPage: (0, zod_1.optional)(zod_1.coerce.number().positive()),
+    page: (0, zod_1.optional)(zod_1.coerce.number().nonnegative()),
+    q: (0, zod_1.optional)((0, zod_1.string)()),
+    pagination: (0, zod_1.optional)(zod_1.z.enum(['true', 'false']).transform((value) => value === 'true')),
+});
 exports.paginationFilterSchema = (0, zod_1.object)({
-    query: (0, zod_1.object)({
-        perPage: (0, zod_1.optional)(zod_1.coerce.number().positive()),
-        page: (0, zod_1.optional)(zod_1.coerce.number().nonnegative()),
-        q: (0, zod_1.optional)((0, zod_1.string)()),
-    })
+    query: pagination,
 });
 // export const createCustomerSchema = object({
 //   body: object({
@@ -54,8 +56,21 @@ exports.updateCustomerSchema = (0, zod_1.object)({
             name: (0, zod_1.string)({ required_error: 'Contact name is required' }),
             email: (0, zod_1.string)({ required_error: 'Contact email is required' }),
         }).array(),
+        devices: (0, zod_1.string)().array(),
+        skuStart: (0, zod_1.string)(),
+        skuEnd: (0, zod_1.string)(),
+        sku3m: zod_1.z.boolean(),
+        skuHBMF: zod_1.z.boolean(),
+        skuHBMPRE: zod_1.z.boolean(),
+        dbName: (0, zod_1.string)()
     }).partial()
 });
 exports.deleteCustomerSchema = (0, zod_1.object)({
     ...params,
+});
+exports.listCustomerSchema = (0, zod_1.object)({
+    query: pagination.merge((0, zod_1.object)({
+        fields: (0, zod_1.optional)(zod_1.z.enum(['id', 'name']).array()),
+        hasProducts: (0, zod_1.optional)(zod_1.z.enum(['credolab', 'lms', 'nuovo', 'protexion', 'pagos', 'entretenimiento']).array()),
+    }))
 });

@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class BlockingController {
     constructor(blockingService) {
         this.blockingService = blockingService;
-        this.importBlocking = async (req, res) => {
+        this.createBlockingReport = async (req, res) => {
             const files = req.files;
-            const { truncate } = req.body;
+            const { reportedAt } = req.body;
             try {
-                const importedBlocking = await this.blockingService.importBlocking({ files, truncate });
+                const importedBlocking = await this.blockingService.createBlockingReport({ files, reportedAt });
                 res.status(201).json(importedBlocking);
             }
             catch (err) {
@@ -21,10 +21,11 @@ class BlockingController {
                 });
             }
         };
-        this.createActivationReport = async (req, res) => {
+        this.createBlockingDeviceConsolidatedReport = async (req, res) => {
             try {
-                const activationReportCreated = await this.blockingService.createActivationReport();
-                res.status(200).json(activationReportCreated);
+                const { id } = req.params;
+                const blockingDeviceConsolidatedReportCreated = await this.blockingService.createBlockingDeviceConsolidatedReport(id);
+                res.status(200).json(blockingDeviceConsolidatedReportCreated);
             }
             catch (err) {
                 console.log('Unable to create activation report:', err);
@@ -37,11 +38,12 @@ class BlockingController {
                 });
             }
         };
-        this.getActivationReport = async (req, res) => {
+        this.getBlockingDeviceConsolidatedReport = async (req, res) => {
             try {
+                const { id } = req.params;
                 const { deviceType } = req.query;
-                const activationReport = await this.blockingService.getActivationReport(deviceType);
-                res.status(200).json(activationReport);
+                const blockingDeviceConsolidatedReport = await this.blockingService.getBlockingDeviceConsolidatedReport(id, deviceType);
+                res.status(200).json(blockingDeviceConsolidatedReport);
             }
             catch (err) {
                 console.log('Unable to get activation report:', err);
@@ -54,14 +56,14 @@ class BlockingController {
                 });
             }
         };
-        this.getActivationReportFile = async (req, res) => {
+        this.getBlockingDeviceConsolidatedReportFile = async (req, res) => {
             try {
+                const { id } = req.params;
                 const { deviceType } = req.query;
-                const reportBuffer = await this.blockingService.getActivationReportFile(deviceType);
-                const currentDate = new Date().toISOString().split('T')[0];
-                res.attachment(`Consolidado ${deviceType} - ${currentDate}.xlsx`);
+                const { buffer, fileName } = await this.blockingService.getBlockingDeviceConsolidatedReportFile(id, deviceType);
+                res.attachment(fileName);
                 res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-                res.write(reportBuffer);
+                res.write(buffer);
                 res.end();
             }
             catch (err) {
@@ -77,11 +79,10 @@ class BlockingController {
         };
         this.getCustomerReportFile = async (req, res) => {
             try {
+                const { id, name } = req.params;
+                const { deviceType } = req.query;
+                const { filePath, fileName } = await this.blockingService.getCustomerReportFile(id, name, deviceType);
                 const fs = require('node:fs');
-                const { deviceType, name } = req.query;
-                const filePath = await this.blockingService.getCustomerReportFile(deviceType, name);
-                const currentDate = new Date().toISOString().split('T')[0];
-                const fileName = `Reporte ${deviceType} - ${name} - ${currentDate}.csv`;
                 res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
                 res.download(filePath, fileName, (err) => {
                     if (err) {
@@ -90,7 +91,6 @@ class BlockingController {
                     fs.unlink(filePath, () => {
                         console.log(`File ${filePath} was deleted`);
                     });
-                    // fs.unlinkSync(yourFilePath) // If you don't need callback
                 });
             }
             catch (err) {
@@ -104,18 +104,53 @@ class BlockingController {
                 });
             }
         };
-        this.listImports = async (req, res) => {
+        this.listBlockingReport = async (req, res) => {
             try {
-                const imports = await this.blockingService.listImports(req.query);
+                const imports = await this.blockingService.listBlockingReport(req.query);
                 res.status(200).json(imports);
             }
             catch (err) {
-                console.log('Unable to get imports:', err);
+                console.log('Unable to get list blocking report:', err);
                 return res.status(500).json({
                     error: {
                         code: 500,
                         message: 'Server Internal Error',
-                        details: 'Unable to get imports',
+                        details: 'Unable to get list blocking report',
+                    },
+                });
+            }
+        };
+        this.getBlockingDevice = async (req, res) => {
+            try {
+                const { id } = req.params;
+                const imports = await this.blockingService.getBlockingDevice(id);
+                res.status(200).json(imports);
+            }
+            catch (err) {
+                console.log('Unable to getBlockingDevice:', err);
+                return res.status(500).json({
+                    error: {
+                        code: 500,
+                        message: 'Server Internal Error',
+                        details: 'Unable to getBlockingDevice',
+                    },
+                });
+            }
+        };
+        this.getBlockingDeviceImportLog = async (req, res) => {
+            try {
+                const { id } = req.params;
+                const { type } = req.query;
+                const imports = await this.blockingService.getBlockingDeviceImportLog(id, type);
+                res.status(200).json(imports);
+            }
+            catch (err) {
+                console.log('Unable to get getBlockingDeviceImportLog:', err);
+                return res.status(500).json({
+                    error: {
+                        code: 500,
+                        message: 'Server Internal Error',
+                        details: 'Unable to getBlockingDeviceImportLog',
                     },
                 });
             }

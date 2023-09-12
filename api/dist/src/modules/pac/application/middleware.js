@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const zod_1 = require("zod");
-class CustomerMiddleware {
+class PacMiddleware {
     constructor() {
         this.validate = (schema) => (req, res, next) => {
             try {
@@ -32,4 +32,4 @@ class CustomerMiddleware {
         };
     }
 }
-exports.default = CustomerMiddleware;
+exports.default = PacMiddleware;

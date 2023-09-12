@@ -79,7 +79,7 @@ const usersData = [
     {
         name: 'Iván Moreno',
         email: 'ivan@equality.company',
-        password: (0, bcryptjs_1.hashSync)('ivan'),
+        password: '$2a$10$.g0RQuzedcdF0ZQgMFSRi.OTrjjnsjSqNf42zdr5lv5M2cfFaJ/EO',
         roles: {
             connect: [
                 { name: 'admin' },
@@ -87,112 +87,42 @@ const usersData = [
         }
     },
     {
-        name: 'Liliana Rodríguez',
-        email: 'lili.rdz@equality.company',
-        password: (0, bcryptjs_1.hashSync)('liliana'),
+        name: 'Lucy Núñez',
+        email: 'lucy@equality.company',
+        password: '$2a$08$oO3PUqgcqUnlkf1lsGMGAO079fYXqCNYBvkya/fD4nvjCk73MCx7q',
         roles: {
             connect: [
                 { name: 'editor' },
-                { name: 'reader' },
+            ]
+        }
+    },
+    {
+        name: 'Estefanía Andrade',
+        email: 'estefania@equality.company',
+        password: '$2a$08$2BeG18IXA0KlLL9ZGzBsa.pcefCL69iViTTaAnrlo.8OK3mO.13F6',
+        roles: {
+            connect: [
+                { name: 'editor' },
+            ]
+        }
+    },
+    {
+        name: 'Luis Amaya',
+        email: 'luisamaya@equality.company',
+        password: '$2a$08$4KW.RtoX.CTa2HPRjsOo0.jV/DipRnkykkuepBavk5v5cD9OYs35a',
+        roles: {
+            connect: [
+                { name: 'editor' },
             ]
         }
     },
     {
         name: 'César León',
         email: 'cesar@equality.company',
-        password: (0, bcryptjs_1.hashSync)('cesar'),
+        password: '$2a$08$NocbUewuLX4Yt3K3zppiMeigMjPonVKAjeEIc4fN5V8jyKr//lV6W',
         roles: {
             connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Jorge León',
-        email: 'jorge.leon@equality.company',
-        password: (0, bcryptjs_1.hashSync)('jorge'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Iliana Sánchez',
-        email: 'iliana@equality.company',
-        password: (0, bcryptjs_1.hashSync)('iliana'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Carlos Angeles ',
-        email: 'carlos.angeles@equality.company',
-        password: (0, bcryptjs_1.hashSync)('carlos'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Felipe Mogro',
-        email: 'fmogro@equality.company',
-        password: (0, bcryptjs_1.hashSync)('felipe'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Jesus Cansino',
-        email: 'jesus@equality.company',
-        password: (0, bcryptjs_1.hashSync)('jesus'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'María Arteaga',
-        email: 'mc@equality.company',
-        password: (0, bcryptjs_1.hashSync)('maria'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Monserrat Paredes',
-        email: 'monse@equality.company',
-        password: (0, bcryptjs_1.hashSync)('monserrat'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
-            ]
-        }
-    },
-    {
-        name: 'Francisco Acevedo',
-        email: 'francisco@equality.company',
-        password: (0, bcryptjs_1.hashSync)('francisco'),
-        roles: {
-            connect: [
-                { name: 'editor' },
-                { name: 'reader' },
+                { name: 'admin' },
             ]
         }
     },
@@ -224,6 +154,7 @@ const productsData = [
     },
 ];
 async function main() {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
     console.log(`[!] Start seeding ...`);
     console.log(`[+] Creating permissions`);
     for (const p of permisionsData) {
@@ -281,39 +212,41 @@ async function main() {
         const customerCreated = await prisma.customer.create({
             data: {
                 customId: customer.cust_id,
-                name: customer.nombre || '',
-                email: customer.email || '',
-                country: customer.pais || '',
-                registeredName: customer.razon_social || '',
-                rfc: customer.rfc || '',
-                address: customer.d_fisc || '',
-                economicActivity: customer.giro || '',
-                status: customer.status || '',
-                sellerName: customer.vendedor || '',
-                sellerComments: customer.comentarios || '',
-                comissionTerm: customer.vigencia_comision || '',
-                percentageComissions: customer.porcentaje_comision || 0,
+                name: (_a = customer.nombre) !== null && _a !== void 0 ? _a : '',
+                email: (_b = customer.email) !== null && _b !== void 0 ? _b : '',
+                country: (_c = customer.pais) !== null && _c !== void 0 ? _c : '',
+                registeredName: (_d = customer.razon_social) !== null && _d !== void 0 ? _d : '',
+                rfc: (_e = customer.rfc) !== null && _e !== void 0 ? _e : '',
+                address: (_f = customer.d_fisc) !== null && _f !== void 0 ? _f : '',
+                economicActivity: (_g = customer.giro) !== null && _g !== void 0 ? _g : '',
+                status: (_h = customer.status) !== null && _h !== void 0 ? _h : '',
+                sellerName: (_j = customer.vendedor) !== null && _j !== void 0 ? _j : '',
+                sellerComments: (_k = customer.comentarios) !== null && _k !== void 0 ? _k : '',
+                comissionTerm: (_l = customer.vigencia_comision) !== null && _l !== void 0 ? _l : '',
+                percentageComissions: (_m = customer.porcentaje_comision) !== null && _m !== void 0 ? _m : 0,
                 products: {
                     connect: products
-                }
+                },
+                dbName: customer.db_name ? customer.db_name : '',
             }
         });
         console.log(`[-] created customer with id: ${customerCreated.id}`);
         const contacts = [];
         if ((customer === null || customer === void 0 ? void 0 : customer.nom_com) && customer.nom_com.length > 0) {
             contacts.push({
-                name: customer.nom_com || '',
-                email: (customer === null || customer === void 0 ? void 0 : customer.email_com) || '',
+                name: (_o = customer.nom_com) !== null && _o !== void 0 ? _o : '',
+                email: (_p = customer === null || customer === void 0 ? void 0 : customer.email_com) !== null && _p !== void 0 ? _p : '',
                 type: 'com',
             });
         }
         if ((customer === null || customer === void 0 ? void 0 : customer.email_tec) && customer.email_tec.length > 0) {
             const emailsTec = customer.email_tec.split(',');
             emailsTec.forEach((email, i) => {
+                var _a;
                 let nameTec = '';
                 if (customer === null || customer === void 0 ? void 0 : customer.nom_tec) {
                     const namesTec = customer.nom_tec.split(',');
-                    nameTec = namesTec[i] || customer.nom_tec;
+                    nameTec = (_a = namesTec[i]) !== null && _a !== void 0 ? _a : customer.nom_tec;
                 }
                 contacts.push({
                     name: nameTec,

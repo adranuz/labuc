@@ -1,16 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const zod_1 = require("zod");
-class CustomerMiddleware {
+class BlockingMiddleware {
     constructor() {
         this.validate = (schema) => (req, res, next) => {
             try {
-                schema.parse({
+                const { params, query, body, files } = schema.parse({
                     params: req.params,
                     query: req.query,
                     body: req.body,
                     files: req.files,
                 });
+                req.params = params;
+                req.query = query;
+                req.body = body;
+                req.files = files;
                 next();
             }
             catch (err) {
@@ -28,4 +32,4 @@ class CustomerMiddleware {
         };
     }
 }
-exports.default = CustomerMiddleware;
+exports.default = BlockingMiddleware;

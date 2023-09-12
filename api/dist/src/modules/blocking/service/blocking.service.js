@@ -4,23 +4,29 @@ class BlockingService {
     constructor(blockingRepository) {
         this.blockingRepository = blockingRepository;
     }
-    importBlocking(data) {
-        return this.blockingRepository.importBlocking(data);
+    createBlockingReport(data) {
+        return this.blockingRepository.createBlockingReport(data);
     }
-    createActivationReport() {
-        return this.blockingRepository.createActivationReport();
+    listBlockingReport(data) {
+        return this.blockingRepository.listBlockingReport(data);
     }
-    getActivationReport(deviceType) {
-        return this.blockingRepository.getActivationReport(deviceType);
+    getBlockingDevice(id) {
+        return this.blockingRepository.getBlockingDevice(id);
     }
-    getActivationReportFile(deviceType) {
-        return this.blockingRepository.getActivationReportFile(deviceType);
+    getBlockingDeviceImportLog(id, type) {
+        return this.blockingRepository.getBlockingDeviceImportLog(id, type);
     }
-    getCustomerReportFile(deviceType, name) {
-        return this.blockingRepository.getCustomerReportFile(deviceType, name);
+    createBlockingDeviceConsolidatedReport(id) {
+        return this.blockingRepository.createBlockingDeviceConsolidatedReport(id);
     }
-    listImports(data) {
-        return this.blockingRepository.listImports(data);
+    getBlockingDeviceConsolidatedReport(id, deviceType) {
+        return this.blockingRepository.getBlockingDeviceConsolidatedReport(id, deviceType);
+    }
+    getBlockingDeviceConsolidatedReportFile(id, deviceType) {
+        return this.blockingRepository.getBlockingDeviceConsolidatedReportFile(id, deviceType);
+    }
+    getCustomerReportFile(id, name, deviceType) {
+        return this.blockingRepository.getCustomerReportFile(id, name, deviceType);
     }
 }
 exports.default = BlockingService;

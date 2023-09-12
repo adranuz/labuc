@@ -9,6 +9,7 @@ const user_provider_1 = __importDefault(require("./providers/user.provider"));
 const customer_provider_1 = __importDefault(require("./providers/customer.provider"));
 const blocking_provider_1 = __importDefault(require("./providers/blocking.provider"));
 const common_provider_1 = __importDefault(require("./providers/common.provider"));
+const pac_provider_1 = __importDefault(require("./providers/pac.provider"));
 const container = (0, awilix_1.createContainer)({
     injectionMode: awilix_1.InjectionMode.CLASSIC,
 });
@@ -17,4 +18,5 @@ const container = (0, awilix_1.createContainer)({
 (0, customer_provider_1.default)(container);
 (0, blocking_provider_1.default)(container);
 (0, common_provider_1.default)(container);
+(0, pac_provider_1.default)(container);
 exports.default = container;
