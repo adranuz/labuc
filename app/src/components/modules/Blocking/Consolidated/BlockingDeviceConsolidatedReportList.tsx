@@ -9,15 +9,15 @@ import { LoadingButton } from '@mui/lab'
 import DownloadIcon from '@mui/icons-material/Download'
 
 import { Toolbar } from '@/components/commons/Toolbar'
-import NuovoReportConsolidatedTable from './NuovoReportConsolidatedTable'
+import BlockingDeviceConsolidatedReportTable from './BlockingDeviceConsolidatedReportTable'
 import { API_URL } from '@/utils/constants'
 
-export function NuovoReportConsolidatedList () {
+export function BlockingDeviceConsolidatedReportList () {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingReportList, setIsLoadingReportList] = useState(false)
-  const [isLoadingDownloadNuovoReportConsolidated, setIsLoadingDownloadNuovoReportConsolidated] = useState(false)
+  const [isLoadingDownloadBlockingDeviceConsolidatedReport, setIsLoadingDownloadBlockingDeviceConsolidatedReport] = useState(false)
   const [data, setData] = useState<any>({})
   const [reportList, setReportList] = useState<any>({})
   const [selectedReport, setSelectedReport] = useState<any>({})
@@ -31,7 +31,7 @@ export function NuovoReportConsolidatedList () {
       reportedAt: selectedReport.reportedAt?.slice(0, 10),
       device: value
     })
-    getNuovoReportConsolidated(selectedReport.id, value)
+    getBlockingDeviceConsolidatedReport(selectedReport.id, value)
   }
 
   const handleChangeSelectedReport = (value: string) => {
@@ -39,7 +39,7 @@ export function NuovoReportConsolidatedList () {
     const foundReport = reportList?.data?.find(item => item.reportedAt?.slice(0, 10) === selectedDate)
     if (foundReport) {
       setSelectedReport(foundReport)
-      getNuovoReportConsolidated(foundReport.id, device)
+      getBlockingDeviceConsolidatedReport(foundReport.id, device)
       setSearchParams({
         reportedAt: selectedDate,
         device
@@ -78,7 +78,7 @@ export function NuovoReportConsolidatedList () {
         )
         if (foundReport) {
           setSelectedReport(foundReport)
-          getNuovoReportConsolidated(foundReport.id, device)
+          getBlockingDeviceConsolidatedReport(foundReport.id, device)
         }
       })
       .finally(() => {
@@ -86,7 +86,7 @@ export function NuovoReportConsolidatedList () {
       })
   }
 
-  const getNuovoReportConsolidated = (id: string, deviceType: string) => {
+  const getBlockingDeviceConsolidatedReport = (id: string, deviceType: string) => {
     setIsLoading(true)
 
     const url = new URL(`${API_URL}/blocking/reports/${id}/consolidated`)
@@ -105,8 +105,8 @@ export function NuovoReportConsolidatedList () {
       .finally(() => setIsLoading(false))
   }
 
-  const downloadNuovoReportConsolidated = (id: string, deviceType: string) => {
-    setIsLoadingDownloadNuovoReportConsolidated(true)
+  const downloadBlockingDeviceConsolidatedReport = (id: string, deviceType: string) => {
+    setIsLoadingDownloadBlockingDeviceConsolidatedReport(true)
 
     const url = new URL(`${API_URL}/blocking/reports/${id}/consolidated/download`)
 
@@ -135,12 +135,12 @@ export function NuovoReportConsolidatedList () {
         }).click()
       })
       .finally(() => {
-        setIsLoadingDownloadNuovoReportConsolidated(false)
+        setIsLoadingDownloadBlockingDeviceConsolidatedReport(false)
       })
   }
 
-  const handleClickDownloadNuovoReportConsolidated = () => {
-    downloadNuovoReportConsolidated(selectedReport?.id, device)
+  const handleClickDownloadBlockingDeviceConsolidatedReport = () => {
+    downloadBlockingDeviceConsolidatedReport(selectedReport?.id, device)
   }
 
   const getDisabledDates = (date) => {
@@ -193,9 +193,9 @@ export function NuovoReportConsolidatedList () {
               color='primary'
               loadingPosition='start'
               startIcon={<DownloadIcon />}
-              onClick={() => handleClickDownloadNuovoReportConsolidated()}
-              disabled={isLoading || isLoadingReportList || data?.nuovoReportConsolidated?.length === 0}
-              loading={isLoadingDownloadNuovoReportConsolidated}
+              onClick={() => handleClickDownloadBlockingDeviceConsolidatedReport()}
+              disabled={isLoading || isLoadingReportList || data?.blockingDeviceConsolidatedReport?.length === 0}
+              loading={isLoadingDownloadBlockingDeviceConsolidatedReport}
             >
               Descargar reporte (.xlsx)
             </LoadingButton>
@@ -207,7 +207,7 @@ export function NuovoReportConsolidatedList () {
             />
           )}
 
-          <NuovoReportConsolidatedTable
+          <BlockingDeviceConsolidatedReportTable
             id={selectedReport.id}
             data={data}
             deviceType={device}

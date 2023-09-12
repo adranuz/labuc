@@ -33,18 +33,18 @@ export const listBlockingReportSchema = object({
   )
 })
 
-export const getNuovoReportSchema = object({
+export const getBlockingDeviceSchema = object({
   ...params,
 })
 
-export const getNuovoReportLogSchema = object({
+export const getBlockingDeviceImportLogSchema = object({
   ...params,
   query: object({
     type: string()
   })
 })
 
-export const getNuovoReportConsolidatedSchema = object({
+export const getBlockingDeviceConsolidatedReportSchema = object({
   ...params,
   query: object({
     deviceType: optional(string({ required_error: 'Device type is required' }))
@@ -69,9 +69,9 @@ export type PaginationInput = TypeOf<typeof paginationFilterSchema>['query']
 
 export type CreateBlockingReportInput = TypeOf<typeof createBlockingReportSchema>
 export type ListBlockingReportInput = TypeOf<typeof listBlockingReportSchema>['query']
-export type GetNuovoReportInput = TypeOf<typeof getNuovoReportSchema>['params']
-export type GetNuovoReportLogInput = TypeOf<typeof getNuovoReportLogSchema>
+export type GetBlockingDeviceInput = TypeOf<typeof getBlockingDeviceSchema>['params']
+export type GetBlockingDeviceImportLogInput = TypeOf<typeof getBlockingDeviceImportLogSchema>
 
 export type GetCustomerReportInput = TypeOf<typeof getCustomerReportSchema>
-export type GetNuovoReportConsolidatedInput = TypeOf<typeof getNuovoReportConsolidatedSchema>
+export type GetBlockingDeviceConsolidatedReportInput = TypeOf<typeof getBlockingDeviceConsolidatedReportSchema>
 export type CreateConsolidatedInput = TypeOf<typeof createConsolidatedSchema>['params']

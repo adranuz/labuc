@@ -80,15 +80,15 @@ CREATE TABLE "Customer" (
 );
 
 -- CreateTable
-CREATE TABLE "NuovoReport" (
+CREATE TABLE "BlockingDeviceImport" (
     "id" TEXT NOT NULL,
     "reportedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "NuovoReport_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BlockingDeviceImport_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "NuovoReportInfo" (
+CREATE TABLE "BlockingDeviceVariable" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "key" TEXT NOT NULL,
@@ -96,35 +96,35 @@ CREATE TABLE "NuovoReportInfo" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "NuovoReportInfo_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BlockingDeviceVariable_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "NuovoReportLogProcess" (
+CREATE TABLE "BlockingDeviceImportLogProcess" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "finishedAt" TIMESTAMP(3),
-    "nuovoReportId" TEXT NOT NULL,
+    "blockingDeviceImportId" TEXT NOT NULL,
 
-    CONSTRAINT "NuovoReportLogProcess_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BlockingDeviceImportLogProcess_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "NuovoReportLogFile" (
+CREATE TABLE "BlockingDeviceImportLogFile" (
     "id" TEXT NOT NULL,
     "originalName" TEXT NOT NULL,
     "mimeType" TEXT NOT NULL,
     "size" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "nuovoReportId" TEXT NOT NULL,
+    "blockingDeviceImportId" TEXT NOT NULL,
 
-    CONSTRAINT "NuovoReportLogFile_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BlockingDeviceImportLogFile_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "NuovoReportConsolidated" (
+CREATE TABLE "BlockingDeviceConsolidatedReport" (
     "id" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
     "customerEmail" TEXT NOT NULL,
@@ -137,13 +137,13 @@ CREATE TABLE "NuovoReportConsolidated" (
     "deviceType" TEXT NOT NULL,
     "skuStartCounter" INTEGER NOT NULL,
     "skuEndCounter" INTEGER NOT NULL,
-    "nuovoReportId" TEXT NOT NULL,
+    "blockingDeviceImportId" TEXT NOT NULL,
 
-    CONSTRAINT "NuovoReportConsolidated_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "BlockingDeviceConsolidatedReport_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "BlockingDevice" (
+CREATE TABLE "BlockingDeviceDataRaw" (
     "customerId" TEXT,
     "deviceId" INTEGER NOT NULL,
     "imei" TEXT,
@@ -172,11 +172,11 @@ CREATE TABLE "BlockingDevice" (
     "gettingStartedClicked" TEXT,
     "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT,
-    "nuovoReportId" TEXT NOT NULL
+    "blockingDeviceImportId" TEXT NOT NULL
 );
 
 -- CreateTable
-CREATE TABLE "BlockingDeviceComplete" (
+CREATE TABLE "BlockingDeviceDataStepOne" (
     "customerId" TEXT,
     "deviceId" INTEGER NOT NULL,
     "imei" TEXT,
@@ -205,13 +205,13 @@ CREATE TABLE "BlockingDeviceComplete" (
     "gettingStartedClicked" TEXT,
     "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT NOT NULL,
-    "nuovoReportId" TEXT NOT NULL,
+    "blockingDeviceImportId" TEXT NOT NULL,
     "enrolledOnOnlyDate" DATE,
     "billableCalculated" BOOLEAN
 );
 
 -- CreateTable
-CREATE TABLE "BlockingDeviceCompleteSku" (
+CREATE TABLE "BlockingDeviceDataStepTwo" (
     "customerId" TEXT,
     "deviceId" INTEGER NOT NULL,
     "imei" TEXT,
@@ -240,7 +240,7 @@ CREATE TABLE "BlockingDeviceCompleteSku" (
     "gettingStartedClicked" TEXT,
     "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT NOT NULL,
-    "nuovoReportId" TEXT NOT NULL,
+    "blockingDeviceImportId" TEXT NOT NULL,
     "enrolledOnOnlyDate" DATE,
     "billableCalculated" BOOLEAN,
     "customerName" TEXT NOT NULL,
@@ -249,7 +249,7 @@ CREATE TABLE "BlockingDeviceCompleteSku" (
 );
 
 -- CreateTable
-CREATE TABLE "BlockingDeviceCompleteSkuBackup" (
+CREATE TABLE "BlockingDeviceDataStepTwoBackup" (
     "customerId" TEXT,
     "deviceId" INTEGER NOT NULL,
     "imei" TEXT,
@@ -278,7 +278,7 @@ CREATE TABLE "BlockingDeviceCompleteSkuBackup" (
     "gettingStartedClicked" TEXT,
     "additionalSetupCompleted" TEXT,
     "customerEmail" TEXT NOT NULL,
-    "nuovoReportId" TEXT NOT NULL,
+    "blockingDeviceImportId" TEXT NOT NULL,
     "enrolledOnOnlyDate" DATE,
     "billableCalculated" BOOLEAN,
     "customerName" TEXT NOT NULL,
@@ -287,7 +287,7 @@ CREATE TABLE "BlockingDeviceCompleteSkuBackup" (
 );
 
 -- CreateTable
-CREATE TABLE "BlockingDeviceReport" (
+CREATE TABLE "BlockingDeviceCustomerReport" (
     "deviceId" INTEGER NOT NULL,
     "imei" TEXT,
     "serial" TEXT,
@@ -388,43 +388,43 @@ CREATE INDEX "Contact_id_idx" ON "Contact"("id");
 CREATE INDEX "Customer_id_email_idx" ON "Customer"("id", "email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NuovoReport_reportedAt_key" ON "NuovoReport"("reportedAt");
+CREATE UNIQUE INDEX "BlockingDeviceImport_reportedAt_key" ON "BlockingDeviceImport"("reportedAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "NuovoReportInfo_name_key" ON "NuovoReportInfo"("name");
+CREATE UNIQUE INDEX "BlockingDeviceVariable_name_key" ON "BlockingDeviceVariable"("name");
 
 -- CreateIndex
-CREATE INDEX "NuovoReportConsolidated_customerName_deviceType_nuovoReport_idx" ON "NuovoReportConsolidated"("customerName", "deviceType", "nuovoReportId");
+CREATE INDEX "BlockingDeviceConsolidatedReport_customerName_deviceType_bl_idx" ON "BlockingDeviceConsolidatedReport"("customerName", "deviceType", "blockingDeviceImportId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "BlockingDevice_deviceId_key" ON "BlockingDevice"("deviceId");
+CREATE UNIQUE INDEX "BlockingDeviceDataRaw_deviceId_key" ON "BlockingDeviceDataRaw"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDevice_billable_status_enrolledOn_idx" ON "BlockingDevice"("billable", "status", "enrolledOn");
+CREATE INDEX "BlockingDeviceDataRaw_billable_status_enrolledOn_idx" ON "BlockingDeviceDataRaw"("billable", "status", "enrolledOn");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "BlockingDeviceComplete_deviceId_key" ON "BlockingDeviceComplete"("deviceId");
+CREATE UNIQUE INDEX "BlockingDeviceDataStepOne_deviceId_key" ON "BlockingDeviceDataStepOne"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDeviceComplete_type_customerEmail_enrolledOnOnlyDat_idx" ON "BlockingDeviceComplete"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated");
+CREATE INDEX "BlockingDeviceDataStepOne_type_customerEmail_enrolledOnOnly_idx" ON "BlockingDeviceDataStepOne"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "BlockingDeviceCompleteSku_deviceId_key" ON "BlockingDeviceCompleteSku"("deviceId");
+CREATE UNIQUE INDEX "BlockingDeviceDataStepTwo_deviceId_key" ON "BlockingDeviceDataStepTwo"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDeviceCompleteSku_type_customerEmail_enrolledOnOnly_idx" ON "BlockingDeviceCompleteSku"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated", "nuovoReportId");
+CREATE INDEX "BlockingDeviceDataStepTwo_type_customerEmail_enrolledOnOnly_idx" ON "BlockingDeviceDataStepTwo"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated", "blockingDeviceImportId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "BlockingDeviceCompleteSkuBackup_deviceId_key" ON "BlockingDeviceCompleteSkuBackup"("deviceId");
+CREATE UNIQUE INDEX "BlockingDeviceDataStepTwoBackup_deviceId_key" ON "BlockingDeviceDataStepTwoBackup"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDeviceCompleteSkuBackup_type_customerEmail_enrolled_idx" ON "BlockingDeviceCompleteSkuBackup"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated", "nuovoReportId");
+CREATE INDEX "BlockingDeviceDataStepTwoBackup_type_customerEmail_enrolled_idx" ON "BlockingDeviceDataStepTwoBackup"("type", "customerEmail", "enrolledOnOnlyDate", "billableCalculated", "blockingDeviceImportId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "BlockingDeviceReport_deviceId_key" ON "BlockingDeviceReport"("deviceId");
+CREATE UNIQUE INDEX "BlockingDeviceCustomerReport_deviceId_key" ON "BlockingDeviceCustomerReport"("deviceId");
 
 -- CreateIndex
-CREATE INDEX "BlockingDeviceReport_deviceId_idx" ON "BlockingDeviceReport"("deviceId");
+CREATE INDEX "BlockingDeviceCustomerReport_deviceId_idx" ON "BlockingDeviceCustomerReport"("deviceId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_RoleToUser_AB_unique" ON "_RoleToUser"("A", "B");
@@ -448,16 +448,16 @@ CREATE INDEX "_CustomerToProduct_B_index" ON "_CustomerToProduct"("B");
 ALTER TABLE "Contact" ADD CONSTRAINT "Contact_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NuovoReportLogProcess" ADD CONSTRAINT "NuovoReportLogProcess_nuovoReportId_fkey" FOREIGN KEY ("nuovoReportId") REFERENCES "NuovoReport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "BlockingDeviceImportLogProcess" ADD CONSTRAINT "BlockingDeviceImportLogProcess_blockingDeviceImportId_fkey" FOREIGN KEY ("blockingDeviceImportId") REFERENCES "BlockingDeviceImport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NuovoReportLogFile" ADD CONSTRAINT "NuovoReportLogFile_nuovoReportId_fkey" FOREIGN KEY ("nuovoReportId") REFERENCES "NuovoReport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "BlockingDeviceImportLogFile" ADD CONSTRAINT "BlockingDeviceImportLogFile_blockingDeviceImportId_fkey" FOREIGN KEY ("blockingDeviceImportId") REFERENCES "BlockingDeviceImport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "NuovoReportConsolidated" ADD CONSTRAINT "NuovoReportConsolidated_nuovoReportId_fkey" FOREIGN KEY ("nuovoReportId") REFERENCES "NuovoReport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "BlockingDeviceConsolidatedReport" ADD CONSTRAINT "BlockingDeviceConsolidatedReport_blockingDeviceImportId_fkey" FOREIGN KEY ("blockingDeviceImportId") REFERENCES "BlockingDeviceImport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "BlockingDevice" ADD CONSTRAINT "BlockingDevice_nuovoReportId_fkey" FOREIGN KEY ("nuovoReportId") REFERENCES "NuovoReport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "BlockingDeviceDataRaw" ADD CONSTRAINT "BlockingDeviceDataRaw_blockingDeviceImportId_fkey" FOREIGN KEY ("blockingDeviceImportId") REFERENCES "BlockingDeviceImport"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_RoleToUser" ADD CONSTRAINT "_RoleToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Role"("id") ON DELETE CASCADE ON UPDATE CASCADE;

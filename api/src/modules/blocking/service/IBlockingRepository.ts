@@ -4,11 +4,11 @@ import { CreateBlockingReportDTO, ListBlockingReportDTO, CreateBlockingReportRes
 export default interface IBlockingRepository {
   createBlockingReport (data: CreateBlockingReportDTO): Promise<CreateBlockingReportResponseDTO>;
   listBlockingReport (data: ListBlockingReportDTO): Promise<Option<ListBlockingReportResponseDTO>>;
-  getNuovoReport (id: string): Promise<any>;
-  getNuovoReportLog (id: string, type: string): Promise<any>;
+  getBlockingDevice (id: string): Promise<any>;
+  getBlockingDeviceImportLog (id: string, type: string): Promise<any>;
 
-  createNuovoReportConsolidated (id: string): Promise<any>;
-  getNuovoReportConsolidated (id: string, deviceType: string | undefined): Promise<any>;
-  getNuovoReportConsolidatedFile (id: string, deviceType: string | undefined): Promise<any>;
+  createBlockingDeviceConsolidatedReport (id: string): Promise<any>;
+  getBlockingDeviceConsolidatedReport (id: string, deviceType: string | undefined): Promise<any>;
+  getBlockingDeviceConsolidatedReportFile (id: string, deviceType: string | undefined): Promise<any>;
   getCustomerReportFile (id: string, name: string, deviceType: string | undefined): Promise<any>;
 }

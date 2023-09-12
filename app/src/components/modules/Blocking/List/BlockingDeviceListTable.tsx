@@ -6,35 +6,35 @@ import { LoadingButton } from '@mui/lab'
 
 import { BooleanIndicator } from '@/components/commons/BooleanIndicator'
 import { getTotalFilesSize, getTotalProcessingTime, localeDate, prettyBytes, prettySeconds } from '@/utils/utils'
-import { type NuovoReports } from '@/types/NuovoReport'
+import { type BlockingDevices } from '@/types/BlockingDevice'
 import { useBlockingStore } from '@/store/blocking'
 
 interface Props {
-  nuovoReportList: NuovoReports | undefined
+  blockingDeviceList: BlockingDevices | undefined
 }
 
-export function NuovoReportListTable ({ nuovoReportList }: Props) {
+export function BlockingDeviceListTable ({ blockingDeviceList }: Props) {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [
     filters,
     setFilters,
-    buildNuovoReportConsolidated,
-    buildNuovoReportConsolidatedLoading,
-    getNuovoReportList
+    buildBlockingDeviceConsolidatedReport,
+    buildBlockingDeviceConsolidatedReportLoading,
+    getBlockingDeviceList
   ] = useBlockingStore((state) => [
-    state.getNuovoReportListFilters,
-    state.setNuovoReportListFilters,
-    state.buildNuovoReportConsolidated,
-    state.buildNuovoReportConsolidatedLoading,
-    state.getNuovoReportList
+    state.getBlockingDeviceListFilters,
+    state.setBlockingDeviceListFilters,
+    state.buildBlockingDeviceConsolidatedReport,
+    state.buildBlockingDeviceConsolidatedReportLoading,
+    state.getBlockingDeviceList
   ])
 
   const handleChangePage = (_: unknown, page: number) => {
     const newFilters = { ...filters, page }
     setFilters(newFilters)
-    getNuovoReportList()
+    getBlockingDeviceList()
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
@@ -46,7 +46,7 @@ export function NuovoReportListTable ({ nuovoReportList }: Props) {
     const perPage = parseInt(event.target.value)
     const newFilters = { ...filters, perPage, page: 0 }
     setFilters(newFilters)
-    getNuovoReportList()
+    getBlockingDeviceList()
     setSearchParams({
       perPage: String(newFilters.perPage),
       page: String(newFilters.page),
@@ -57,7 +57,7 @@ export function NuovoReportListTable ({ nuovoReportList }: Props) {
   const handleClickBuildReport = (event: React.MouseEvent<unknown>, id: string) => {
     event.stopPropagation()
     event.preventDefault()
-    buildNuovoReportConsolidated({ id, refreshNuovoReportListOnSuccess: true })
+    buildBlockingDeviceConsolidatedReport({ id, refreshBlockingDeviceListOnSuccess: true })
   }
 
   const handleClickDetails = (id: string) => {
@@ -79,7 +79,7 @@ export function NuovoReportListTable ({ nuovoReportList }: Props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {nuovoReportList?.data.map(({ id, reportedAt, logProcess, logFile, isConsolidated, isLatestImported }) => (
+            {blockingDeviceList?.data.map(({ id, reportedAt, logProcess, logFile, isConsolidated, isLatestImported }) => (
               <TableRow
                 key={id}
                 selected={id === searchParams.get('selected')}
@@ -100,7 +100,7 @@ export function NuovoReportListTable ({ nuovoReportList }: Props) {
                       loadingPosition='start'
                       startIcon={<BuildIcon />}
                       onClick={(event) => handleClickBuildReport(event, id)}
-                      loading={buildNuovoReportConsolidatedLoading && isLatestImported}
+                      loading={buildBlockingDeviceConsolidatedReportLoading && isLatestImported}
                       disabled={isConsolidated || !isLatestImported}
                     >
                       Generar Consolidado
@@ -115,9 +115,9 @@ export function NuovoReportListTable ({ nuovoReportList }: Props) {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component='div'
-        count={nuovoReportList?.total ?? 0}
+        count={blockingDeviceList?.total ?? 0}
         rowsPerPage={filters.perPage}
-        page={nuovoReportList?.page ?? 0}
+        page={blockingDeviceList?.page ?? 0}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
         labelRowsPerPage='Filas por página:'
@@ -136,7 +136,7 @@ export function NuovoReportListTable ({ nuovoReportList }: Props) {
       />
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={buildNuovoReportConsolidatedLoading}
+        open={buildBlockingDeviceConsolidatedReportLoading}
       >
         <CircularProgress color='inherit' />
       </Backdrop>

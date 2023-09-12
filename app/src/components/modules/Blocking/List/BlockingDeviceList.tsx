@@ -4,25 +4,25 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { Box, LinearProgress, Paper, Button } from '@mui/material'
 import UploadIcon from '@mui/icons-material/Upload'
 
-import { NuovoReportListTable } from './NuovoReportListTable'
+import { BlockingDeviceListTable } from './BlockingDeviceListTable'
 import { Toolbar } from '@/components/commons/Toolbar'
 import { useBlockingStore } from '@/store/blocking'
 
-export function NuovoReportList () {
+export function BlockingDeviceList () {
   const [searchParams] = useSearchParams()
 
   const [
     filters,
     setFilters,
-    getNuovoReportList,
+    getBlockingDeviceList,
     isLoading,
-    nuovoReportList
+    blockingDeviceList
   ] = useBlockingStore((state) => [
-    state.getNuovoReportListFilters,
-    state.setNuovoReportListFilters,
-    state.getNuovoReportList,
-    state.getNuovoReportListLoading,
-    state.nuovoReportList
+    state.getBlockingDeviceListFilters,
+    state.setBlockingDeviceListFilters,
+    state.getBlockingDeviceList,
+    state.getBlockingDeviceListLoading,
+    state.blockingDeviceList
   ])
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export function NuovoReportList () {
       q: q ?? filters.q
     })
 
-    getNuovoReportList()
+    getBlockingDeviceList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -61,7 +61,7 @@ export function NuovoReportList () {
           />
         )}
 
-        <NuovoReportListTable nuovoReportList={nuovoReportList} />
+        <BlockingDeviceListTable blockingDeviceList={blockingDeviceList} />
       </Paper>
     </Box>
   )

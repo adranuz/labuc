@@ -1,4 +1,4 @@
-import { NuovoReport } from '@prisma/client'
+import { BlockingDevice } from '@prisma/client'
 
 export interface PaginationFilterDTO {
   perPage?: number;
@@ -29,11 +29,11 @@ export interface ListBlockingReportDTO extends PaginationFilterDTO {
 }
 
 // export interface ListBlockingReportResponseDTO extends PaginationFilterResponseDTO {
-//   data: Prisma.NuovoReportWhereInput[]
+//   data: Prisma.BlockingDeviceWhereInput[]
 // }
 
 export interface ListBlockingReportResponseDTO extends PaginationFilterResponseDTO {
-  data: Partial<NuovoReport>[] & {
+  data: Partial<BlockingDevice>[] & {
     isConsolidated?: boolean
     isLatestImported?: boolean
   }

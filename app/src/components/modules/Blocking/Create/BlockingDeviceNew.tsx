@@ -14,7 +14,7 @@ import { useCommonStore } from '@/store/common'
 import { API_URL } from '@/utils/constants'
 import { Toolbar } from '@/components/commons/Toolbar'
 
-export function NuovoReportNew () {
+export function BlockingDeviceNew () {
   const navigate = useNavigate()
   const showSnackbar = useCommonStore((state) => state.showSnackbar)
 

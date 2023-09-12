@@ -13,24 +13,24 @@ export default class BlockingService {
     return this.blockingRepository.listBlockingReport(data);
   }
 
-  getNuovoReport (id: string): Promise<any> {
-    return this.blockingRepository.getNuovoReport(id);
+  getBlockingDevice (id: string): Promise<any> {
+    return this.blockingRepository.getBlockingDevice(id);
   }
 
-  getNuovoReportLog (id: string, type: string): Promise<any> {
-    return this.blockingRepository.getNuovoReportLog(id, type);
+  getBlockingDeviceImportLog (id: string, type: string): Promise<any> {
+    return this.blockingRepository.getBlockingDeviceImportLog(id, type);
   }
 
-  createNuovoReportConsolidated (id: string): Promise<any> {
-    return this.blockingRepository.createNuovoReportConsolidated(id);
+  createBlockingDeviceConsolidatedReport (id: string): Promise<any> {
+    return this.blockingRepository.createBlockingDeviceConsolidatedReport(id);
   }
 
-  getNuovoReportConsolidated (id: string, deviceType: string | undefined): Promise<any> {
-    return this.blockingRepository.getNuovoReportConsolidated(id, deviceType);
+  getBlockingDeviceConsolidatedReport (id: string, deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getBlockingDeviceConsolidatedReport(id, deviceType);
   }
 
-  getNuovoReportConsolidatedFile (id: string, deviceType: string | undefined): Promise<any> {
-    return this.blockingRepository.getNuovoReportConsolidatedFile(id, deviceType);
+  getBlockingDeviceConsolidatedReportFile (id: string, deviceType: string | undefined): Promise<any> {
+    return this.blockingRepository.getBlockingDeviceConsolidatedReportFile(id, deviceType);
   }
 
   getCustomerReportFile (id: string, name: string, deviceType: string | undefined): Promise<any> {

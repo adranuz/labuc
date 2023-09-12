@@ -95,16 +95,16 @@ model Customer {
   @@index([id, email])
 }
 
-model NuovoReport {
-  id           String                    @id @default(uuid())
-  reportedAt   DateTime                  @unique
-  logProcess   NuovoReportLogProcess[]
-  logFile      NuovoReportLogFile[]
-  consolidated NuovoReportConsolidated[]
-  devices      BlockingDevice[]
+model BlockingDeviceImport {
+  id           String                             @id @default(uuid())
+  reportedAt   DateTime                           @unique
+  logProcess   BlockingDeviceImportLogProcess[]
+  logFile      BlockingDeviceImportLogFile[]
+  consolidated BlockingDeviceConsolidatedReport[]
+  devices      BlockingDeviceDataRaw[]
 }
 
-model NuovoReportInfo {
+model BlockingDeviceVariable {
   id        String   @id @default(uuid())
   name      String   @unique
   key       String
@@ -113,49 +113,49 @@ model NuovoReportInfo {
   updatedAt DateTime @updatedAt
 }
 
-model NuovoReportLogProcess {
-  id            String      @id @default(uuid())
-  name          String
-  type          String
+model BlockingDeviceImportLogProcess {
+  id                     String               @id @default(uuid())
+  name                   String
+  type                   String
   // status        String // in-progress | finished | error
-  createdAt     DateTime    @default(now())
-  finishedAt    DateTime?
-  nuovoReport   NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
-  nuovoReportId String
+  createdAt              DateTime             @default(now())
+  finishedAt             DateTime?
+  blockingDeviceImport   BlockingDeviceImport @relation(fields: [blockingDeviceImportId], references: [id], onDelete: Cascade)
+  blockingDeviceImportId String
 }
 
-model NuovoReportLogFile {
-  id            String      @id @default(uuid())
-  originalName  String
-  mimeType      String
-  size          Int
-  createdAt     DateTime    @default(now())
-  nuovoReport   NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
-  nuovoReportId String
+model BlockingDeviceImportLogFile {
+  id                     String               @id @default(uuid())
+  originalName           String
+  mimeType               String
+  size                   Int
+  createdAt              DateTime             @default(now())
+  blockingDeviceImport   BlockingDeviceImport @relation(fields: [blockingDeviceImportId], references: [id], onDelete: Cascade)
+  blockingDeviceImportId String
 }
 
-model NuovoReportConsolidated {
-  id                  String      @id @default(uuid())
-  customerName        String
-  customerEmail       String
-  billable            Int
-  nonBillable         Int
-  billableWeekly      Int
-  nonBillableWeekly   Int
-  billableBiweekly    Int
-  nonBillableBiweekly Int
-  deviceType          String
-  skuStartCounter     Int
-  skuEndCounter       Int
-  nuovoReport         NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
-  nuovoReportId       String
+model BlockingDeviceConsolidatedReport {
+  id                     String               @id @default(uuid())
+  customerName           String
+  customerEmail          String
+  billable               Int
+  nonBillable            Int
+  billableWeekly         Int
+  nonBillableWeekly      Int
+  billableBiweekly       Int
+  nonBillableBiweekly    Int
+  deviceType             String
+  skuStartCounter        Int
+  skuEndCounter          Int
+  blockingDeviceImport   BlockingDeviceImport @relation(fields: [blockingDeviceImportId], references: [id], onDelete: Cascade)
+  blockingDeviceImportId String
 
-  @@index([customerName, deviceType, nuovoReportId])
+  @@index([customerName, deviceType, blockingDeviceImportId])
 }
 
-model BlockingDevice {
+model BlockingDeviceDataRaw {
   customerId               String?
-  deviceId                 Int         @unique
+  deviceId                 Int                  @unique
   imei                     String?
   serial                   String?
   locked                   String?
@@ -182,13 +182,13 @@ model BlockingDevice {
   gettingStartedClicked    String?
   additionalSetupCompleted String?
   customerEmail            String?
-  nuovoReport              NuovoReport @relation(fields: [nuovoReportId], references: [id], onDelete: Cascade)
-  nuovoReportId            String
+  blockingDeviceImport     BlockingDeviceImport @relation(fields: [blockingDeviceImportId], references: [id], onDelete: Cascade)
+  blockingDeviceImportId   String
 
   @@index([billable, status, enrolledOn])
 }
 
-model BlockingDeviceComplete {
+model BlockingDeviceDataStepOne {
   customerId               String?
   deviceId                 Int       @unique
   imei                     String?
@@ -217,14 +217,14 @@ model BlockingDeviceComplete {
   gettingStartedClicked    String?
   additionalSetupCompleted String?
   customerEmail            String
-  nuovoReportId            String
+  blockingDeviceImportId   String
   enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
 
   @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
 }
 
-model BlockingDeviceCompleteSku {
+model BlockingDeviceDataStepTwo {
   customerId               String?
   deviceId                 Int       @unique
   imei                     String?
@@ -253,17 +253,17 @@ model BlockingDeviceCompleteSku {
   gettingStartedClicked    String?
   additionalSetupCompleted String?
   customerEmail            String
-  nuovoReportId            String
+  blockingDeviceImportId   String
   enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
   customerName             String
   skuStartCounter          Int?
   skuEndCounter            Int?
 
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, nuovoReportId])
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
 }
 
-model BlockingDeviceCompleteSkuBackup {
+model BlockingDeviceDataStepTwoBackup {
   customerId               String?
   deviceId                 Int       @unique
   imei                     String?
@@ -292,17 +292,17 @@ model BlockingDeviceCompleteSkuBackup {
   gettingStartedClicked    String?
   additionalSetupCompleted String?
   customerEmail            String
-  nuovoReportId            String
+  blockingDeviceImportId   String
   enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
   customerName             String
   skuStartCounter          Int?
   skuEndCounter            Int?
 
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, nuovoReportId])
+  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
 }
 
-model BlockingDeviceReport {
+model BlockingDeviceCustomerReport {
   deviceId                 Int       @unique
   imei                     String?
   serial                   String?

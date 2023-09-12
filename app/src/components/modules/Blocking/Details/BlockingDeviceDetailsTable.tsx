@@ -4,30 +4,30 @@ import { LoadingButton } from '@mui/lab'
 
 import { BooleanIndicator } from '@/components/commons/BooleanIndicator'
 import { getTotalFilesSize, getTotalProcessingTime, localeDate, prettyBytes, prettySeconds } from '@/utils/utils'
-import { type NuovoReport } from '@/types/NuovoReport'
+import { type BlockingDevice } from '@/types/BlockingDevice'
 import { useBlockingStore } from '@/store/blocking'
 
 interface Props {
-  nuovoReport: NuovoReport | undefined
+  blockingDevice: BlockingDevice | undefined
 }
 
-export function NuovoReportDetailsTable ({ nuovoReport }: Props) {
+export function BlockingDeviceDetailsTable ({ blockingDevice }: Props) {
   const [
-    buildNuovoReportConsolidated,
+    buildBlockingDeviceConsolidatedReport,
     isLoading
   ] = useBlockingStore((state) => [
-    state.buildNuovoReportConsolidated,
-    state.buildNuovoReportConsolidatedLoading
+    state.buildBlockingDeviceConsolidatedReport,
+    state.buildBlockingDeviceConsolidatedReportLoading
   ])
 
-  if (nuovoReport === undefined) return <></>
+  if (blockingDevice === undefined) return <></>
 
-  const { reportedAt, logFile, logProcess, isConsolidated } = nuovoReport
+  const { reportedAt, logFile, logProcess, isConsolidated } = blockingDevice
 
   const handleClickBuildReport = (event: React.MouseEvent<unknown>, id: string) => {
     event.stopPropagation()
     event.preventDefault()
-    buildNuovoReportConsolidated({ id, refreshNuovoReportOnSuccess: true })
+    buildBlockingDeviceConsolidatedReport({ id, refreshBlockingDeviceOnSuccess: true })
   }
 
   return (
@@ -58,7 +58,7 @@ export function NuovoReportDetailsTable ({ nuovoReport }: Props) {
                     color='primary'
                     loadingPosition='start'
                     startIcon={<BuildIcon />}
-                    onClick={(event) => handleClickBuildReport(event, nuovoReport.id)}
+                    onClick={(event) => handleClickBuildReport(event, blockingDevice.id)}
                     loading={isLoading}
                     disabled={isConsolidated}
                   >

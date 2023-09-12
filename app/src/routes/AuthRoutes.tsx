@@ -15,10 +15,10 @@ const CustomersPage = lazy(async () => await import('@/components/pages/Customer
 const CustomerCreatePage = lazy(async () => await import('@/components/pages/Customers/CustomerCreatePage'))
 const CustomerDetailsPage = lazy(async () => await import('@/components/pages/Customers/CustomerDetailsPage'))
 const CustomerEditPage = lazy(async () => await import('@/components/pages/Customers/CustomerEditPage'))
-const NuovoReportsPage = lazy(async () => await import('@/components/pages/Blocking/NuovoReportsPage'))
-const NuovoReportNewPage = lazy(async () => await import('@/components/pages/Blocking/NuovoReportNewPage'))
-const NuovoReportConsolidatedPage = lazy(async () => await import('@/components/pages/Blocking/NuovoReportConsolidatedPage'))
-const NuovoReportPage = lazy(async () => await import('@/components/pages/Blocking/NuovoReportPage'))
+const BlockingDevicesPage = lazy(async () => await import('@/components/pages/Blocking/BlockingDevicesPage'))
+const BlockingDeviceNewPage = lazy(async () => await import('@/components/pages/Blocking/BlockingDeviceNewPage'))
+const BlockingDeviceConsolidatedReportPage = lazy(async () => await import('@/components/pages/Blocking/BlockingDeviceConsolidatedReportPage'))
+const BlockingDevicePage = lazy(async () => await import('@/components/pages/Blocking/BlockingDevicePage'))
 const PacCreditsPage = lazy(async () => await import('@/components/pages/Pac/PacCreditsPage'))
 const PacCreditsReportPage = lazy(async () => await import('@/components/pages/Pac/PacCreditsReportPage'))
 const PacScorePage = lazy(async () => await import('@/components/pages/Pac/PacScorePage'))
@@ -101,21 +101,21 @@ const AuthRoutes = (): RouteObject => {
             children: [
               {
                 path: '',
-                element: <NuovoReportsPage />
+                element: <BlockingDevicesPage />
               },
               {
                 path: 'new',
-                element: <NuovoReportNewPage />
+                element: <BlockingDeviceNewPage />
               },
               {
                 path: ':id',
-                element: <NuovoReportPage />
+                element: <BlockingDevicePage />
               }
             ]
           },
           {
             path: 'consolidated',
-            element: <NuovoReportConsolidatedPage />
+            element: <BlockingDeviceConsolidatedReportPage />
           }
         ]
       },

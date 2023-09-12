@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { Multer } from 'multer'
 import BlockingService from '../service/blocking.service'
-import { CreateBlockingReportInput, GetNuovoReportConsolidatedInput, GetCustomerReportInput, ListBlockingReportInput, CreateConsolidatedInput, GetNuovoReportInput, GetNuovoReportLogInput } from './blocking.schema'
+import { CreateBlockingReportInput, GetBlockingDeviceConsolidatedReportInput, GetCustomerReportInput, ListBlockingReportInput, CreateConsolidatedInput, GetBlockingDeviceInput, GetBlockingDeviceImportLogInput } from './blocking.schema'
 
 type File = Express.Multer.File
 
@@ -32,15 +32,15 @@ export default class BlockingController {
     }
   }
 
-  createNuovoReportConsolidated = async (
+  createBlockingDeviceConsolidatedReport = async (
     req: Request<CreateConsolidatedInput, {}, {}>,
     res: Response
   ): Promise<unknown> => {
     try {
       const { id } = req.params
-      const nuovoReportConsolidatedCreated = await this.blockingService.createNuovoReportConsolidated(id)
+      const blockingDeviceConsolidatedReportCreated = await this.blockingService.createBlockingDeviceConsolidatedReport(id)
 
-      res.status(200).json(nuovoReportConsolidatedCreated)
+      res.status(200).json(blockingDeviceConsolidatedReportCreated)
     } catch (err) {
       console.log('Unable to create activation report:', err)
 
@@ -54,17 +54,17 @@ export default class BlockingController {
     }
   }
 
-  getNuovoReportConsolidated = async (
-    req: Request<GetNuovoReportConsolidatedInput['params'], {}, {}, GetNuovoReportConsolidatedInput['query']>,
+  getBlockingDeviceConsolidatedReport = async (
+    req: Request<GetBlockingDeviceConsolidatedReportInput['params'], {}, {}, GetBlockingDeviceConsolidatedReportInput['query']>,
     res: Response
   ): Promise<unknown> => {
     try {
       const { id } = req.params
       const { deviceType } = req.query
 
-      const nuovoReportConsolidated = await this.blockingService.getNuovoReportConsolidated(id, deviceType)
+      const blockingDeviceConsolidatedReport = await this.blockingService.getBlockingDeviceConsolidatedReport(id, deviceType)
 
-      res.status(200).json(nuovoReportConsolidated)
+      res.status(200).json(blockingDeviceConsolidatedReport)
     } catch (err) {
       console.log('Unable to get activation report:', err)
 
@@ -78,15 +78,15 @@ export default class BlockingController {
     }
   }
 
-  getNuovoReportConsolidatedFile = async (
-    req: Request<GetNuovoReportConsolidatedInput['params'], {}, {}, GetNuovoReportConsolidatedInput['query']>,
+  getBlockingDeviceConsolidatedReportFile = async (
+    req: Request<GetBlockingDeviceConsolidatedReportInput['params'], {}, {}, GetBlockingDeviceConsolidatedReportInput['query']>,
     res: Response
   ): Promise<unknown> => {
     try {
       const { id } = req.params
       const { deviceType } = req.query
 
-      const { buffer, fileName } = await this.blockingService.getNuovoReportConsolidatedFile(id, deviceType)
+      const { buffer, fileName } = await this.blockingService.getBlockingDeviceConsolidatedReportFile(id, deviceType)
 
       res.attachment(fileName)
       res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition')
@@ -158,47 +158,47 @@ export default class BlockingController {
     }
   }
 
-  getNuovoReport = async (
-    req: Request<GetNuovoReportInput, {}, {}>,
+  getBlockingDevice = async (
+    req: Request<GetBlockingDeviceInput, {}, {}>,
     res: Response
   ): Promise<unknown> => {
     try {
       const { id } = req.params
-      const imports = await this.blockingService.getNuovoReport(id)
+      const imports = await this.blockingService.getBlockingDevice(id)
 
       res.status(200).json(imports)
     } catch (err) {
-      console.log('Unable to getNuovoReport:', err)
+      console.log('Unable to getBlockingDevice:', err)
 
       return res.status(500).json({
         error: {
           code: 500,
           message: 'Server Internal Error',
-          details: 'Unable to getNuovoReport',
+          details: 'Unable to getBlockingDevice',
         },
       })
     }
   }
 
-  getNuovoReportLog = async (
-    req: Request<GetNuovoReportLogInput['params'], {}, {}, GetNuovoReportLogInput['query']>,
+  getBlockingDeviceImportLog = async (
+    req: Request<GetBlockingDeviceImportLogInput['params'], {}, {}, GetBlockingDeviceImportLogInput['query']>,
     res: Response
   ): Promise<unknown> => {
     try {
       const { id } = req.params
       const { type } = req.query
 
-      const imports = await this.blockingService.getNuovoReportLog(id, type)
+      const imports = await this.blockingService.getBlockingDeviceImportLog(id, type)
 
       res.status(200).json(imports)
     } catch (err) {
-      console.log('Unable to get getNuovoReportLog:', err)
+      console.log('Unable to get getBlockingDeviceImportLog:', err)
 
       return res.status(500).json({
         error: {
           code: 500,
           message: 'Server Internal Error',
-          details: 'Unable to getNuovoReportLog',
+          details: 'Unable to getBlockingDeviceImportLog',
         },
       })
     }

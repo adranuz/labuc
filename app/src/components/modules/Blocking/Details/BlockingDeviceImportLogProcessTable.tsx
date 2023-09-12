@@ -8,7 +8,7 @@ interface Props {
   logProcess: LogProcess[]
 }
 
-export function NuovoReportLogProcessTable ({ logProcess }: Props) {
+export function BlockingDeviceImportLogProcessTable ({ logProcess }: Props) {
   return (
     <TableContainer>
       <Table size='small'>

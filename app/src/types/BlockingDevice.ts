@@ -1,11 +1,11 @@
-export interface NuovoReports {
+export interface BlockingDevices {
   total: number
   page: number
   perPage: number
-  data: NuovoReport[]
+  data: BlockingDevice[]
 }
 
-export interface NuovoReport {
+export interface BlockingDevice {
   id: string
   reportedAt: Date
   logProcess: LogProcess[]

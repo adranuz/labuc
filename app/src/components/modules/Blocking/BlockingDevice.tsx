@@ -3,11 +3,11 @@ import { useParams } from 'react-router-dom'
 import { Container, Grid } from '@mui/material'
 
 import { Toolbar } from '@/components/commons/Toolbar'
-import { NuovoReportDetails } from './Details/NuovoReportDetails'
-import { NuovoReportLogProcess } from './Details/NuovoReportLogProcess'
-import { NuovoReportLogFile } from './Details/NuovoReportLogFile'
+import { BlockingDeviceDetails } from './Details/BlockingDeviceDetails'
+import { BlockingDeviceImportLogProcess } from './Details/BlockingDeviceImportLogProcess'
+import { BlockingDeviceImportLogFile } from './Details/BlockingDeviceImportLogFile'
 
-export function NuovoReport () {
+export function BlockingDevice () {
   const params = useParams()
   const { id } = params
 
@@ -20,13 +20,13 @@ export function NuovoReport () {
       />
       {id !== undefined && (
         <>
-          <NuovoReportDetails id={id} />
+          <BlockingDeviceDetails id={id} />
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
-              <NuovoReportLogProcess id={id} />
+              <BlockingDeviceImportLogProcess id={id} />
             </Grid>
             <Grid item xs={12} md={6}>
-              <NuovoReportLogFile id={id} />
+              <BlockingDeviceImportLogFile id={id} />
             </Grid>
           </Grid>
         </>

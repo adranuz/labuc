@@ -7,7 +7,7 @@ interface Props {
   logFile: LogFile[]
 }
 
-export function NuovoReportLogFileTable ({ logFile }: Props) {
+export function BlockingDeviceImportLogFileTable ({ logFile }: Props) {
   return (
     <TableContainer sx={{ maxHeight: 475 }}>
       <Table size='small'>

@@ -5,37 +5,37 @@ import { API_URL } from '@/utils/constants'
 import { type Filters } from '@/types/Filters'
 import { type LogFile } from '@/types/LogFile'
 import { type LogProcess } from '@/types/LogProcess'
-import { type NuovoReport, type NuovoReports } from '@/types/NuovoReport'
+import { type BlockingDevice, type BlockingDevices } from '@/types/BlockingDevice'
 import { useCommonStore } from '@/store/common'
 
 interface State {
-  nuovoReport: NuovoReport | undefined
-  getNuovoReportLoading: boolean
-  getNuovoReport: (id: string) => void
+  blockingDevice: BlockingDevice | undefined
+  getBlockingDeviceLoading: boolean
+  getBlockingDevice: (id: string) => void
 
-  nuovoReportList: NuovoReports | undefined
-  getNuovoReportListLoading: boolean
-  getNuovoReportListFilters: Filters
-  setNuovoReportListFilters: (filters: Filters) => void
-  getNuovoReportList: () => void
+  blockingDeviceList: BlockingDevices | undefined
+  getBlockingDeviceListLoading: boolean
+  getBlockingDeviceListFilters: Filters
+  setBlockingDeviceListFilters: (filters: Filters) => void
+  getBlockingDeviceList: () => void
 
-  nuovoReportLogFile: LogFile[]
-  getNuovoReportLogFileLoading: boolean
-  getNuovoReportLogFile: (id: string) => void
+  blockingDeviceImportLogFile: LogFile[]
+  getBlockingDeviceImportLogFileLoading: boolean
+  getBlockingDeviceImportLogFile: (id: string) => void
 
-  nuovoReportLogProcess: LogProcess[]
-  getNuovoReportLogProcessLoading: boolean
-  getNuovoReportLogProcess: (id: string) => void
+  blockingDeviceImportLogProcess: LogProcess[]
+  getBlockingDeviceImportLogProcessLoading: boolean
+  getBlockingDeviceImportLogProcess: (id: string) => void
 
-  buildNuovoReportConsolidatedLoading: boolean
-  buildNuovoReportConsolidated: ({
+  buildBlockingDeviceConsolidatedReportLoading: boolean
+  buildBlockingDeviceConsolidatedReport: ({
     id,
-    refreshNuovoReportOnSuccess,
-    refreshNuovoReportListOnSuccess
+    refreshBlockingDeviceOnSuccess,
+    refreshBlockingDeviceListOnSuccess
   }: {
     id: string,
-    refreshNuovoReportOnSuccess?: boolean,
-    refreshNuovoReportListOnSuccess?: boolean
+    refreshBlockingDeviceOnSuccess?: boolean,
+    refreshBlockingDeviceListOnSuccess?: boolean
   }) => void
 }
 
@@ -43,43 +43,43 @@ const showSnackbar = useCommonStore.getState().showSnackbar
 
 export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
   return {
-    nuovoReport: undefined,
-    getNuovoReportLoading: false,
-    nuovoReportList: undefined,
-    getNuovoReportListLoading: false,
-    getNuovoReportListFilters: {
+    blockingDevice: undefined,
+    getBlockingDeviceLoading: false,
+    blockingDeviceList: undefined,
+    getBlockingDeviceListLoading: false,
+    getBlockingDeviceListFilters: {
       perPage: 10,
       page: 0,
       q: ''
     },
-    nuovoReportLogFile: [],
-    getNuovoReportLogFileLoading: false,
-    nuovoReportLogProcess: [],
-    getNuovoReportLogProcessLoading: false,
-    buildNuovoReportConsolidatedLoading: false,
+    blockingDeviceImportLogFile: [],
+    getBlockingDeviceImportLogFileLoading: false,
+    blockingDeviceImportLogProcess: [],
+    getBlockingDeviceImportLogProcessLoading: false,
+    buildBlockingDeviceConsolidatedReportLoading: false,
 
-    getNuovoReport: (id: string) => {
-      set({ getNuovoReportLoading: true }, false, 'GET_NUOVO_REPORT_START')
+    getBlockingDevice: (id: string) => {
+      set({ getBlockingDeviceLoading: true }, false, 'GET_BLOCKING_DEVICE_START')
 
       const url = new URL(`${API_URL}/blocking/reports/${id}`)
 
       fetch(url)
         .then(async res => await res.json())
-        .then((data: NuovoReport) => {
-          set({ nuovoReport: data, getNuovoReportLoading: false }, false, 'GET_NUOVO_REPORT_SUCCESS')
+        .then((data: BlockingDevice) => {
+          set({ blockingDevice: data, getBlockingDeviceLoading: false }, false, 'GET_BLOCKING_DEVICE_SUCCESS')
         })
     },
 
-    setNuovoReportListFilters: (filters: Filters) => {
-      set({ getNuovoReportListFilters: filters }, false, 'SET_NUOVO_REPORT_LIST_FILTERS')
+    setBlockingDeviceListFilters: (filters: Filters) => {
+      set({ getBlockingDeviceListFilters: filters }, false, 'SET_BLOCKING_DEVICE_LIST_FILTERS')
     },
 
-    getNuovoReportList: () => {
-      set({ getNuovoReportListLoading: true }, false, 'GET_NUOVO_REPORT_LIST_START')
+    getBlockingDeviceList: () => {
+      set({ getBlockingDeviceListLoading: true }, false, 'GET_BLOCKING_DEVICE_LIST_START')
 
       const url = new URL(`${API_URL}/blocking/reports`)
 
-      const { perPage, page, q } = get().getNuovoReportListFilters
+      const { perPage, page, q } = get().getBlockingDeviceListFilters
 
       const params = {
         perPage: String(perPage),
@@ -91,13 +91,13 @@ export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
 
       fetch(url)
         .then(async res => await res.json())
-        .then((data: NuovoReports) => {
-          set({ nuovoReportList: data, getNuovoReportListLoading: false }, false, 'GET_NUOVO_REPORT_LIST_SUCCESS')
+        .then((data: BlockingDevices) => {
+          set({ blockingDeviceList: data, getBlockingDeviceListLoading: false }, false, 'GET_BLOCKING_DEVICE_LIST_SUCCESS')
         })
     },
 
-    getNuovoReportLogFile: (id: string) => {
-      set({ getNuovoReportLogFileLoading: true }, false, 'GET_NUOVO_REPORT_LOG_FILE_START')
+    getBlockingDeviceImportLogFile: (id: string) => {
+      set({ getBlockingDeviceImportLogFileLoading: true }, false, 'GET_BLOCKING_DEVICE_LOG_FILE_START')
 
       const url = new URL(`${API_URL}/blocking/reports/${id}/log`)
 
@@ -110,12 +110,12 @@ export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
       fetch(url)
         .then(async res => await res.json())
         .then((data: LogFile[]) => {
-          set({ nuovoReportLogFile: data, getNuovoReportLogFileLoading: false }, false, 'GET_NUOVO_REPORT_LOG_FILE_SUCCESS')
+          set({ blockingDeviceImportLogFile: data, getBlockingDeviceImportLogFileLoading: false }, false, 'GET_BLOCKING_DEVICE_LOG_FILE_SUCCESS')
         })
     },
 
-    getNuovoReportLogProcess: (id: string) => {
-      set({ getNuovoReportLogProcessLoading: true }, false, 'GET_NUOVO_REPORT_LOG_PROCESS_START')
+    getBlockingDeviceImportLogProcess: (id: string) => {
+      set({ getBlockingDeviceImportLogProcessLoading: true }, false, 'GET_BLOCKING_DEVICE_LOG_PROCESS_START')
 
       const url = new URL(`${API_URL}/blocking/reports/${id}/log`)
 
@@ -128,20 +128,20 @@ export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
       fetch(url)
         .then(async res => await res.json())
         .then((data: LogProcess[]) => {
-          set({ nuovoReportLogProcess: data, getNuovoReportLogProcessLoading: false }, false, 'GET_NUOVO_REPORT_LOG_PROCESS_SUCCESS')
+          set({ blockingDeviceImportLogProcess: data, getBlockingDeviceImportLogProcessLoading: false }, false, 'GET_BLOCKING_DEVICE_LOG_PROCESS_SUCCESS')
         })
     },
 
-    buildNuovoReportConsolidated: ({
+    buildBlockingDeviceConsolidatedReport: ({
       id,
-      refreshNuovoReportOnSuccess,
-      refreshNuovoReportListOnSuccess
+      refreshBlockingDeviceOnSuccess,
+      refreshBlockingDeviceListOnSuccess
     }: {
       id: string,
-      refreshNuovoReportOnSuccess?: boolean,
-      refreshNuovoReportListOnSuccess?: boolean
+      refreshBlockingDeviceOnSuccess?: boolean,
+      refreshBlockingDeviceListOnSuccess?: boolean
     }) => {
-      set({ buildNuovoReportConsolidatedLoading: true }, false, 'BUILD_NUOVO_REPORT_CONSOLIDATED_START')
+      set({ buildBlockingDeviceConsolidatedReportLoading: true }, false, 'BUILD_BLOCKING_DEVICE_CONSOLIDATED_START')
 
       const url = new URL(`${API_URL}/blocking/reports/${id}/consolidated`)
 
@@ -150,15 +150,15 @@ export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
       })
         .then(async res => await res.json())
         .then(() => {
-          set({ buildNuovoReportConsolidatedLoading: false }, false, 'BUILD_NUOVO_REPORT_CONSOLIDATED_SUCCESS')
+          set({ buildBlockingDeviceConsolidatedReportLoading: false }, false, 'BUILD_BLOCKING_DEVICE_CONSOLIDATED_SUCCESS')
           showSnackbar('El consolidado se generó correctamente', 'success')
-          if (refreshNuovoReportOnSuccess) {
-            get().getNuovoReport(id)
-            get().getNuovoReportLogFile(id)
-            get().getNuovoReportLogProcess(id)
+          if (refreshBlockingDeviceOnSuccess) {
+            get().getBlockingDevice(id)
+            get().getBlockingDeviceImportLogFile(id)
+            get().getBlockingDeviceImportLogProcess(id)
           }
-          if (refreshNuovoReportListOnSuccess) {
-            get().getNuovoReportList()
+          if (refreshBlockingDeviceListOnSuccess) {
+            get().getBlockingDeviceList()
           }
         })
     }

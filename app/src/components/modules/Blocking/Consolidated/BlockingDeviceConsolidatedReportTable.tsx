@@ -6,7 +6,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 
 import { API_URL } from '@/utils/constants'
 
-function NuovoReportConsolidatedTable ({ id, data, deviceType }) {
+function BlockingDeviceConsolidatedReportTable ({ id, data, deviceType }) {
   const [selectedRowIndex, setSelectedRowIndex] = useState<number | null>(null)
 
   const downloadCustomerReport = (id: string, deviceType: string, name: string, index: number) => {
@@ -118,4 +118,4 @@ function NuovoReportConsolidatedTable ({ id, data, deviceType }) {
   )
 }
 
-export default NuovoReportConsolidatedTable
+export default BlockingDeviceConsolidatedReportTable

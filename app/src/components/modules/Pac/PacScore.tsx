@@ -100,7 +100,7 @@ export function PacScore () {
               <Grid key={index} item xs={12} md={3}>
                 <StatsCard
                   title={name}
-                  subtitle={'Total al ' + localeDate({ date: statsDate, withTime: false })}
+                  subtitle={statsDate && 'Total al ' + localeDate({ date: statsDate, withTime: false })}
                   value={value}
                   isLoading={isLoading}
                   href={`/tool/pac/score/report?${buildQueryParams({ customerId: customer?.id, status })}`}
