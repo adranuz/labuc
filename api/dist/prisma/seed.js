@@ -126,6 +126,16 @@ const usersData = [
             ]
         }
     },
+    {
+        name: 'Josué Cobos',
+        email: 'josue.cobos@equality.company',
+        password: '$2a$08$broZgrgE2bxgv1mhrA7qZ.JTS.aDRLpEqbND1AiV42mupdYm1yBrG',
+        roles: {
+            connect: [
+                { name: 'admin' },
+            ]
+        }
+    },
 ];
 const productsData = [
     {

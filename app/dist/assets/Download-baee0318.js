@@ -1,0 +1,1 @@
+import{r,i as a}from"./createSvgIcon-08e146b5.js";import{j as t}from"./index-d910b063.js";var e={},o=a;Object.defineProperty(e,"__esModule",{value:!0});var u=e.default=void 0,v=o(r()),d=t,i=(0,v.default)((0,d.jsx)("path",{d:"M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"}),"Download");u=e.default=i;export{u as d};
