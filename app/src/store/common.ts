@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist, devtools } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 
 export type AlertSeverity = 'success' | 'info' | 'warning' | 'error'
 
@@ -11,7 +11,7 @@ interface State {
   hideSnackbar: () => void
 }
 
-export const useCommonStore = create<State>()(devtools(persist((set) => {
+export const useCommonStore = create<State>()(devtools((set) => {
   return {
     snackbarOpen: false,
     snackbarMessage: undefined,
@@ -27,4 +27,4 @@ export const useCommonStore = create<State>()(devtools(persist((set) => {
   }
 }, {
   name: 'common'
-})))
+}))

@@ -166,7 +166,7 @@ export function PacScoreReport () {
   }, [])
 
   return (
-    <Container sx={{ mt: 4, mb: 4 }}>
+    <Container sx={{ mt: 4, mb: 4 }} maxWidth='xl'>
       <Paper variant='outlined' sx={{ width: '100%', mb: 2, pt: 1, position: 'relative' }}>
         <Toolbar
           title='Reporte de score PAC'

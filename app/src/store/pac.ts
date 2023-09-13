@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist, devtools } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 
 import { API_URL } from '@/utils/constants'
 import { type Filters } from '@/types/Filters'
@@ -19,7 +19,7 @@ interface State {
   getScoreReportList: (id: string, status?: string, startDate?: string, endDate?: string) => void
 }
 
-export const usePacStore = create<State>()(devtools(persist((set, get) => {
+export const usePacStore = create<State>()(devtools((set, get) => {
   return {
     creditReportList: undefined,
     getCreditReportListLoading: false,
@@ -108,4 +108,4 @@ export const usePacStore = create<State>()(devtools(persist((set, get) => {
   }
 }, {
   name: 'pac'
-})))
+}))

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist, devtools } from 'zustand/middleware'
+import { devtools } from 'zustand/middleware'
 
 import { API_URL } from '@/utils/constants'
 import { type Filters } from '@/types/Filters'
@@ -41,7 +41,7 @@ interface State {
 
 const showSnackbar = useCommonStore.getState().showSnackbar
 
-export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
+export const useBlockingStore = create<State>()(devtools((set, get) => {
   return {
     blockingDevice: undefined,
     getBlockingDeviceLoading: false,
@@ -165,4 +165,4 @@ export const useBlockingStore = create<State>()(devtools(persist((set, get) => {
   }
 }, {
   name: 'blocking'
-})))
+}))
