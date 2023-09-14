@@ -1,7 +1,9 @@
 import { hashSync } from 'bcryptjs'
 import { Prisma, PrismaClient } from '@prisma/client'
 
-import customers from './data/customers'
+// import customers from './data/customers'
+
+import customers from './data/customers.json'
 
 const prisma = new PrismaClient()
 
@@ -215,98 +217,46 @@ async function main () {
   console.log(`[+] Creating customers`)
 
   for (const customer of customers) {
-    const products = []
-
-    if (customer.credolab === 1) {
-      products.push({ shortName: 'credolab' })
-    }
-    if (customer.lms === 1) {
-      products.push({ shortName: 'lms' },)
-    }
-    if (customer.nuovo === 1) {
-      products.push({ shortName: 'nuovo' })
-    }
-    if (customer.protexion === 1) {
-      products.push({ shortName: 'protexion' })
-    }
-    if (customer.pagos === 1) {
-      products.push({ shortName: 'pagos' })
-    }
-    if (customer.entretenimiento === 1) {
-      products.push({ shortName: 'entretenimiento' })
-    }
+    const {
+      customId, name, email, country, registeredName, rfc, address, economicActivity, status, sellerName, sellerComments, comissionTerm, percentageComissions, devices, skuStart, skuEnd, sku3m, skuHBMF, skuHBMPRE, dbName, contacts, products
+    } = customer
 
     const customerCreated = await prisma.customer.create({
       data: {
-        customId: customer.cust_id,
-        name: customer.nombre ?? '',
-        email: customer.email ?? '',
-        country: customer.pais ?? '',
-        registeredName: customer.razon_social ?? '',
-        rfc: customer.rfc ?? '',
-        address: customer.d_fisc ?? '',
-        economicActivity: customer.giro ?? '',
-        status: customer.status ?? '',
-        sellerName: customer.vendedor ?? '',
-        sellerComments: customer.comentarios ?? '',
-        comissionTerm: customer.vigencia_comision ?? '',
-        percentageComissions: customer.porcentaje_comision ?? 0,
+        customId,
+        name,
+        email,
+        country,
+        registeredName,
+        rfc,
+        address,
+        economicActivity,
+        status,
+        sellerName,
+        sellerComments,
+        comissionTerm,
+        percentageComissions,
+        devices,
+        skuStart,
+        skuEnd,
+        sku3m,
+        skuHBMF,
+        skuHBMPRE,
+        dbName,
+        contacts: {
+          create: contacts
+        },
         products: {
           connect: products
-        },
-        dbName: customer.db_name ? customer.db_name : '',
+        }
       }
     })
     console.log(`[-] created customer with id: ${customerCreated.id}`)
-
-    const contacts = []
-
-    if (customer?.nom_com && customer.nom_com.length > 0) {
-      contacts.push(
-        {
-          name: customer.nom_com ?? '',
-          email: customer?.email_com ?? '',
-          type: 'com',
-        }
-      )
-    }
-
-    if (customer?.email_tec && customer.email_tec.length > 0) {
-      const emailsTec = customer.email_tec.split(',')
-      emailsTec.forEach((email, i) => {
-        let nameTec = ''
-        if (customer?.nom_tec) {
-          const namesTec = customer.nom_tec.split(',')
-          nameTec = namesTec[i] ?? customer.nom_tec
-        }
-        contacts.push(
-          {
-            name: nameTec,
-            email: email,
-            type: 'tec',
-          }
-        )
-      })
-    }
-
-    for (const contactData of contacts) {
-      const contact = await prisma.contact.create({
-        data: {
-          name: contactData.name,
-          email: contactData.email,
-          type: contactData.type,
-          customerId: customerCreated.id,
-        }
-      })
-      console.log(`[-] created contact with id: ${contact.id}`)
-    }
-
   }
 
   console.log(`[+] All customers created successfully`)
 
   console.log(`[!] Seeding finished.`)
-
 }
 
 main()
