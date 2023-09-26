@@ -602,8 +602,6 @@ export default class BlockingRepository implements IBlockingRepository {
       }
     }
 
-    await pgClient.end()
-
     await prismaClient.blockingDeviceConsolidatedReport.createMany({
       data: blockingDeviceConsolidatedReportData,
     })
@@ -616,6 +614,50 @@ export default class BlockingRepository implements IBlockingRepository {
     })
 
     /* END STEP 3 */
+
+    /* START STEP 4 */
+
+    console.log(`[!] STEP 4: Get consolidated history`)
+
+    const getConsolidatedHistoryStatus = await prismaClient.blockingDeviceImportLogProcess.create({
+      data: {
+        name: 'Get consolidated history',
+        type: 'get-consolidated-history',
+        blockingDeviceImportId: id
+      }
+    })
+
+    await pgClient.query(`TRUNCATE "BlockingDeviceConsolidatedHistory" RESTART IDENTITY;
+    `)
+
+    const queryConsolidateHistory = `
+      INSERT INTO "BlockingDeviceConsolidatedHistory"(
+          "customerName",
+          "enrolldeDate",
+          "billableDelta"
+        )
+      SELECT "customerName",
+        "enrolledOnOnlyDate",
+        COUNT("deviceId")
+      FROM "BlockingDeviceDataStepTwo"
+      WHERE "billableCalculated" IS TRUE
+      GROUP BY "customerName",
+        "enrolledOnOnlyDate"
+      ORDER BY "enrolledOnOnlyDate" ASC
+    `
+
+    await pgClient.query(queryConsolidateHistory)
+
+    await prismaClient.blockingDeviceImportLogProcess.update({
+      where: { id: getConsolidatedHistoryStatus.id },
+      data: {
+        finishedAt: new Date(),
+      }
+    })
+
+    /* END STEP 4 */
+
+    await pgClient.end()
 
     return {
       status: 'success'

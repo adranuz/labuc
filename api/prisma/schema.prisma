@@ -153,6 +153,13 @@ model BlockingDeviceConsolidatedReport {
   @@index([customerName, deviceType, blockingDeviceImportId])
 }
 
+model BlockingDeviceConsolidatedHistory {
+  id            Int       @id @default(autoincrement())
+  customerName  String
+  enrolldeDate  DateTime? @db.Date
+  billableDelta Int
+}
+
 model BlockingDeviceDataRaw {
   customerId               String?
   deviceId                 Int                  @unique
@@ -260,7 +267,7 @@ model BlockingDeviceDataStepTwo {
   skuStartCounter          Int?
   skuEndCounter            Int?
 
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
+  @@index([type, customerName, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
 }
 
 model BlockingDeviceDataStepTwoBackup {
