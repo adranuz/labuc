@@ -1,8 +1,6 @@
 import { hashSync } from 'bcryptjs'
 import { Prisma, PrismaClient } from '@prisma/client'
 
-// import customers from './data/customers'
-
 import customers from './data/customers.json'
 
 const prisma = new PrismaClient()
