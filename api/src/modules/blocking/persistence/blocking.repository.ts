@@ -168,6 +168,7 @@ export default class BlockingRepository implements IBlockingRepository {
               "deletedOn",
               "activationDate",
               "billable",
+              "billedDate",
               "lastConnectedAt",
               "nextLockDate",
               "appVersion",
@@ -183,9 +184,7 @@ export default class BlockingRepository implements IBlockingRepository {
 
         console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`)
       } catch (error) {
-        console.log('//////////')
         console.log(error)
-        console.log('//////////')
       } finally {
         try {
           fs.unlinkSync(file.path)
@@ -306,6 +305,7 @@ export default class BlockingRepository implements IBlockingRepository {
             "blockingDeviceImportId",
             "enrolledOnOnlyDate",
             "billableCalculated",
+            "billedDate",
             "customerName",
             "skuStartCounter",
             "skuEndCounter"
@@ -456,6 +456,7 @@ export default class BlockingRepository implements IBlockingRepository {
           "additionalSetupCompleted",
           "customerEmail",
           "blockingDeviceImportId",
+          "billedDate",
           "enrolledOnOnlyDate",
           "billableCalculated"
         )
@@ -925,7 +926,8 @@ export default class BlockingRepository implements IBlockingRepository {
           "billableText"
           ${customer?.sku3m ? `,"sku3mCounter"` : ''}
           ,"skuStartCounter",
-          "skuEndCounter"
+          "skuEndCounter",
+          "billedDate"
         )
       SELECT "deviceId",
         "imei",
@@ -954,13 +956,14 @@ export default class BlockingRepository implements IBlockingRepository {
         "gettingStartedClicked",
         "additionalSetupCompleted",
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
-             ELSE 'Sin costo'
+        ELSE 'Sin costo'
         END
         ${customer?.sku3m ? `,(SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
         ,"skuStartCounter",
-        "skuEndCounter"
-      FROM "${sourceTable}"
-      WHERE "customerEmail" = '${customer?.email}'
+        "skuEndCounter",
+        "billedDate"
+        FROM "${sourceTable}"
+        WHERE "customerEmail" = '${customer?.email}'
       ${type !== null ? `AND "type" = '${type}'` : ''}
     `
 
@@ -998,7 +1001,8 @@ export default class BlockingRepository implements IBlockingRepository {
           "billableText" AS "facturables"
           ${customer?.sku3m ? `,"sku3mCounter" AS "3m"` : ''}
           ,"skuStartCounter" AS "sku_start",
-          "skuEndCounter" AS "sku_end"
+          "skuEndCounter" AS "sku_end",
+          "billedDate" AS "billed_date"
         FROM "BlockingDeviceCustomerReport"
         ORDER BY "deviceId"
       ) TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'

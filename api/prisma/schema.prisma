@@ -191,6 +191,7 @@ model BlockingDeviceDataRaw {
   customerEmail            String?
   blockingDeviceImport     BlockingDeviceImport @relation(fields: [blockingDeviceImportId], references: [id], onDelete: Cascade)
   blockingDeviceImportId   String
+  billedDate               DateTime? @db.Date
 
   @@index([billable, status, enrolledOn])
 }
@@ -225,6 +226,7 @@ model BlockingDeviceDataStepOne {
   additionalSetupCompleted String?
   customerEmail            String
   blockingDeviceImportId   String
+  billedDate               DateTime? @db.Date
   enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
 
@@ -263,6 +265,7 @@ model BlockingDeviceDataStepTwo {
   blockingDeviceImportId   String
   enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
+  billedDate               DateTime? @db.Date
   customerName             String
   skuStartCounter          Int?
   skuEndCounter            Int?
@@ -305,6 +308,7 @@ model BlockingDeviceDataStepTwoBackup {
   customerName             String
   skuStartCounter          Int?
   skuEndCounter            Int?
+  billedDate               DateTime? @db.Date
 
   @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
 }
@@ -340,6 +344,7 @@ model BlockingDeviceCustomerReport {
   sku3mCounter             Int?
   skuStartCounter          Int?
   skuEndCounter            Int?
+  billedDate               DateTime? @db.Date
 
   @@index([deviceId])
 }
