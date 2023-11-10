@@ -11038,5 +11038,292 @@
                 "shortName": "nuovo"
             }
         ]
+    },
+    {
+        "customId": "CTE00267",
+        "name": "Yadak Store",
+        "email": "yidapa_no_13@hotmail.com",
+        "country": "Ecuador",
+        "registeredName": "YADAK STORE",
+        "rfc": "XEXX010101000",
+        "address": "Calle: JOSE DE ANTEPARA #320 Intersección: ALEJO LASCANO Provincia: GUAYAS Cantón: GUAYAQUIL Parroquia: TAR,",
+        "economicActivity": "Distribuidor",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "Yimmi Pincay",
+                "email": "yidapa_no_13@hotmail.com",
+                "type": "com"
+            },
+            {
+                "name": "Yimmi Pincay",
+                "email": "yidapa_no_13@hotmail.com",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
+    },
+    {
+        "customId": "CTE00262",
+        "name": "Credicell7",
+        "email": "cell7.dvmorales@gmail.com",
+        "country": "México",
+        "registeredName": "DAVID VALDES MORALES",
+        "rfc": "VAMD980509LS3",
+        "address": "CALLE FRANCISCO I.MADERO #24 EJIDAL, Chalco MEX, México. 56604",
+        "economicActivity": "Distribuidor",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "DAVID VALDES MORALES",
+                "email": "cell7.dvmorales@gmail.com",
+                "type": "com"
+            },
+            {
+                "name": "DAVID VALDES MORALES",
+                "email": "cell7.dvmorales@gmail.com",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
+    },
+    {
+        "customId": "CTE00277",
+        "name": "Gomobile",
+        "email": "edgardo.valdez@gomobileproducts.com",
+        "country": "Ecuador",
+        "registeredName": "PRODUCTOS GOMOBILE LATAM, SOCIEDAD ANONIMA",
+        "rfc": "XEXX010101000",
+        "address": "Guatemala 10, 12-49 , Miguel Hidalgo MEX, CDMX. 11590",
+        "economicActivity": "Distribuidor",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "Edgardo Valdez",
+                "email": "edgardo.valdez@gomobileproducts.com",
+                "type": "com"
+            },
+            {
+                "name": "Edgardo Valdez",
+                "email": "edgardo.valdez@gomobileproducts.com",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
+    },
+    {
+        "customId": "CTE00276",
+        "name": "Créditos Tecnopunto",
+        "email": "solicitudes@creditostecnopunto.com.co",
+        "country": "Colombia",
+        "registeredName": "EGURITY GPS OMB",
+        "rfc": "XEXX010101000",
+        "address": "CORR PUERTO JORDAN ARAUCA COLOMBIA, Miguel Hidalgo MEX, CDMX. 115900",
+        "economicActivity": "Fintech",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "Osmar Montes",
+                "email": "solicitudes@creditostecnopunto.com.co",
+                "type": "com"
+            },
+            {
+                "name": "Osmar Montes",
+                "email": "solicitudes@creditostecnopunto.com.co",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
+    },
+    {
+        "customId": "CTE00278",
+        "name": "Xcell.com",
+        "email": "rudinei83@icluod.com",
+        "country": "Brasil",
+        "registeredName": "R LEMES DA SILVA COMERCIO",
+        "rfc": "XEXX010101000",
+        "address": "Brasil",
+        "economicActivity": "Distribuidor",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "Rudinei Lemes",
+                "email": "contato@redexcell.com",
+                "type": "com"
+            },
+            {
+                "name": "Rudinei Lemes",
+                "email": "contato@redexcell.com",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
+    },
+    {
+        "customId": "CTE00283",
+        "name": "STOCKSMART",
+        "email": "juandiaz00897@gmail.com",
+        "country": "Perú",
+        "registeredName": "STOCKSMART S.A.C.",
+        "rfc": "XEXX010101000",
+        "address": "R. RAMON CASTILLA Nro : 237, SAN MARTIN Perú,",
+        "economicActivity": "Fintech",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "Juan Diaz",
+                "email": "juandiaz00897@gmail.com",
+                "type": "com"
+            },
+            {
+                "name": "Juan Diaz",
+                "email": "juandiaz00897@gmail.com",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
+    },
+    {
+        "customId": "CTE00243",
+        "name": "Ola Credit",
+        "email": "ralvarado@olacredit.hn",
+        "country": "Honduras",
+        "registeredName": "OLA CREDIT S.A DE C.V",
+        "rfc": "XEXX010101000",
+        "address": "Colonia 21 Octubre, complejo Bodegas El Rincón, Bodega #1 Tegucigalpa Honduras,11101",
+        "economicActivity": "Fintech",
+        "status": "",
+        "sellerName": "",
+        "sellerComments": "",
+        "comissionTerm": "",
+        "percentageComissions": 0,
+        "devices": [
+            "android"
+        ],
+        "skuStart": "HBM1A",
+        "skuEnd": "HBM1A",
+        "sku3m": false,
+        "skuHBMF": false,
+        "skuHBMPRE": false,
+        "dbName": "",
+        "contacts": [
+            {
+                "name": "Ruth Alvarado",
+                "email": "ralvarado@olacredit.hn",
+                "type": "com"
+            },
+            {
+                "name": "Ruth Alvarado",
+                "email": "ralvarado@olacredit.hn",
+                "type": "tec"
+            }
+        ],
+        "products": [
+            {
+                "shortName": "nuovo"
+            }
+        ]
     }
 ]

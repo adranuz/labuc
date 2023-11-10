@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcryptjs_1 = require("bcryptjs");
 const client_1 = require("@prisma/client");
-// import customers from './data/customers'
 const customers_json_1 = __importDefault(require("./data/customers.json"));
 const prisma = new client_1.PrismaClient();
 const permisionsData = [

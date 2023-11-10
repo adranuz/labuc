@@ -103,6 +103,7 @@ class BlockingRepository {
             "blockingDeviceImportId",
             "enrolledOnOnlyDate",
             "billableCalculated",
+            "billedDate",
             "customerName",
             "skuStartCounter",
             "skuEndCounter"
@@ -242,6 +243,7 @@ class BlockingRepository {
               "deletedOn",
               "activationDate",
               "billable",
+              "billedDate",
               "lastConnectedAt",
               "nextLockDate",
               "appVersion",
@@ -255,9 +257,7 @@ class BlockingRepository {
                 console.log(`[+] Elapsed time: ${this.getTimeElapsedFromDate(startTime)} seconds`);
             }
             catch (error) {
-                console.log('//////////');
                 console.log(error);
-                console.log('//////////');
             }
             finally {
                 try {
@@ -402,6 +402,7 @@ class BlockingRepository {
           "additionalSetupCompleted",
           "customerEmail",
           "blockingDeviceImportId",
+          "billedDate",
           "enrolledOnOnlyDate",
           "billableCalculated"
         )
@@ -788,7 +789,8 @@ class BlockingRepository {
           "billableText"
           ${(customer === null || customer === void 0 ? void 0 : customer.sku3m) ? `,"sku3mCounter"` : ''}
           ,"skuStartCounter",
-          "skuEndCounter"
+          "skuEndCounter",
+          "billedDate"
         )
       SELECT "deviceId",
         "imei",
@@ -817,13 +819,14 @@ class BlockingRepository {
         "gettingStartedClicked",
         "additionalSetupCompleted",
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
-             ELSE 'Sin costo'
+        ELSE 'Sin costo'
         END
         ${(customer === null || customer === void 0 ? void 0 : customer.sku3m) ? `,(SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
         ,"skuStartCounter",
-        "skuEndCounter"
-      FROM "${sourceTable}"
-      WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}'
+        "skuEndCounter",
+        "billedDate"
+        FROM "${sourceTable}"
+        WHERE "customerEmail" = '${customer === null || customer === void 0 ? void 0 : customer.email}'
       ${type !== null ? `AND "type" = '${type}'` : ''}
     `;
         await pgClient.query(query);
@@ -859,7 +862,8 @@ class BlockingRepository {
           "billableText" AS "facturables"
           ${(customer === null || customer === void 0 ? void 0 : customer.sku3m) ? `,"sku3mCounter" AS "3m"` : ''}
           ,"skuStartCounter" AS "sku_start",
-          "skuEndCounter" AS "sku_end"
+          "skuEndCounter" AS "sku_end",
+          "billedDate" AS "billed_date"
         FROM "BlockingDeviceCustomerReport"
         ORDER BY "deviceId"
       ) TO STDOUT CSV DELIMITER ';' HEADER NULL 'NA'
