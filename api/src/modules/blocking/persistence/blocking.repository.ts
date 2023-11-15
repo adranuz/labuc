@@ -246,7 +246,7 @@ export default class BlockingRepository implements IBlockingRepository {
         customerEmail: email,
         type: deviceType,
         billableCalculated: true,
-        enrolledOnOnlyDate: {
+        billedDate: {
           gte: fromDate,
           lte: toDate,
         }
@@ -260,7 +260,7 @@ export default class BlockingRepository implements IBlockingRepository {
         customerEmail: email,
         type: deviceType,
         billableCalculated: false,
-        enrolledOnOnlyDate: {
+        billedDate: {
           gte: fromDate,
           lte: toDate,
         }
@@ -303,7 +303,6 @@ export default class BlockingRepository implements IBlockingRepository {
             "additionalSetupCompleted",
             "customerEmail",
             "blockingDeviceImportId",
-            "enrolledOnOnlyDate",
             "billableCalculated",
             "billedDate",
             "customerName",
@@ -316,7 +315,7 @@ export default class BlockingRepository implements IBlockingRepository {
           CASE
             WHEN (
               SELECT COUNT(*)
-              FROM generate_series("enrolledOnOnlyDate", CURRENT_DATE, '${intervalStart}')
+              FROM generate_series("billedDate", CURRENT_DATE, '${intervalStart}')
             ) = 1 AND "billableCalculated" = true THEN 1
             ELSE 0
           END,
@@ -325,10 +324,10 @@ export default class BlockingRepository implements IBlockingRepository {
           CASE
             WHEN (
               SELECT COUNT(*)
-              FROM generate_series("enrolledOnOnlyDate", CURRENT_DATE, '${intervalStart}')
+              FROM generate_series("billedDate", CURRENT_DATE, '${intervalStart}')
             ) > 1 AND "billableCalculated" = true THEN (
               SELECT COUNT(*)
-              FROM generate_series("enrolledOnOnlyDate" + INTERVAL '${intervalStart}', CURRENT_DATE, '${intervalEnd}')
+              FROM generate_series("billedDate" + INTERVAL '${intervalStart}', CURRENT_DATE, '${intervalEnd}')
             )
             ELSE 0
           END
@@ -457,11 +456,9 @@ export default class BlockingRepository implements IBlockingRepository {
           "customerEmail",
           "blockingDeviceImportId",
           "billedDate",
-          "enrolledOnOnlyDate",
           "billableCalculated"
         )
       SELECT *,
-        DATE("enrolledOn") as "enrolledOnOnlyDate",
         CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
             ELSE false
         END AS "billableCalculated"
@@ -638,13 +635,13 @@ export default class BlockingRepository implements IBlockingRepository {
           "billableDelta"
         )
       SELECT "customerName",
-        "enrolledOnOnlyDate",
+        "billedDate",
         COUNT("deviceId")
       FROM "BlockingDeviceDataStepTwo"
       WHERE "billableCalculated" IS TRUE
       GROUP BY "customerName",
-        "enrolledOnOnlyDate"
-      ORDER BY "enrolledOnOnlyDate" ASC
+        "billedDate"
+      ORDER BY "billedDate" ASC
     `
 
     await pgClient.query(queryConsolidateHistory)
@@ -958,7 +955,7 @@ export default class BlockingRepository implements IBlockingRepository {
         CASE WHEN "billableCalculated" = true THEN 'Facturable'
         ELSE 'Sin costo'
         END
-        ${customer?.sku3m ? `,(SELECT COUNT("3m") FROM generate_series("enrolledOn", CURRENT_TIMESTAMP, '3 month') "3m")` : ''}
+        ${customer?.sku3m ? `,(SELECT COUNT("3m") FROM generate_series("billedDate", CURRENT_DATE, '3 month') "3m")` : ''}
         ,"skuStartCounter",
         "skuEndCounter",
         "billedDate"

@@ -227,10 +227,9 @@ model BlockingDeviceDataStepOne {
   customerEmail            String
   blockingDeviceImportId   String
   billedDate               DateTime? @db.Date
-  enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
 
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated])
+  @@index([type, customerEmail, billedDate, billableCalculated])
 }
 
 model BlockingDeviceDataStepTwo {
@@ -263,14 +262,13 @@ model BlockingDeviceDataStepTwo {
   additionalSetupCompleted String?
   customerEmail            String
   blockingDeviceImportId   String
-  enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
   billedDate               DateTime? @db.Date
   customerName             String
   skuStartCounter          Int?
   skuEndCounter            Int?
 
-  @@index([type, customerName, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
+  @@index([type, customerName, customerEmail, billedDate, billableCalculated, blockingDeviceImportId])
 }
 
 model BlockingDeviceDataStepTwoBackup {
@@ -303,14 +301,13 @@ model BlockingDeviceDataStepTwoBackup {
   additionalSetupCompleted String?
   customerEmail            String
   blockingDeviceImportId   String
-  enrolledOnOnlyDate       DateTime? @db.Date
   billableCalculated       Boolean?
   customerName             String
   skuStartCounter          Int?
   skuEndCounter            Int?
   billedDate               DateTime? @db.Date
 
-  @@index([type, customerEmail, enrolledOnOnlyDate, billableCalculated, blockingDeviceImportId])
+  @@index([type, customerEmail, billedDate, billableCalculated, blockingDeviceImportId])
 }
 
 model BlockingDeviceCustomerReport {
