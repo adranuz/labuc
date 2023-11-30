@@ -404,12 +404,16 @@ class BlockingRepository {
           "billedDate",
           "billableCalculated"
         )
-      SELECT *,
-        CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
-            ELSE false
-        END AS "billableCalculated"
-      FROM "BlockingDeviceDataRaw"
+          SELECT *,
+            CASE WHEN "billedDate" IS NOT NULL THEN true
+                ELSE false
+            END AS "billableCalculated"
+          FROM "BlockingDeviceDataRaw"
     `;
+        // linea 462 que se basa en billable para calcular billableCalculated
+        //  CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
+        // linea 462 que se basa en billedDate para calcular billableCalculated
+        //  CASE WHEN "billedDate" IS NOT NULL THEN true
         await pgClient.query(query);
         await prisma_client_1.default.blockingDeviceImportLogProcess.update({
             where: { id: calculateBillableStatus.id },
