@@ -459,17 +459,17 @@ export default class BlockingRepository implements IBlockingRepository {
           "billableCalculated"
         )
           SELECT *,
-            CASE WHEN "billedDate" IS NOT NULL THEN true
+          CASE WHEN "billedDate" IS NOT NULL OR "status" = 'Enrolled' THEN true
                 ELSE false
             END AS "billableCalculated"
           FROM "BlockingDeviceDataRaw"
     `
 
-    // linea 462 que se basa en billable para calcular billableCalculated
-    //  CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
+    // linea 462: billableCalculated es true si billable es true, o status es enrolled
+    // CASE WHEN "billable" = 'True' OR ("billable" = 'False' AND "status" = 'Enrolled') THEN true
 
-    // linea 462 que se basa en billedDate para calcular billableCalculated
-    //  CASE WHEN "billedDate" IS NOT NULL THEN true
+    // linea 462: billableCalculated es true si billedDate es diferente a NULL, o status es enrolled
+    // CASE WHEN "billedDate" IS NOT NULL OR "status" = 'Enrolled' THEN true
 
     await pgClient.query(query)
 
