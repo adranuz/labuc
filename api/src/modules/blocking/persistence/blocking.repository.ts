@@ -459,8 +459,11 @@ export default class BlockingRepository implements IBlockingRepository {
           "billableCalculated"
         )
           SELECT *,
-          CASE WHEN "billedDate" IS NOT NULL OR "status" = 'Enrolled' THEN true
-                ELSE false
+            CASE
+              WHEN ("enrolledOn" IS NOT NULL AND "unregisteredOn" IS NOT NULL)
+                AND EXTRACT(DAY FROM ("unregisteredOn" - "enrolledOn")) >= 2 THEN true
+              WHEN "status" = 'Enrolled' THEN true
+              ELSE false
             END AS "billableCalculated"
           FROM "BlockingDeviceDataRaw"
     `
