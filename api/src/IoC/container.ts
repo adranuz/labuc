@@ -7,6 +7,7 @@ import customerProvider from './providers/customer.provider';
 import blockingProvider from './providers/blocking.provider';
 import commonProvider from './providers/common.provider';
 import pacProvider from './providers/pac.provider';
+import consumptionProvider from './providers/consumption.provider';
 
 const container = createContainer<ICradle>({
   injectionMode: InjectionMode.CLASSIC,
@@ -18,5 +19,6 @@ customerProvider(container);
 blockingProvider(container);
 commonProvider(container);
 pacProvider(container);
+consumptionProvider(container);
 
 export default container;

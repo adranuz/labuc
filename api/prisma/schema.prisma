@@ -95,6 +95,14 @@ model Customer {
   @@index([id, email])
 }
 
+
+model Consumption {
+  id                     String               @id @default(uuid())
+  data                   Json
+
+  @@index([id])
+}
+
 model BlockingDeviceImport {
   id           String                             @id @default(uuid())
   reportedAt   DateTime                           @unique
