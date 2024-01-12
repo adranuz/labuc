@@ -1,7 +1,26 @@
 import { NextFunction, Request, Response } from 'express';
 import { AnyZodObject, ZodError } from 'zod';
 import AuthService from '../service/auth.service';
+import crypto from "crypto"
+import { SECRET_TOKEN, JWT_SECRET_KEY } from '../../../config';
 
+
+const verify_signature = (req: Request) => {
+  try {
+    const signature = crypto
+    .createHash("sha256")
+    .update(SECRET_TOKEN, "utf-8")
+    .digest("hex");
+
+    const xHubSignature = req.header("x-hub-signature") ?? '';
+    let trusted = Buffer.from(`${signature}`);
+    let untrusted =  Buffer.from(xHubSignature);
+    let result = crypto.timingSafeEqual(trusted, untrusted)
+    return result
+  } catch (error) {
+    return false
+  }
+}
 export default class AuthMiddleware {
   constructor(private authService: AuthService) {}
 
@@ -70,4 +89,18 @@ export default class AuthMiddleware {
       });
     }
   };
+
+  verifySignature = (req: Request, res: Response, next: NextFunction) => {
+		if (verify_signature(req)) {
+      next()
+		} else {
+			res.status(400).json({
+				error: {
+					code: 401,
+					message: "Unauthorized",
+					details: "You are unauthorized to access this resource",
+				},
+			});
+		}
+	}
 }
